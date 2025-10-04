@@ -1,36 +1,26 @@
-package com.playa.model;
+package com.playa.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Entity
-@Table(name = "community")
-public class Community {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_community")
+public class CommunityResponseDto {
     private Long idCommunity;
-
-    @Column(nullable = false, length = 150)
     private String name;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column(nullable = false, name = "creationdate")
     private LocalDateTime creationDate;
+    private List<UserResponseDto> members;
 
     // Constructores
-    public Community() {}
+    public CommunityResponseDto() {}
 
-    public Community(String name, String description) {
+    public CommunityResponseDto(Long idCommunity, String name, String description, LocalDateTime creationDate) {
+        this.idCommunity = idCommunity;
         this.name = name;
         this.description = description;
-        this.creationDate = LocalDateTime.now();
+        this.creationDate = creationDate;
     }
 
-    // Getters y Setters
+    // Getters y setters
     public Long getIdCommunity() {
         return idCommunity;
     }
@@ -63,13 +53,11 @@ public class Community {
         this.creationDate = creationDate;
     }
 
-    @Override
-    public String toString() {
-        return "Community{" +
-                "idCommunity=" + idCommunity +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", creationDate=" + creationDate +
-                '}';
+    public List<UserResponseDto> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<UserResponseDto> members) {
+        this.members = members;
     }
 }
