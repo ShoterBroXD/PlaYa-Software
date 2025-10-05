@@ -15,6 +15,10 @@ public class Comment {
     @Column(nullable = false, name = "iduser")
     private Long idUser;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idUser")
+    private User user;
+
     @Column(nullable = false, name = "idsong")
     private Long idSong;
 
