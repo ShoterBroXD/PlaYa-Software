@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/songs")
+@RequiredArgsConstructor
 public class SongController {
 
     @Autowired
@@ -35,6 +37,13 @@ public class SongController {
         Optional<SongResponseDto> song = songService.getSongById(id);
         return song.map(s -> ResponseEntity.ok(s))
                   .orElse(ResponseEntity.notFound().build());
+    }
+
+    // GET /api/v1/songs/{id} - Obtener canción para reproducir
+    @GetMapping("/{id}")
+    public ResponseEntity<SongResponse> getSong(@PathVariable Long id) {
+        SongResponse response = songService.getSongById(id);
+        return ResponseEntity.ok(response);
     }
 
     // PUT /api/v1/songs/{id} - Actualizar canción

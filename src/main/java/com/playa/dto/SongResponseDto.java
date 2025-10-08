@@ -11,8 +11,8 @@ public class SongResponseDto {
     private String fileURL;
     private String visibility;
     private LocalDateTime uploadDate;
+    private ArtistResponseDto artist;
 
-    // Constructores
     public SongResponseDto() {}
 
     public SongResponseDto(Long idSong, Long idUser, String title, String description, String coverURL, String fileURL, String visibility, LocalDateTime uploadDate) {

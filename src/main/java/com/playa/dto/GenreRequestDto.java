@@ -5,9 +5,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
-public class GenreRequestDTO {
+public class GenreRequestDto {
 
     @NotBlank(message = "El nombre del género no puede estar vacio")
     @Size(max = 150, message = "El nombre del género no puede tener más de 150 caracteres")
-    String name;
+    public String name;
+
+    public GenreRequestDto(String name) {
+        this.name = name;
+    }
 }

@@ -61,4 +61,13 @@ public class NotificationController {
         long count = notificationService.countUnreadNotifications(idUser);
         return ResponseEntity.ok(count);
     }
+
+    // Configurar preferencias
+    @PutMapping("/preferences")
+    public ResponseEntity<Void> updatePreferences(
+            @RequestHeader("userId") Long userId,
+            @RequestBody NotificationPreferenceRequest request) {
+        notificationService.updatePreferences(userId, request);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -1,24 +1,29 @@
 package com.playa.service;
 
-import com.playa.dto.request.GenreRequestDTO;
-import com.playa.dto.response.GenreResponseDTO;
+import com.playa.dto.GenreRequestDto;
+import com.playa.dto.GenreResponseDto;
+import com.playa.dto.SongResponseDto;
 import com.playa.exception.BusinessRuleException;
 import com.playa.model.Genre;
 import com.playa.repository.GenreRepository;
+import com.playa.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class GenreService {
     private final GenreRepository genreRepository;
+    private final SongRepository songRepository;
+    private final SongService songService;
 
     @Transactional
-    public GenreResponseDTO createGenre(GenreRequestDTO dto) {
+    public GenreResponseDto createGenre(GenreRequestDto dto) {
         if (genreRepository.findByName(dto.name()).isPresent()){
             throw new BusinessRuleException("El generon ya existe");
         }
@@ -30,13 +35,23 @@ public class GenreService {
         return toDto(saved);
     }
 
-    public Genre createGenre(String name){
-        Genre g= new Genre();
-        g.setName(name);
-        return genreRepository.save(g);
+    public List<SongResponseDto> getSongsByGenre(Long genreId) {
+        if (!genreRepository.existsById(genreId)) {
+            throw new ResourceNotFoundException("Género no encontrado");
+        }
+
+        return songRepository.findByGenreId(genreId).stream()
+                .map(song -> songService.getSongById(song.getIdSong()))
+                .collect(Collectors.toList());
     }
 
-    public List<Genre> getAllGenres(){
-        return genreRepository.findAll();
+    public List<GenreResponseDto> getAllGenres() {
+        return genreRepository.findAll().stream()
+                .map(g -> new GenreResponseDto(g.getIdGenre(), g.getName()))
+                .collect(Collectors.toList());
+    }
+
+    private GenreResponseDto toDto(Genre genre) {
+        return new GenreResponseDto(genre.getIdGenre(), genre.getName());
     }
 }

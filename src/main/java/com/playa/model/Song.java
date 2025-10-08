@@ -115,6 +115,8 @@ public class Song {
         this.uploadDate = uploadDate;
     }
 
+
+
     @Override
     public String toString() {
         return "Song{" +
@@ -140,4 +142,5 @@ public class Song {
     @ManyToOne
     @JoinColumn(name="genre_id", nullable=true)
     private Genre genre;
+
 }

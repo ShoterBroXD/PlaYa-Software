@@ -1,12 +1,20 @@
 package com.playa.repository;
 
+import com.playa.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.playa.model.Song;
 import java.util.List;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
+
+    Long countByUserAndVisibility(User user, String visibility);
+
+    @Query("SELECT s FROM Song s JOIN s.genres g WHERE g.idGenre = :genreId AND  s.visibility = 'public'")
+    List<Song> findByGenreId(Long genreId);
+
     // Métodos personalizados para encontrar canciones por usuario
     List<Song> findByIdUser(Long idUser);
 

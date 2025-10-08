@@ -77,4 +77,12 @@ public class NotificationService {
             notification.getRead()
         );
     }
+
+    @Transactional
+    public void updatePreferences(Long userId, NotificationPreferenceRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        // Por ahora, solo validamos que el usuario exista
+    }
 }

@@ -1,5 +1,11 @@
 package com.playa.service;
 
+import com.playa.dto.ArtistResponseDto;
+import com.playa.dto.GenreResponseDto;
+import com.playa.model.Genre;
+import com.playa.model.User;
+import com.playa.repository.GenreRepository;
+import com.playa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.SongRepository;
@@ -7,9 +13,12 @@ import com.playa.model.Song;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +26,11 @@ public class SongService {
 
     @Autowired
     private SongRepository songRepository;
+    private UserRepository userRepository;
+    private GenreRepository genreRepository;
+
+    private static final Long MAX_FREE_SONGS = 10L;
+    private static final Set<String> ALLOWED_FILE_FORMATS = Set.of("mp3", "wav", "flac");
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
@@ -25,6 +39,22 @@ public class SongService {
     }
 
     public SongResponseDto createSong(SongRequestDto songRequestDto) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        // RB-006: Validar límite de canciones para usuarios gratuitos
+        if (!user.getPremium()) {
+            Long activeSongs = songRepository.countByUserAndVisibilityNot(user, "deleted");
+            if (activeSongs >= MAX_FREE_SONGS) {
+                throw new SongLimitExceededException(
+                        "Has alcanzado el límite de " + MAX_FREE_SONGS + " canciones. Actualiza a premium.");
+            }
+        }
+
+        // Validar formato de archivo
+        validateFileFormat(request.getFileURL());
+
         Song song = new Song();
         song.setIdUser(songRequestDto.getIdUser());
         song.setTittle(songRequestDto.getTitle());
@@ -33,6 +63,12 @@ public class SongService {
         song.setFileURL(songRequestDto.getFileURL());
         song.setVisibility(songRequestDto.getVisibility());
         song.setUploadDate(LocalDateTime.now());
+
+        Set<Genre> genres = request.getGenreIds().stream()
+                .map(id -> genreRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Género no encontrado: " + id)))
+                .collect(Collectors.toSet());
+        song.setGenres(genres);
 
         Song savedSong = songRepository.save(song);
         return convertToResponseDto(savedSong);
@@ -43,6 +79,7 @@ public class SongService {
                 .map(this::convertToResponseDto);
     }
 
+    @Transactional
     public SongResponseDto updateSong(Long id, SongRequestDto songRequestDto) {
         Song song = songRepository.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
@@ -63,10 +100,14 @@ public class SongService {
         return convertToResponseDto(updatedSong);
     }
 
+    @Transactional
     public void deleteSong(Long id) {
         Song song = songRepository.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
         );
+        if (!song.getUser().getIdUser.equals(idUser)) {
+            throw new IllegalArgumentException("No tienes permiso para eliminar esta canción");
+        }
         songRepository.delete(song);
     }
 
@@ -94,5 +135,29 @@ public class SongService {
             song.getVisibility(),
             song.getUploadDate()
         );
+    }
+
+    private SongResponseDto mapToResponse(Song song) {
+        SongResponseDto response = new SongResponseDto();
+        response.setIdSong(song.getIdSong());
+        response.setTitle(song.getTittle());
+        response.setDescription(song.getDescription());
+        response.setCoverURL(song.getCoverURL());
+        response.setFileURL(song.getFileURL());
+        response.setVisibility(song.getVisibility());
+        response.setUploadDate(song.getUploadDate());
+
+        ArtistResponseDto artist = new ArtistResponseDto();
+        artist.setIdUser(song.getUser().getIdUser());
+        artist.setName(song.getUser().getName());
+        artist.setBiography(song.getUser().getBiography());
+        response.setArtist(artist);
+
+        Set<GenreResponseDto> genres = song.getGenre.stream()
+                .map(g -> new GenreResponseDto(g.getIdGenre(), g.getName()))
+                .collect(Collectors.toSet());
+        response.set(genres);
+
+        return response;
     }
 }

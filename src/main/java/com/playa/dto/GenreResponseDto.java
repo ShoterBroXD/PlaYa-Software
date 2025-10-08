@@ -4,6 +4,11 @@ import lombok.Builder;
 
 @Builder
 public class GenreResponseDto {
-    Long id;
-    String name;
+    private Long id;
+    private String name;
+
+    public GenreResponseDto(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
