@@ -18,6 +18,9 @@ public class Song {
     @Column(nullable = false, length = 150)
     private String tittle;
 
+    @Column(nullable = false)
+    private float duration;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -36,9 +39,10 @@ public class Song {
     // Constructores
     public Song() {}
 
-    public Song(Long idUser, String tittle, String description, String coverURL, String fileURL, String visibility) {
+    public Song(Long idUser, String tittle, Float duration, String description, String coverURL, String fileURL, String visibility) {
         this.idUser = idUser;
         this.tittle = tittle;
+        this.duration = duration;
         this.description = description;
         this.coverURL = coverURL;
         this.fileURL = fileURL;
@@ -124,4 +128,16 @@ public class Song {
                 ", uploadDate=" + uploadDate +
                 '}';
     }
+
+    @ManyToOne
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name="playlist_id", nullable=true)
+    private Playlist playlist;
+
+    @ManyToOne
+    @JoinColumn(name="genre_id", nullable=true)
+    private Genre genre;
 }

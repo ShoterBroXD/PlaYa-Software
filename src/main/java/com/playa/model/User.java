@@ -75,4 +75,11 @@ public class User {
 
     public String getRedSocial() { return redSocial; }
     public void setRedSocial(String redSocial) { this.redSocial = redSocial; }
+
+    @ManyToOne
+    @JoinColumn(name = "idgenre")
+    private Genre genre;
+
+    public Genre getGenre() { return genre; }
+    public void setGenre(Genre genre) { this.genre = genre; }
 }
