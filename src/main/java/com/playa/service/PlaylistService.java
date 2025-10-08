@@ -44,17 +44,15 @@ public class PlaylistService {
     }
 
     // Obtener playlist por ID incluyendo las canciones
-    public Optional<PlaylistResponseDto> getPlaylistById(Long id) {
-        Optional<Playlist> playlistOpt = playlistRepository.findById(id);
-        if (playlistOpt.isPresent()) {
-            Playlist playlist = playlistOpt.get();
-            List<Song> songs = playlistSongRepository.findSongsByPlaylistId(id);
-            List<SongResponseDto> songDtos = songs.stream()
+    @Transactional(readOnly = true)
+    public List<SongResponseDto> getPlaylistById(Long id) {
+
+        List<Song> songs = playlistSongRepository.findSongsByPlaylistId(id);
+        List<SongResponseDto> songDtos = songs.stream()
                     .map(this::convertSongToResponseDto)
-                    .collect(Collectors.toList());
-            return Optional.of(convertToResponseDto(playlist, songDtos));
-        }
-        return Optional.empty();
+                    .toList();
+
+        return songDtos;
     }
 
     // Agregar canción a playlist
@@ -83,17 +81,16 @@ public class PlaylistService {
     // Quitar canción de playlist
     @Transactional
     public void removeSongFromPlaylist(Long playlistId, Long songId) {
-        // Verificar que la playlist existe
+
         playlistRepository.findById(playlistId).orElseThrow(
             () -> new ResourceNotFoundException("Playlist no encontrada con id: " + playlistId)
         );
 
-        // Verificar que la canción está en la playlist
+
         if (!playlistSongRepository.existsByIdPlaylistAndIdSong(playlistId, songId)) {
             throw new ResourceNotFoundException("La canción no está en esta playlist");
         }
 
-        // Quitar la canción de la playlist
         playlistSongRepository.deleteByIdPlaylistAndIdSong(playlistId, songId);
     }
 
@@ -104,20 +101,7 @@ public class PlaylistService {
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Playlist a PlaylistResponseDto
-    private PlaylistResponseDto convertToResponseDto(Playlist playlist, List<SongResponseDto> songs) {
-        PlaylistResponseDto dto = new PlaylistResponseDto(
-            playlist.getIdPlaylist(),
-            playlist.getIdUser(),
-            playlist.getName(),
-            playlist.getDescription(),
-            playlist.getCreationDate()
-        );
-        if (songs != null) {
-            dto.setSongs(songs);
-        }
-        return dto;
-    }
+
 
     // Método auxiliar para convertir Song a SongResponseDto
     private SongResponseDto convertSongToResponseDto(Song song) {
