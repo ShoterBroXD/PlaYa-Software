@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import com.playa.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.CommentRepository;
@@ -32,17 +33,17 @@ public class CommentService {
 
         // Validar que el usuario existe
         if (!userRepository.existsById(dto.getIdUser())) {
-            throw new IllegalArgumentException("El usuario con ID " + dto.getIdUser() + " no existe");
+            throw new ResourceNotFoundException("El usuario con ID " + dto.getIdUser() + " no existe");
         }
 
         // Validar que la canción existe
         if (!songRepository.existsById(dto.getIdSong())) {
-            throw new IllegalArgumentException("La canción con ID " + dto.getIdSong() + " no existe");
+            throw new ResourceNotFoundException("La canción con ID " + dto.getIdSong() + " no existe");
         }
 
         // Validar el comentario padre si existe
         if (dto.getParentComment() != null && !commentRepository.existsById(dto.getParentComment())) {
-            throw new IllegalArgumentException("El comentario padre con ID " + dto.getParentComment() + " no existe");
+            throw new ResourceNotFoundException("El comentario padre con ID " + dto.getParentComment() + " no existe");
         }
 
         Comment comment = new Comment();
@@ -56,17 +57,19 @@ public class CommentService {
         return toResponseDto(saved);
     }
 
+    @Transactional(readOnly = true)
     public CommentResponseDto getComment(Long id) {
         return commentRepository.findById(id)
             .map(this::toResponseDto)
-            .orElse(null);
+                .orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
     }
 
     @Transactional
-    public boolean deleteComment(Long id) {
-        if (!commentRepository.existsById(id)) return false;
-        commentRepository.deleteById(id);
-        return true;
+    public void deleteComment(Long id) {
+        Comment comment = commentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
+        commentRepository.delete(comment);
+
+
     }
 
     private CommentResponseDto toResponseDto(Comment comment) {

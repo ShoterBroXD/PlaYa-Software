@@ -71,6 +71,9 @@ public class CommunityController {
     @GetMapping
     public ResponseEntity<List<CommunityResponseDto>> getAllCommunities() {
         List<CommunityResponseDto> communities = communityService.getAllCommunities();
+        if(communities.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(communities);
     }
 }

@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.SongRepository;
@@ -13,10 +14,10 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SongService {
 
-    @Autowired
-    private SongRepository songRepository;
+    private final SongRepository songRepository;
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
