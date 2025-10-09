@@ -13,7 +13,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
 
     @Modifying
     @Transactional
-    @Query(name = "INSERT INTO history (idUser, idSong, timestamp) VALUES (idUser, idSong, )")
+    @Query(value = "INSERT INTO songs_history (id_user, id_song, dateplayed) VALUES (?1, ?2, CURRENT_TIMESTAMP)", nativeQuery = true)
     void registerHistory(Long idUser, Long idSong);
 
 }

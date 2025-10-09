@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.HistoryService;
 
 @RestController
-@RequestMapping("/api/v1/history")
+@RequestMapping("/history")
 public class HistoryController {
 
     @Autowired

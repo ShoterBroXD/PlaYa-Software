@@ -45,14 +45,17 @@ public class PlaylistService {
 
     // Obtener playlist por ID incluyendo las canciones
     @Transactional(readOnly = true)
-    public List<SongResponseDto> getPlaylistById(Long id) {
-
+    public Optional<PlaylistResponseDto> getPlaylistById(Long id) {
+        Optional<Playlist> playlistOpt = playlistRepository.findById(id);
+        if (playlistOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        Playlist playlist = playlistOpt.get();
         List<Song> songs = playlistSongRepository.findSongsByPlaylistId(id);
         List<SongResponseDto> songDtos = songs.stream()
-                    .map(this::convertSongToResponseDto)
-                    .toList();
-
-        return songDtos;
+                .map(this::convertSongToResponseDto)
+                .toList();
+        return Optional.of(convertToResponseDto(playlist, songDtos));
     }
 
     // Agregar canción a playlist
@@ -114,6 +117,18 @@ public class PlaylistService {
             song.getFileURL(),
             song.getVisibility(),
             song.getUploadDate()
+        );
+    }
+
+    // Método auxiliar para convertir Playlist a PlaylistResponseDto
+    private PlaylistResponseDto convertToResponseDto(Playlist playlist, List<SongResponseDto> songs) {
+        return new PlaylistResponseDto(
+            playlist.getIdPlaylist(),
+            playlist.getIdUser(),
+            playlist.getName(),
+            playlist.getDescription(),
+            playlist.getCreationDate(),
+            songs
         );
     }
 }
