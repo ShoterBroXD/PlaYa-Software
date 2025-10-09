@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.LikeService;
 
 @RestController
-@RequestMapping("/api/v1/songs")
+@RequestMapping("/songs")
 public class LikeController {
 
     @Autowired

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.PostService;
 
 @RestController
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/posts")
 public class PostController {
 
     @Autowired
