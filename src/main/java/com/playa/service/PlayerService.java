@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +45,8 @@ public class PlayerService {
 
         return songHistoryRepository.findByUserOrderByDatePlayedDesc(user).stream()
                 .map(history -> songService.getSongById(history.getSong().getIdSong()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 }

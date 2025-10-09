@@ -2,6 +2,7 @@ package com.playa.service;
 
 import com.playa.dto.ArtistResponseDto;
 import com.playa.dto.GenreResponseDto;
+import com.playa.exception.SongLimitExceededException;
 import com.playa.model.Genre;
 import com.playa.model.User;
 import com.playa.repository.GenreRepository;
@@ -32,23 +33,28 @@ public class SongService {
     private static final Long MAX_FREE_SONGS = 10L;
     private static final Set<String> ALLOWED_FILE_FORMATS = Set.of("mp3", "wav", "flac");
 
+    private void validateFileFormat(String fileURL) {
+        String fileExtension = fileURL.substring(fileURL.lastIndexOf('.') + 1).toLowerCase();
+        if (!ALLOWED_FILE_FORMATS.contains(fileExtension)) {
+            throw new IllegalArgumentException("Formato de archivo no permitido: " + fileExtension);
+        }
+    }
+
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public SongResponseDto createSong(SongRequestDto songRequestDto) {
+    public SongResponseDto createSong(Long userId, SongRequestDto songRequestDto) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         // RB-006: Validar límite de canciones para usuarios gratuitos
         if (!user.getPremium()) {
             Long activeSongs = songRepository.countByUserAndVisibilityNot(user, "deleted");
             if (activeSongs >= MAX_FREE_SONGS) {
-                throw new SongLimitExceededException(
-                        "Has alcanzado el límite de " + MAX_FREE_SONGS + " canciones. Actualiza a premium.");
+                throw new SongLimitExceededException("Has alcanzado el límite de " + MAX_FREE_SONGS + " canciones. Actualiza a premium.");
             }
         }
 
@@ -105,7 +111,7 @@ public class SongService {
         Song song = songRepository.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
         );
-        if (!song.getUser().getIdUser.equals(idUser)) {
+        if (!song.getUser().getIdUser().equals(idUser)) {
             throw new IllegalArgumentException("No tienes permiso para eliminar esta canción");
         }
         songRepository.delete(song);

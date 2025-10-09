@@ -1,5 +1,8 @@
 package com.playa.service;
 
+import com.playa.model.User;
+import com.playa.dto.NotificationPreferenceRequestDto;
+import com.playa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.NotificationRepository;
@@ -7,6 +10,8 @@ import com.playa.model.Notification;
 import com.playa.dto.NotificationRequestDto;
 import com.playa.dto.NotificationResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -17,6 +22,9 @@ public class NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // Crear nueva notificación
     public NotificationResponseDto createNotification(NotificationRequestDto notificationRequestDto) {
@@ -67,7 +75,7 @@ public class NotificationService {
                 .map(this::convertToResponseDto);
     }
 
-    // Método auxiliar para convertir Notification a NotificationResponseDto
+    //Método auxiliar para convertir Notification a NotificationResponseDto
     private NotificationResponseDto convertToResponseDto(Notification notification) {
         return new NotificationResponseDto(
             notification.getIdNotification(),
@@ -79,10 +87,9 @@ public class NotificationService {
     }
 
     @Transactional
-    public void updatePreferences(Long userId, NotificationPreferenceRequest request) {
+    public void updatePreferences(Long userId, NotificationPreferenceRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
         // Por ahora, solo validamos que el usuario exista
     }
 }

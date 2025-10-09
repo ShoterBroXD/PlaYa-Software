@@ -1,7 +1,10 @@
 package com.playa.model;
 
+import com.playa.model.Genre;
+import com.playa.model.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "song")
@@ -141,6 +144,26 @@ public class Song {
 
     @ManyToOne
     @JoinColumn(name="genre_id", nullable=true)
-    private Genre genre;
+    public Genre genre;
 
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
+
+    public void setGenres(Set<Genre> genres) {
+        for (Genre genre : genres) {
+            setGenre(genre);
+        }
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

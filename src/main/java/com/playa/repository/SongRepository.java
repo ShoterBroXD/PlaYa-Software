@@ -12,7 +12,7 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     Long countByUserAndVisibility(User user, String visibility);
 
-    @Query("SELECT s FROM Song s JOIN s.genres g WHERE g.idGenre = :genreId AND  s.visibility = 'public'")
+    @Query("SELECT s FROM Song s JOIN s.genre g WHERE g.idGenre = :genreId AND  s.visibility = 'public'")
     List<Song> findByGenreId(Long genreId);
 
     // Métodos personalizados para encontrar canciones por usuario
@@ -23,4 +23,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 
     // Método para encontrar canciones públicas de un usuario
     List<Song> findByIdUserAndVisibility(Long idUser, String visibility);
+
+    Long countByUserAndVisibilityNot(User user, String visibility);
 }

@@ -41,8 +41,8 @@ public class SongController {
 
     // GET /api/v1/songs/{id} - Obtener canción para reproducir
     @GetMapping("/{id}")
-    public ResponseEntity<SongResponse> getSong(@PathVariable Long id) {
-        SongResponse response = songService.getSongById(id);
+    public ResponseEntity<SongResponseDto> getSong(@PathVariable Long id) {
+        SongResponseDto response = songService.getSongById(id);
         return ResponseEntity.ok(response);
     }
 

@@ -6,5 +6,6 @@ import com.playa.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    // Métodos personalizados si los necesitas
+    // Crear metodo Findbybyid()
+    User findById(long id);
 }

@@ -18,6 +18,8 @@ public class SongHistory {
     @EmbeddedId
     private SongHistoryId id;
 
+    private User user;
+
     @ManyToOne
     @MapsId("idSong")
     @JoinColumn(name = "idsong")
@@ -29,13 +31,4 @@ public class SongHistory {
     public SongHistory(LocalDateTime datePlayed) {
         this.datePlayed=LocalDateTime.now();
     }
-}
-
-@Embeddable
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class  SongHistoryId implements java.io.Serializable {
-    private Long idSong;
-    private Long idUser;
 }

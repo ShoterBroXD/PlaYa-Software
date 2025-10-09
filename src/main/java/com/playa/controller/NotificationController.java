@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import com.playa.dto.NotificationPreferenceRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,7 @@ public class NotificationController {
     @PutMapping("/preferences")
     public ResponseEntity<Void> updatePreferences(
             @RequestHeader("userId") Long userId,
-            @RequestBody NotificationPreferenceRequest request) {
+            @RequestBody NotificationPreferenceRequestDto request) {
         notificationService.updatePreferences(userId, request);
         return ResponseEntity.ok().build();
     }
