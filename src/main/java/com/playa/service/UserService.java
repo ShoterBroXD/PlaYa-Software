@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +25,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-
-
     @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -41,12 +42,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponseDto> getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::convertToResponseDto);
     }
 
     @Transactional
-    public User updateUser(Long id, User userDetails) {
+    public UserResponseDto updateUser(Long id, UserRequestDto userDetails) {
         User user = userRepository.findById(id).orElseThrow(
             () -> new RuntimeException("Usuario no encontrado con id: " + id)
         );
@@ -68,7 +70,8 @@ public class UserService {
             user.setRedSocial(userDetails.getRedSocial());
         }
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return userMapper.convertToResponseDto(savedUser);
     }
 
     @Transactional
@@ -78,7 +81,5 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
-
-
 
 }
