@@ -36,10 +36,8 @@ public class CommentController {
     // DELETE /api/v1/comments/{id} - Eliminar comentario
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
-        boolean deleted = commentService.deleteComment(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        return ResponseEntity.ok().build();
+        commentService.deleteComment(id);
+        return ResponseEntity.noContent().build();
     }
 }
+

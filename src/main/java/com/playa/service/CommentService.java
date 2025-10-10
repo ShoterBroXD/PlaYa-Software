@@ -15,13 +15,10 @@ import com.playa.repository.SongRepository;
 
 @Service
 public class CommentService {
-    @Autowired
     private CommentRepository commentRepository;
 
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private SongRepository songRepository;
 
     @Transactional
@@ -67,9 +64,7 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long id) {
         Comment comment = commentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
-        commentRepository.delete(comment);
-
-
+         commentRepository.delete(comment);
     }
 
     private CommentResponseDto toResponseDto(Comment comment) {

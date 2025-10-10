@@ -17,5 +17,4 @@ public class CommentRequestDto {
     private String content;
     private Long parentComment; // null si no es respuesta
 
-    
 }
