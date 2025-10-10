@@ -18,6 +18,9 @@ public class SongHistory {
     @EmbeddedId
     private SongHistoryId id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("idUser")
+    @JoinColumn(name = "iduser")
     private User user;
 
     @ManyToOne

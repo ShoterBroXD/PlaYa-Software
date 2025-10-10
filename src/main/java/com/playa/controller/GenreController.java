@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import com.playa.dto.GenreRequestDto;
 import com.playa.model.Genre;
 import com.playa.dto.GenreResponseDto;
 import com.playa.dto.SongResponseDto;
@@ -20,8 +21,8 @@ public class GenreController {
     }
 
     @PostMapping
-    public Genre createGenre(@RequestBody Genre genre) {
-        return genreService.createGenre(genre.getName());
+    public GenreResponseDto createGenre(@RequestBody GenreRequestDto dto) {
+        return genreService.createGenre(dto);
     }
 
     @GetMapping

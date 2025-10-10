@@ -52,21 +52,21 @@ public class NotificationService {
 
     // Obtener todas las notificaciones de un usuario
     public List<NotificationResponseDto> getNotificationsByUser(Long idUser) {
-        return notificationRepository.findByIdUserOrderByDateDesc(idUser).stream()
+        return notificationRepository.findByUser_IdUserOrderByDateDesc(idUser).stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
     // Obtener notificaciones no leídas de un usuario
     public List<NotificationResponseDto> getUnreadNotificationsByUser(Long idUser) {
-        return notificationRepository.findByIdUserAndReadFalse(idUser).stream()
+        return notificationRepository.findByUser_IdUserAndReadFalse(idUser).stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
     // Contar notificaciones no leídas
     public long countUnreadNotifications(Long idUser) {
-        return notificationRepository.countByIdUserAndReadFalse(idUser);
+        return notificationRepository.countByUser_IdUserAndReadFalse(idUser);
     }
 
     // Obtener una notificación específica

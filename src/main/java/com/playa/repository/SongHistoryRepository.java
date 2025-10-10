@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface SongHistoryRepository extends JpaRepository<SongHistory, SongHistoryId> {
 
+    //metodo de consulta para obtener el historial de canciones de un usuario ordenado por fecha de reproduccion descendente
     List<SongHistory> findByUserOrderByDatePlayedDesc(User user);
 
 }

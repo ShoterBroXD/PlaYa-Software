@@ -2,6 +2,8 @@ package com.playa.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "\"user\"")
@@ -79,6 +81,9 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "idgenre")
     private Genre genre;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Notification> notifications = new ArrayList<>();
 
     public Genre getGenre() { return genre; }
     public void setGenre(Genre genre) { this.genre = genre; }

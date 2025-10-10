@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +21,11 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PlaylistService {
 
-    @Autowired
     private PlaylistRepository playlistRepository;
-
-    @Autowired
     private PlaylistSongRepository playlistSongRepository;
-
-    @Autowired
     private SongRepository songRepository;
 
     // Crear nueva playlist
@@ -45,14 +42,16 @@ public class PlaylistService {
 
     // Obtener playlist por ID incluyendo las canciones
     @Transactional(readOnly = true)
-    public List<SongResponseDto> getPlaylistById(Long id) {
-
+    public Optional<PlaylistResponseDto> getPlaylistById(Long id) {
+        Optional<Playlist> playlistOpt = playlistRepository.findById(id);
+        if (playlistOpt.isEmpty()) {
+            return Optional.empty();
+        }
         List<Song> songs = playlistSongRepository.findSongsByPlaylistId(id);
         List<SongResponseDto> songDtos = songs.stream()
-                    .map(this::convertSongToResponseDto)
-                    .toList();
-
-        return songDtos;
+                .map(this::convertSongToResponseDto) // este método debe existir y convertir Song a SongResponseDto
+                .toList();
+        return Optional.of(convertToResponseDto(playlistOpt.get(), songDtos));
     }
 
     // Agregar canción a playlist
@@ -104,16 +103,27 @@ public class PlaylistService {
 
 
     // Método auxiliar para convertir Song a SongResponseDto
+    private PlaylistResponseDto convertToResponseDto(Playlist playlist, List<SongResponseDto> songs) {
+        return new PlaylistResponseDto(
+            playlist.getIdPlaylist(),
+            playlist.getIdUser(),
+            playlist.getName(),
+            playlist.getDescription(),
+            playlist.getCreationDate(),
+            songs
+        );
+    }
+
     private SongResponseDto convertSongToResponseDto(Song song) {
         return new SongResponseDto(
-            song.getIdSong(),
-            song.getIdUser(),
-            song.getTittle(),
-            song.getDescription(),
-            song.getCoverURL(),
-            song.getFileURL(),
-            song.getVisibility(),
-            song.getUploadDate()
+                song.getIdSong(),
+                song.getIdUser(),
+                song.getTitle(),
+                song.getDescription(),
+                song.getCoverURL(),
+                song.getFileURL(),
+                song.getVisibility(),
+                song.getUploadDate()
         );
     }
 }

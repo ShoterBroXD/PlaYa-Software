@@ -1,5 +1,6 @@
 package com.playa.dto;
 
+import com.playa.model.Song;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,4 +16,14 @@ public class PlaylistResponseDto {
     private String description;
     private LocalDateTime creationDate;
     private List<SongResponseDto> songs;
+
+    public PlaylistResponseDto(Long idPlaylist, Long idUser, String name, String description, LocalDateTime creationDate,List<SongResponseDto> songs) {
+        this.idPlaylist = idPlaylist;
+        this.idUser = idUser;
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.songs = songs;
+    }
+
 }

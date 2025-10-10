@@ -4,6 +4,7 @@ import com.playa.dto.GenreRequestDto;
 import com.playa.dto.GenreResponseDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.exception.BusinessRuleException;
+import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.Genre;
 import com.playa.repository.GenreRepository;
 import com.playa.repository.SongRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -24,12 +26,12 @@ public class GenreService {
 
     @Transactional
     public GenreResponseDto createGenre(GenreRequestDto dto) {
-        if (genreRepository.findByName(dto.name()).isPresent()){
+        if (genreRepository.findByName(dto.getName()).isPresent()){
             throw new BusinessRuleException("El generon ya existe");
         }
 
         Genre g= new Genre();
-        g.setName(dto.name());
+        g.setName(dto.getName());
 
         Genre saved = genreRepository.save(g);
         return toDto(saved);
@@ -40,8 +42,10 @@ public class GenreService {
             throw new ResourceNotFoundException("Género no encontrado");
         }
 
-        return songRepository.findByGenreId(genreId).stream()
+        return songRepository.findByGenres_IdGenreAndVisibility(genreId, "public").stream()
                 .map(song -> songService.getSongById(song.getIdSong()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 

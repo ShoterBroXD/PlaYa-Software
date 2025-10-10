@@ -1,6 +1,7 @@
 package com.playa.dto;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public class SongResponseDto {
     private Long idSong;
@@ -12,6 +13,7 @@ public class SongResponseDto {
     private String visibility;
     private LocalDateTime uploadDate;
     private ArtistResponseDto artist;
+    private Set<GenreResponseDto> genres;
 
     public SongResponseDto() {}
 
@@ -89,5 +91,15 @@ public class SongResponseDto {
 
     public void setUploadDate(LocalDateTime uploadDate) {
         this.uploadDate = uploadDate;
+    }
+
+    public void setArtist(ArtistResponseDto artist) {
+        this.artist = artist;
+    }
+
+    public ArtistResponseDto getArtist() {return this.artist;}
+
+    public void setGenres(Set<GenreResponseDto> genres) {
+        this.genres = genres;
     }
 }

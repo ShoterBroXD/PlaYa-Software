@@ -17,14 +17,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SongController {
 
-    @Autowired
-    private SongService songService;
+    private final SongService songService;
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
-    public ResponseEntity<SongResponseDto> createSong(@RequestBody SongRequestDto songRequestDto) {
+    public ResponseEntity<SongResponseDto> createSong(@RequestParam Long userId,@RequestBody SongRequestDto songRequestDto) {
         try {
-            SongResponseDto createdSong = songService.createSong(songRequestDto);
+            SongResponseDto createdSong = songService.createSong(userId,songRequestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdSong);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -37,13 +36,6 @@ public class SongController {
         Optional<SongResponseDto> song = songService.getSongById(id);
         return song.map(s -> ResponseEntity.ok(s))
                   .orElse(ResponseEntity.notFound().build());
-    }
-
-    // GET /api/v1/songs/{id} - Obtener canción para reproducir
-    @GetMapping("/{id}")
-    public ResponseEntity<SongResponseDto> getSong(@PathVariable Long id) {
-        SongResponseDto response = songService.getSongById(id);
-        return ResponseEntity.ok(response);
     }
 
     // PUT /api/v1/songs/{id} - Actualizar canción
@@ -61,9 +53,9 @@ public class SongController {
 
     // DELETE /api/v1/songs/{id} - Eliminar canción
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSong(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSong(@PathVariable Long id, @RequestParam Long userId) {
         try {
-            songService.deleteSong(id);
+            songService.deleteSong(id,userId);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound().build();

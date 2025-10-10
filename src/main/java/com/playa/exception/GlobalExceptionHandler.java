@@ -34,6 +34,16 @@ public class GlobalExceptionHandler {
                 .body("Error interno del servidor");
     }
 
+    @ExceptionHandler(PlayerException.class)
+    public ResponseEntity<Map<String, Object>> handlePlayerException(PlayerException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(QueueEmptyException.class)
+    public ResponseEntity<Map<String, Object>> handleQueueEmpty(QueueEmptyException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());

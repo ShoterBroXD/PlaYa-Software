@@ -1,13 +1,15 @@
 package com.playa.model;
 
-import com.playa.model.Genre;
-import com.playa.model.User;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "song")
+@Data
 public class Song {
 
     @Id
@@ -15,11 +17,9 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    @Column(name = "iduser", nullable = false)
-    private Long idUser;
 
     @Column(nullable = false, length = 150)
-    private String tittle;
+    private String title;
 
     @Column(nullable = false)
     private float duration;
@@ -39,12 +39,31 @@ public class Song {
     @Column(nullable = false, name = "uploaddate")
     private LocalDateTime uploadDate;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name="playlist_id", nullable=true)
+    private Playlist playlist;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "song_genre",
+            joinColumns = @JoinColumn(name = "idsong"),
+            inverseJoinColumns = @JoinColumn(name = "idgenre")
+    )
+    private Set<Genre> genres = new HashSet<>();
+
+    public Long getIdUser() { return user.getIdUser();}
+
     // Constructores
     public Song() {}
 
-    public Song(Long idUser, String tittle, Float duration, String description, String coverURL, String fileURL, String visibility) {
-        this.idUser = idUser;
-        this.tittle = tittle;
+    public Song(Long idUser, String title, Float duration, String description, String coverURL, String fileURL, String visibility) {
+        this.user= new User();
+        this.user.setIdUser(idUser);
+        this.title = title;
         this.duration = duration;
         this.description = description;
         this.coverURL = coverURL;
@@ -53,79 +72,13 @@ public class Song {
         this.uploadDate = LocalDateTime.now();
     }
 
-    // Getters y Setters
-    public Long getIdSong() {
-        return idSong;
-    }
-
-    public void setIdSong(Long idSong) {
-        this.idSong = idSong;
-    }
-
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
-    }
-
-    public String getTittle() {
-        return tittle;
-    }
-
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCoverURL() {
-        return coverURL;
-    }
-
-    public void setCoverURL(String coverURL) {
-        this.coverURL = coverURL;
-    }
-
-    public String getFileURL() {
-        return fileURL;
-    }
-
-    public void setFileURL(String fileURL) {
-        this.fileURL = fileURL;
-    }
-
-    public String getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
-    }
-
-    public LocalDateTime getUploadDate() {
-        return uploadDate;
-    }
-
-    public void setUploadDate(LocalDateTime uploadDate) {
-        this.uploadDate = uploadDate;
-    }
-
-
 
     @Override
     public String toString() {
         return "Song{" +
                 "idSong=" + idSong +
-                ", idUser=" + idUser +
-                ", tittle='" + tittle + '\'' +
+                ", idUser=" + user.getIdUser() +
+                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", coverURL='" + coverURL + '\'' +
                 ", fileURL='" + fileURL + '\'' +
@@ -134,36 +87,4 @@ public class Song {
                 '}';
     }
 
-    @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name="playlist_id", nullable=true)
-    private Playlist playlist;
-
-    @ManyToOne
-    @JoinColumn(name="genre_id", nullable=true)
-    public Genre genre;
-
-    public void setGenre(Genre genre) {
-        this.genre = genre;
-    }
-
-    public void setGenres(Set<Genre> genres) {
-        for (Genre genre : genres) {
-            setGenre(genre);
-        }
-    }
-
-    public Genre getGenre() {
-        return genre;
-    }
-
-    public User getUser() {
-        return user;
-    }
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

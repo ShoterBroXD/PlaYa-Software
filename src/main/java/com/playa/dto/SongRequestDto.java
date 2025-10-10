@@ -1,5 +1,9 @@
 package com.playa.dto;
 
+import com.playa.model.Genre;
+
+import java.util.Set;
+
 public class SongRequestDto {
     private Long idUser;
     private String title;
@@ -7,6 +11,8 @@ public class SongRequestDto {
     private String coverURL;
     private String fileURL;
     private String visibility;
+    public Genre genre;
+    public Set<Genre> genres;
 
     // Constructores
     public SongRequestDto() {}
@@ -68,4 +74,13 @@ public class SongRequestDto {
     public void setVisibility(String visibility) {
         this.visibility = visibility;
     }
+
+
+
+    public Set<Genre> getGenres(){
+        return genres;
+    }
+
+    public Long getGenreId(){return genre.getIdGenre();}
+
 }

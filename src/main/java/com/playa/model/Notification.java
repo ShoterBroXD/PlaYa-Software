@@ -12,8 +12,9 @@ public class Notification {
     @Column(name = "idnotification")
     private Long idNotification;
 
-    @Column(nullable = false, name = "iduser")
-    private Long idUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable=true)
+    private User user;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -24,11 +25,14 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @Column(nullable = false)
+    private String type;
+
     // Constructores
     public Notification() {}
 
     public Notification(Long idUser, String content) {
-        this.idUser = idUser;
+        this.user.setIdUser(idUser);
         this.content = content;
         this.read = false;
         this.date = LocalDateTime.now();
@@ -44,11 +48,11 @@ public class Notification {
     }
 
     public Long getIdUser() {
-        return idUser;
+        return user.getIdUser();
     }
 
     public void setIdUser(Long idUser) {
-        this.idUser = idUser;
+        this.user.setIdUser(idUser);
     }
 
     public String getContent() {
@@ -79,10 +83,11 @@ public class Notification {
     public String toString() {
         return "Notification{" +
                 "idNotification=" + idNotification +
-                ", idUser=" + idUser +
+                ", idUser=" + user.getIdUser() +
                 ", content='" + content + '\'' +
                 ", read=" + read +
                 ", date=" + date +
                 '}';
     }
+
 }
