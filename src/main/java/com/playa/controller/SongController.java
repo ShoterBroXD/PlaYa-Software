@@ -48,17 +48,33 @@ public class SongController {
         return ResponseEntity.ok("Canción eliminada exitosamente");
     }
 
+    // GET /songs - Obtener todas las canciones
+    @GetMapping
+    public ResponseEntity<List<SongResponseDto>> getAllSongs() {
+        List<SongResponseDto> songs = songService.getAllSongs();
+        if (songs.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(songs); // 200
+    }
+
     // GET /songs/user/{userId} - Obtener canciones de un usuario
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SongResponseDto>> getSongsByUser(@PathVariable Long userId) {
         List<SongResponseDto> songs = songService.getSongsByUser(userId);
-        return ResponseEntity.ok(songs);
+        if (songs.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(songs); // 200
     }
 
     // GET /songs/public - Obtener canciones públicas
     @GetMapping("/public")
     public ResponseEntity<List<SongResponseDto>> getPublicSongs() {
         List<SongResponseDto> songs = songService.getPublicSongs();
-        return ResponseEntity.ok(songs);
+        if (songs.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(songs); // 200
     }
 }
