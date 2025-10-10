@@ -7,7 +7,6 @@ import com.playa.repository.PostRepository;
 @Service
 public class PostService {
 
-    @Autowired
     private PostRepository postRepository;
 
     // Métodos de lógica de negocio para posts

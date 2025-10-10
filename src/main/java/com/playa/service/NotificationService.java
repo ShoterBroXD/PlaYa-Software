@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    @Autowired
     private NotificationRepository notificationRepository;
 
     // Crear nueva notificación

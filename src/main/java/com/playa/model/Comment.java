@@ -12,6 +12,11 @@ public class Comment {
     @Column(name = "idcomment")
     private Long idComment;
 
+    // Relación con User (idUser)
+
+    // Relación con Song (idSong)
+    // Relación con Comment (parentComment) para respuestas a comentarios
+
     @Column(nullable = false, name = "iduser")
     private Long idUser;
 

@@ -22,16 +22,14 @@ import java.util.stream.Collectors;
 @Service
 public class CommunityService {
     
-    @Autowired
     private CommunityRepository communityRepository;
-    
-    @Autowired
+
     private CommunityUserRepository communityUserRepository;
 
-    @Autowired
     private UserRepository userRepository;
 
     // Crear nueva comunidad
+    @Transactional
     public CommunityResponseDto createCommunity(CommunityRequestDto communityRequestDto) {
         Community community = new Community();
         community.setName(communityRequestDto.getName());
@@ -43,6 +41,7 @@ public class CommunityService {
     }
 
     // Obtener comunidad por ID
+    @Transactional(readOnly = true)
     public Optional<CommunityResponseDto> getCommunityById(Long id) {
         Optional<Community> communityOpt = communityRepository.findById(id);
         if (communityOpt.isPresent()) {
@@ -76,6 +75,7 @@ public class CommunityService {
     }
 
     // Obtener miembros de una comunidad
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getCommunityMembers(Long communityId) {
         // Verificar que la comunidad existe
         communityRepository.findById(communityId).orElseThrow(
@@ -89,6 +89,7 @@ public class CommunityService {
     }
 
     // Obtener todas las comunidades
+    @Transactional(readOnly = true)
     public List<CommunityResponseDto> getAllCommunities() {
         return communityRepository.findAllByOrderByCreationDateDesc().stream()
                 .map(community -> convertToResponseDto(community, null))
@@ -102,7 +103,7 @@ public class CommunityService {
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Community a CommunityResponseDto
+    // Metodo auxiliar para convertir Community a CommunityResponseDto
     private CommunityResponseDto convertToResponseDto(Community community, List<UserResponseDto> members) {
         CommunityResponseDto dto = new CommunityResponseDto(
             community.getIdCommunity(),
@@ -116,7 +117,7 @@ public class CommunityService {
         return dto;
     }
 
-    // Método auxiliar para convertir User a UserResponseDto
+    // Metodo auxiliar para convertir User a UserResponseDto
     private UserResponseDto convertUserToResponseDto(User user) {
         return new UserResponseDto(
             user.getIdUser(),

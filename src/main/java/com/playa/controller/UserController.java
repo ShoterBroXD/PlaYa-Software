@@ -1,6 +1,5 @@
 package com.playa.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
@@ -10,8 +9,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    
-    @Autowired
+
     private UserService userService;
     
     // GET /api/v1/users - Obtener todos los usuarios
