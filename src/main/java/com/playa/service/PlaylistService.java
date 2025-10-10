@@ -117,6 +117,14 @@ public class PlaylistService {
     }
 
     @Transactional(readOnly = true)
+    public List<PlaylistResponseDto> getAllPlaylists() {
+        List<Playlist> playlists = playlistRepository.findAll();
+        return playlists.stream()
+                .map(playlistMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<PlaylistResponseDto> getPlaylistsByUser(Long userId) {
         List<Playlist> playlists = playlistRepository.findByIdUserOrderByCreationDateDesc(userId);
         return playlists.stream()

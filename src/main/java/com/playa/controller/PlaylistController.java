@@ -51,11 +51,24 @@ public class PlaylistController {
         return ResponseEntity.ok("Canción removida de la playlist exitosamente");
     }
 
+    // GET /api/v1/playlists - Obtener todas las playlists
+    @GetMapping
+    public ResponseEntity<List<PlaylistResponseDto>> getAllPlaylists() {
+        List<PlaylistResponseDto> playlists = playlistService.getAllPlaylists();
+        if (playlists.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(playlists); // 200
+    }
+
     // GET /api/v1/playlists/user/{userId} - Obtener playlists de un usuario
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PlaylistResponseDto>> getPlaylistsByUser(@PathVariable Long userId) {
         List<PlaylistResponseDto> playlists = playlistService.getPlaylistsByUser(userId);
-        return ResponseEntity.ok(playlists);
+        if (playlists.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(playlists); // 200
     }
 
     // DELETE /api/v1/playlists/{id} - Eliminar playlist

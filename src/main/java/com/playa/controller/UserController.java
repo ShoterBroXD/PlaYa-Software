@@ -21,7 +21,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(users); // 200
     }
     
     // POST /api/v1/users - Registrar nuevo usuario

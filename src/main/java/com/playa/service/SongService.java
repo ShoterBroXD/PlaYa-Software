@@ -79,6 +79,14 @@ public class SongService {
     }
 
     @Transactional(readOnly = true)
+    public List<SongResponseDto> getAllSongs() {
+        List<Song> songs = songRepository.findAll();
+        return songs.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<SongResponseDto> getSongsByUser(Long userId) {
         List<Song> songs = songRepository.findByIdUserOrderByUploadDateDesc(userId);
         return songs.stream()

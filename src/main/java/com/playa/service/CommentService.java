@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import com.playa.repository.UserRepository;
 import com.playa.repository.SongRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -54,6 +56,22 @@ public class CommentService {
 
         Comment saved = commentRepository.save(comment);
         return toResponseDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getAllComments() {
+        List<Comment> comments = commentRepository.findAll();
+        return comments.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getCommentsBySong(Long songId) {
+        List<Comment> comments = commentRepository.findByIdSongOrderByDateDesc(songId);
+        return comments.stream()
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
@@ -14,6 +16,16 @@ public class CommentController {
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
+    }
+
+    // GET /api/v1/comments - Obtener todos los comentarios
+    @GetMapping
+    public ResponseEntity<List<CommentResponseDto>> getAllComments() {
+        List<CommentResponseDto> comments = commentService.getAllComments();
+        if (comments.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(comments); // 200
     }
 
     // POST /api/v1/comments - Crear comentario
@@ -33,6 +45,16 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+    // GET /api/v1/comments/song/{songId} - Obtener comentarios de una canción
+    @GetMapping("/song/{songId}")
+    public ResponseEntity<List<CommentResponseDto>> getCommentsBySong(@PathVariable Long songId) {
+        List<CommentResponseDto> comments = commentService.getCommentsBySong(songId);
+        if (comments.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(comments); // 200
+    }
+
     // DELETE /api/v1/comments/{id} - Eliminar comentario
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
@@ -40,4 +62,3 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 }
-
