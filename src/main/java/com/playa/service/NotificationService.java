@@ -1,0 +1,80 @@
+package com.playa.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.playa.repository.NotificationRepository;
+import com.playa.model.Notification;
+import com.playa.dto.NotificationRequestDto;
+import com.playa.dto.NotificationResponseDto;
+import com.playa.exception.ResourceNotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+
+@Service
+public class NotificationService {
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    // Crear nueva notificación
+    public NotificationResponseDto createNotification(NotificationRequestDto notificationRequestDto) {
+        Notification notification = new Notification();
+        notification.setIdUser(notificationRequestDto.getIdUser());
+        notification.setContent(notificationRequestDto.getContent());
+        notification.setDate(notificationRequestDto.getDate() != null ?
+                            notificationRequestDto.getDate() : LocalDateTime.now());
+        notification.setRead(false);
+
+        Notification savedNotification = notificationRepository.save(notification);
+        return convertToResponseDto(savedNotification);
+    }
+
+    // Marcar notificación como leída
+    public NotificationResponseDto markAsRead(Long idNotification) {
+        Notification notification = notificationRepository.findById(idNotification).orElseThrow(
+            () -> new ResourceNotFoundException("Notificación no encontrada con id: " + idNotification)
+        );
+
+        notification.setRead(true);
+        Notification updatedNotification = notificationRepository.save(notification);
+        return convertToResponseDto(updatedNotification);
+    }
+
+    // Obtener todas las notificaciones de un usuario
+    public List<NotificationResponseDto> getNotificationsByUser(Long idUser) {
+        return notificationRepository.findByIdUserOrderByDateDesc(idUser).stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    // Obtener notificaciones no leídas de un usuario
+    public List<NotificationResponseDto> getUnreadNotificationsByUser(Long idUser) {
+        return notificationRepository.findByIdUserAndReadFalse(idUser).stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    // Contar notificaciones no leídas
+    public long countUnreadNotifications(Long idUser) {
+        return notificationRepository.countByIdUserAndReadFalse(idUser);
+    }
+
+    // Obtener una notificación específica
+    public Optional<NotificationResponseDto> getNotificationById(Long id) {
+        return notificationRepository.findById(id)
+                .map(this::convertToResponseDto);
+    }
+
+    // Método auxiliar para convertir Notification a NotificationResponseDto
+    private NotificationResponseDto convertToResponseDto(Notification notification) {
+        return new NotificationResponseDto(
+            notification.getIdNotification(),
+            notification.getIdUser(),
+            notification.getContent(),
+            notification.getDate(),
+            notification.getRead()
+        );
+    }
+}
