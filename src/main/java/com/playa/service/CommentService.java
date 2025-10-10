@@ -1,7 +1,6 @@
 package com.playa.service;
 
 import com.playa.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.CommentRepository;
 import com.playa.dto.CommentRequestDto;
@@ -9,17 +8,20 @@ import com.playa.dto.CommentResponseDto;
 import com.playa.model.Comment;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import com.playa.repository.UserRepository;
 import com.playa.repository.SongRepository;
 
 @Service
 public class CommentService {
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final SongRepository songRepository;
 
-    private UserRepository userRepository;
-
-    private SongRepository songRepository;
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository, SongRepository songRepository) {
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+        this.songRepository = songRepository;
+    }
 
     @Transactional
     public CommentResponseDto createComment(CommentRequestDto dto) {
