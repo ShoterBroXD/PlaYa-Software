@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "thread")
+@Table(name = "threads")
 public class Thread {
 
     @Id

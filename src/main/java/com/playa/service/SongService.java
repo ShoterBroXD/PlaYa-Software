@@ -1,16 +1,17 @@
 package com.playa.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.playa.repository.SongRepository;
-import com.playa.model.Song;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.exception.ResourceNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import com.playa.model.Song;
+import com.playa.repository.SongRepository;
+import com.playa.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,82 +19,91 @@ import java.util.stream.Collectors;
 public class SongService {
 
     private final SongRepository songRepository;
+    private final UserRepository userRepository;
 
-    public List<SongResponseDto> getAllSongs() {
-        return songRepository.findAll().stream()
-                .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
-    }
+    @Transactional
+    public SongResponseDto createSong(SongRequestDto requestDto) {
+        // Validar que el usuario existe
+        if (!userRepository.existsById(requestDto.getIdUser())) {
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + requestDto.getIdUser());
+        }
 
-    public SongResponseDto createSong(SongRequestDto songRequestDto) {
-        Song song = new Song();
-        song.setIdUser(songRequestDto.getIdUser());
-        song.setTittle(songRequestDto.getTitle());
-        song.setDescription(songRequestDto.getDescription());
-        song.setCoverURL(songRequestDto.getCoverURL());
-        song.setFileURL(songRequestDto.getFileURL());
-        song.setVisibility(songRequestDto.getVisibility());
-        song.setUploadDate(LocalDateTime.now());
+        Song song = Song.builder()
+                .idUser(requestDto.getIdUser())
+                .title(requestDto.getTitle())
+                .description(requestDto.getDescription())
+                .coverURL(requestDto.getCoverURL())
+                .fileURL(requestDto.getFileURL())
+                .visibility(requestDto.getVisibility())
+                .uploadDate(LocalDateTime.now())
+                .build();
 
         Song savedSong = songRepository.save(song);
         return convertToResponseDto(savedSong);
     }
 
-    public Optional<SongResponseDto> getSongById(Long id) {
-        return songRepository.findById(id)
-                .map(this::convertToResponseDto);
+    @Transactional(readOnly = true)
+    public SongResponseDto getSongById(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con ID: " + id));
+        return convertToResponseDto(song);
     }
 
-    public SongResponseDto updateSong(Long id, SongRequestDto songRequestDto) {
-        Song song = songRepository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
-        );
+    @Transactional
+    public SongResponseDto updateSong(Long id, SongRequestDto requestDto) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con ID: " + id));
 
         // Actualizar solo los campos que no son null
-        if (songRequestDto.getTitle() != null) {
-            song.setTittle(songRequestDto.getTitle());
+        if (requestDto.getTitle() != null) {
+            song.setTitle(requestDto.getTitle());
         }
-        if (songRequestDto.getDescription() != null) {
-            song.setDescription(songRequestDto.getDescription());
+        if (requestDto.getDescription() != null) {
+            song.setDescription(requestDto.getDescription());
         }
-        if (songRequestDto.getVisibility() != null) {
-            song.setVisibility(songRequestDto.getVisibility());
+        if (requestDto.getVisibility() != null) {
+            song.setVisibility(requestDto.getVisibility());
         }
+        // coverURL y fileURL normalmente no se actualizan después de la creación
 
         Song updatedSong = songRepository.save(song);
         return convertToResponseDto(updatedSong);
     }
 
+    @Transactional
     public void deleteSong(Long id) {
-        Song song = songRepository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
-        );
-        songRepository.delete(song);
+        if (!songRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Canción no encontrada con ID: " + id);
+        }
+        songRepository.deleteById(id);
     }
 
-    public List<SongResponseDto> getSongsByUser(Long idUser) {
-        return songRepository.findByIdUser(idUser).stream()
+    @Transactional(readOnly = true)
+    public List<SongResponseDto> getSongsByUser(Long userId) {
+        List<Song> songs = songRepository.findByIdUserOrderByUploadDateDesc(userId);
+        return songs.stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<SongResponseDto> getPublicSongs() {
-        return songRepository.findByVisibility("public").stream()
+        List<Song> songs = songRepository.findPublicSongsOrderByUploadDateDesc();
+        return songs.stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Song a SongResponseDto
     private SongResponseDto convertToResponseDto(Song song) {
-        return new SongResponseDto(
-            song.getIdSong(),
-            song.getIdUser(),
-            song.getTittle(),
-            song.getDescription(),
-            song.getCoverURL(),
-            song.getFileURL(),
-            song.getVisibility(),
-            song.getUploadDate()
-        );
+        return SongResponseDto.builder()
+                .idSong(song.getIdSong())
+                .idUser(song.getIdUser())
+                .title(song.getTitle())
+                .description(song.getDescription())
+                .coverURL(song.getCoverURL())
+                .fileURL(song.getFileURL())
+                .visibility(song.getVisibility())
+                .uploadDate(song.getUploadDate())
+                .build();
     }
 }
