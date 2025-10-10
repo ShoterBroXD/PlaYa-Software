@@ -63,9 +63,6 @@ public class UserService {
         if (userDetails.getBiography() != null) {
             user.setBiography(userDetails.getBiography());
         }
-        if (userDetails.getPremium() != null) {
-            user.setPremium(userDetails.getPremium());
-        }
         if (userDetails.getRedSocial() != null) {
             user.setRedSocial(userDetails.getRedSocial());
         }

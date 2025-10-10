@@ -3,6 +3,7 @@ package com.playa.mapper;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.model.User;
+import com.playa.model.enums.Rol;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,7 +14,7 @@ public class UserMapper {
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
-                .type(dto.getType())
+                .type(dto.getType() != null ? Rol.valueOf(dto.getType().toUpperCase()) : null)
                 .biography(dto.getBiography())
                 .redSocial(dto.getRedSocial())
                 .build();
@@ -27,6 +28,7 @@ public class UserMapper {
                 .type(user.getType())
                 .registerDate(user.getRegisterDate())
                 .biography(user.getBiography())
+                .premium(user.getPremium())
                 .redSocial(user.getRedSocial())
                 .build();
     }

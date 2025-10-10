@@ -25,7 +25,7 @@ public class Playlist {
     private Long idUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idUser", insertable = false, updatable = false)
+    @JoinColumn(name = "iduser", insertable = false, updatable = false)
     private User user;
 
     @Column(nullable = false, length = 150)
