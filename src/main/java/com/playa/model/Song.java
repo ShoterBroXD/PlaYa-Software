@@ -40,7 +40,7 @@ public class Song {
     private LocalDateTime uploadDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "iduser",referencedColumnName = "iduser")
     private User user;
 
     @ManyToOne
