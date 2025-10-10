@@ -2,9 +2,14 @@ package com.playa.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Getter
+@Setter
 @Embeddable
 public class PlaylistSongId implements Serializable {
     @Column(name = "idplaylist")
