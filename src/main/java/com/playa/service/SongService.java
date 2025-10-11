@@ -87,7 +87,6 @@ public class SongService {
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Song a SongResponseDto
     private SongResponseDto convertToResponseDto(Song song) {
         return SongResponseDto.builder()
                 .idSong(song.getIdSong())

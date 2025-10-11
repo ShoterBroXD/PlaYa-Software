@@ -34,6 +34,10 @@ public class Playlist {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "visible", nullable = false)
+    @Builder.Default
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(nullable = false, name = "creationdate")
     private LocalDateTime creationDate;
 }
