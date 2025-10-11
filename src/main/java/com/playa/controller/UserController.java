@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
+import com.playa.dto.UserPreferencesDto;
 import java.util.List;
 
 @RestController
@@ -58,5 +59,26 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales
+    @PutMapping("/{id}/preferences")
+    public ResponseEntity<?> updatePreferences(@PathVariable Long id, @RequestBody UserPreferencesDto preferencesDto) {
+        List<String> genres = preferencesDto.getFavoriteGenres();
+        if (genres == null || genres.isEmpty()) {
+            return ResponseEntity.badRequest().body("Debes seleccionar al menos una preferencia");
+        }
+        if (genres.size() > 5) {
+            return ResponseEntity.badRequest().body("Solo puedes seleccionar hasta 5 géneros favoritos");
+        }
+        userService.updateUserPreferences(id, genres);
+        return ResponseEntity.ok("Preferencias actualizadas correctamente");
+    }
+
+    // POST /api/v1/users/{id}/preferences/reset - Reiniciar preferencias musicales
+    @PostMapping("/{id}/preferences/reset")
+    public ResponseEntity<?> resetPreferences(@PathVariable Long id) {
+        userService.resetUserPreferences(id);
+        return ResponseEntity.ok("Preferencias reiniciadas. Recibirás recomendaciones desde cero");
     }
 }
