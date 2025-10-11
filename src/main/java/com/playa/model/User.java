@@ -49,5 +49,10 @@ public class User {
     @Column(name = "redsocial", columnDefinition = "TEXT")
     private String redSocial;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_favorite_genres", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "genre")
+    private java.util.List<String> favoriteGenres;
+
 
 }

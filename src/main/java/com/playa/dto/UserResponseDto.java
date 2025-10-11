@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Data
@@ -17,4 +18,5 @@ public class UserResponseDto {
     private String biography;
     private Boolean premium;
     private String redSocial;
+    private List<String> favoriteGenres;
 }

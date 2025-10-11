@@ -17,6 +17,7 @@ public class UserMapper {
                 .type(dto.getType() != null ? Rol.valueOf(dto.getType().toUpperCase()) : null)
                 .biography(dto.getBiography())
                 .redSocial(dto.getRedSocial())
+                .favoriteGenres(dto.getFavoriteGenres())
                 .build();
     }
 
@@ -30,6 +31,7 @@ public class UserMapper {
                 .biography(user.getBiography())
                 .premium(user.getPremium())
                 .redSocial(user.getRedSocial())
+                .favoriteGenres(user.getFavoriteGenres())
                 .build();
     }
 }
