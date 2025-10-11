@@ -5,17 +5,16 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     // GET /api/v1/users - Obtener todos los usuarios
     @GetMapping
