@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SongController {
 
-    private SongService songService;
+    private final SongService songService;
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
