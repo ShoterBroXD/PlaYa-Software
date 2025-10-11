@@ -54,6 +54,8 @@ public class Song {
     private Playlist playlist;
 
     @ManyToOne
-    @JoinColumn(name="idgenre", nullable=false)
+    @JoinTable(name = "song_genre",
+            joinColumns = @JoinColumn(name = "id_song"),
+            inverseJoinColumns = @JoinColumn(name = "id_genre"))
     private Genre genre;
 }
