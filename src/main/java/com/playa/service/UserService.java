@@ -54,18 +54,16 @@ public class UserService {
         );
 
         // Actualizar solo los campos que no son null
-        if (userDetails.getName() != null) {
-            user.setName(userDetails.getName());
-        }
+        user.setName(userDetails.getName());
         if (userDetails.getEmail() != null) {
             user.setEmail(userDetails.getEmail());
         }
         if (userDetails.getBiography() != null) {
             user.setBiography(userDetails.getBiography());
         }
-        if (userDetails.getPremium() != null) {
-            user.setPremium(userDetails.getPremium());
-        }
+        //if (userDetails.getPremium() != null) {
+            //user.setPremium(userDetails.getPremium());
+        //}
         if (userDetails.getRedSocial() != null) {
             user.setRedSocial(userDetails.getRedSocial());
         }
