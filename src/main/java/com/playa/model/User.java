@@ -1,12 +1,22 @@
 package com.playa.model;
 
+import com.playa.model.enums.Rol;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "users")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -23,8 +33,11 @@ public class User {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    @Column(nullable = false, length = 20)
-    private String type; // 'artist', 'listener', 'admin'
+    // @Column(nullable = false, length = 20)
+    //private String type; // 'artist', 'listener', 'admin' // Podría ser un ENUM
+
+    @Enumerated(EnumType.STRING)
+    private Rol type;
 
     @Column(nullable = false, name = "registerdate")
     private LocalDateTime registerDate;
@@ -38,10 +51,10 @@ public class User {
     @Column(name = "redsocial", columnDefinition = "TEXT")
     private String redSocial;
 
-    // Constructores
-    public User() {}
+    @Column(name="idgenre")
+    private String idgenre;
 
-    public User(String name, String email, String password, String type) {
+    public User(String name, String email, String password, Rol type) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -50,41 +63,4 @@ public class User {
         this.registerDate = LocalDateTime.now();
     }
 
-    // Getters y Setters
-    public Long getIdUser() { return idUser; }
-    public void setIdUser(Long idUser) { this.idUser = idUser; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public LocalDateTime getRegisterDate() { return registerDate; }
-    public void setRegisterDate(LocalDateTime registerDate) { this.registerDate = registerDate; }
-
-    public String getBiography() { return biography; }
-    public void setBiography(String biography) { this.biography = biography; }
-
-    public Boolean getPremium() { return premium; }
-    public void setPremium(Boolean premium) { this.premium = premium; }
-
-    public String getRedSocial() { return redSocial; }
-    public void setRedSocial(String redSocial) { this.redSocial = redSocial; }
-
-    @ManyToOne
-    @JoinColumn(name = "idgenre")
-    private Genre genre;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Notification> notifications = new ArrayList<>();
-
-    public Genre getGenre() { return genre; }
-    public void setGenre(Genre genre) { this.genre = genre; }
 }

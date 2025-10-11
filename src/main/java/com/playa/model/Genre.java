@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Set;
-
-import java.util.HashSet;
 
 @Entity
 @Table(name = "genre")
@@ -23,7 +20,4 @@ public class Genre {
 
     @Column(nullable = true, unique = true, length = 50)
     private String name;
-
-    @ManyToMany(mappedBy = "genres")
-    private Set<Song> songs = new HashSet<>();
 }

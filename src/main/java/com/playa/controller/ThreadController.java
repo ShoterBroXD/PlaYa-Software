@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.playa.service.ThreadService;
 
 @RestController
-@RequestMapping("/api/v1/threads")
+@RequestMapping("/threads")
 public class ThreadController {
 
     @Autowired

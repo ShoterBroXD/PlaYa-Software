@@ -7,7 +7,7 @@ import com.playa.service.HistoryService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/history")
+@RequestMapping("/history")
 public class HistoryController {
 
     private HistoryService historyService;

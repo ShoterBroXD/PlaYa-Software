@@ -1,46 +1,49 @@
 package com.playa.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
-import com.playa.model.User;
+import com.playa.dto.UserRequestDto;
+import com.playa.dto.UserResponseDto;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    
-    @Autowired
-    private UserService userService;
-    
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     // GET /api/v1/users - Obtener todos los usuarios
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        List<UserResponseDto> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
     
     // POST /api/v1/users - Registrar nuevo usuario
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.createUser(user);
+    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto user) {
+        UserResponseDto createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
     }
     
     // GET /api/v1/users/{id} - Consultar perfil de usuario
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
-                .map(user -> ResponseEntity.ok(user))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     // PUT /api/v1/users/{id} - Actualizar perfil
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDetails) {
         try {
-            User updatedUser = userService.updateUser(id, userDetails);
+            UserResponseDto updatedUser = userService.updateUser(id, userDetails);
             return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

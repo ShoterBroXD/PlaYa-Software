@@ -1,15 +1,19 @@
 package com.playa.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
-@Table(name = "song")
+@Table(name = "songs")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Song {
 
     @Id
@@ -17,6 +21,12 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
+    @Column(name = "iduser", nullable = false)
+    private Long idUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "iduser", insertable = false, updatable = false)
+    private User user;
 
     @Column(nullable = false, length = 150)
     private String title;
@@ -40,51 +50,10 @@ public class Song {
     private LocalDateTime uploadDate;
 
     @ManyToOne
-    @JoinColumn(name = "iduser",referencedColumnName = "iduser")
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name="playlist_id", nullable=true)
     private Playlist playlist;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "song_genre",
-            joinColumns = @JoinColumn(name = "idsong"),
-            inverseJoinColumns = @JoinColumn(name = "idgenre")
-    )
-    private Set<Genre> genres = new HashSet<>();
-
-    public Long getIdUser() { return user.getIdUser();}
-
-    // Constructores
-    public Song() {}
-
-    public Song(Long idUser, String title, Float duration, String description, String coverURL, String fileURL, String visibility) {
-        this.user= new User();
-        this.user.setIdUser(idUser);
-        this.title = title;
-        this.duration = duration;
-        this.description = description;
-        this.coverURL = coverURL;
-        this.fileURL = fileURL;
-        this.visibility = visibility;
-        this.uploadDate = LocalDateTime.now();
-    }
-
-
-    @Override
-    public String toString() {
-        return "Song{" +
-                "idSong=" + idSong +
-                ", idUser=" + user.getIdUser() +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", coverURL='" + coverURL + '\'' +
-                ", fileURL='" + fileURL + '\'' +
-                ", visibility='" + visibility + '\'' +
-                ", uploadDate=" + uploadDate +
-                '}';
-    }
-
+    @ManyToOne
+    @JoinColumn(name="idgenre", nullable=false)
+    private Genre genre;
 }

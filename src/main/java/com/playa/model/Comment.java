@@ -12,12 +12,8 @@ public class Comment {
     @Column(name = "idcomment")
     private Long idComment;
 
-    //@Column(nullable = false, name = "iduser")
-    //private Long idUser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idUser")
-    private User user;
+    @Column(nullable = false, name = "iduser")
+    private Long idUser;
 
     @Column(nullable = false, name = "idsong")
     private Long idSong;
@@ -38,8 +34,8 @@ public class Comment {
     public Long getIdComment() { return idComment; }
     public void setIdComment(Long idComment) { this.idComment = idComment; }
 
-    public Long getIdUser() { return user.getIdUser(); }
-    public void setIdUser(Long idUser) {this.user.setIdUser(idUser);}
+    public Long getIdUser() { return this.getIdUser(); }
+    public void setIdUser(Long idUser) { this.idUser = idUser; }
 
     public Long getIdSong() { return idSong; }
     public void setIdSong(Long idSong) { this.idSong = idSong; }

@@ -113,9 +113,10 @@ public class PlayerService {
         }
 
         return historyList.stream()
-                .map(history -> songService.getSongById(history.getSong().getIdSong()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(history -> {
+                    Long songId = history.getSong().getIdSong();
+                    return songService.getSongById(songId);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -387,7 +388,8 @@ public class PlayerService {
         // Contar géneros más escuchados
         Map<Genre, Long> genreCounts = new HashMap<>();
         for (SongHistory h : history) {
-            for (Genre genre : h.getSong().getGenres()) {
+            Genre genre = h.getSong().getGenre();
+            if (genre != null) {
                 genreCounts.put(genre, genreCounts.getOrDefault(genre, 0L) + 1);
             }
         }
@@ -407,9 +409,7 @@ public class PlayerService {
         List<RecommendationResponseDto> recommendations = new ArrayList<>();
 
         for (Genre genre : topGenres) {
-
-            List<Song> songs = songRepository.findByGenres_IdGenreAndVisibility(genre.getIdGenre(), "public");
-
+            List<Song> songs = songRepository.findByGenre_IdGenreAndVisibility(genre.getIdGenre(), "public");
             songs.stream()
                     .filter(s -> !playedSongIds.contains(s.getIdSong()))
                     .limit(5)
@@ -419,11 +419,13 @@ public class PlayerService {
                         rec.setTitle(song.getTitle());
                         rec.setArtist(mapUserToArtistResponseDto(song.getUser()));
                         rec.setCoverURL(song.getCoverURL());
-                        rec.setGenres(song.getGenres().stream()
-                                .map(g -> new GenreResponseDto(g.getIdGenre(), g.getName()))
-                                .collect(Collectors.toSet()));
+                        Set<GenreResponseDto> genres = new HashSet<>();
+                        Genre g = song.getGenre();
+                        if (g != null) {
+                            genres.add(new GenreResponseDto(g.getIdGenre(), g.getName()));
+                        }
+                        rec.setGenres(genres);
                         rec.setReason("Basado en tu historial de " + genre.getName());
-
                         recommendations.add(rec);
                     });
         }
@@ -490,9 +492,11 @@ public class PlayerService {
         response.setArtist(mapUserToArtistResponseDto(song.getUser()));
 
         // Mapear géneros
-        Set<GenreResponseDto> genres = song.getGenres().stream()
-                .map(g -> new GenreResponseDto(g.getIdGenre(), g.getName()))
-                .collect(Collectors.toSet());
+        Set<GenreResponseDto> genres = new HashSet<>();
+        Genre g = song.getGenre();
+        if (g != null) {
+            genres.add(new GenreResponseDto(g.getIdGenre(), g.getName()));
+        }
         response.setGenres(genres);
 
         return response;

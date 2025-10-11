@@ -1,15 +1,20 @@
 package com.playa.dto;
 
 import com.playa.model.Song;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlaylistResponseDto {
+
     private Long idPlaylist;
     private Long idUser;
     private String name;
@@ -17,13 +22,13 @@ public class PlaylistResponseDto {
     private LocalDateTime creationDate;
     private List<SongResponseDto> songs;
 
-    public PlaylistResponseDto(Long idPlaylist, Long idUser, String name, String description, LocalDateTime creationDate,List<SongResponseDto> songs) {
-        this.idPlaylist = idPlaylist;
-        this.idUser = idUser;
-        this.name = name;
-        this.description = description;
-        this.creationDate = creationDate;
-        this.songs = songs;
-    }
+    //public PlaylistResponseDto(Long idPlaylist, Long idUser, String name, String description, LocalDateTime creationDate,List<SongResponseDto> songs) {
+    //    this.idPlaylist = idPlaylist;
+    //    this.idUser = idUser;
+    //    this.name = name;
+    //    this.description = description;
+    //    this.creationDate = creationDate;
+    //    this.songs = songs;
+    //}
 
 }

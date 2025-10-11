@@ -1,21 +1,17 @@
 package com.playa.dto;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class JoinCommunityDto {
+
+    @NotNull
     private Long idUser;
-
-    // Constructores
-    public JoinCommunityDto() {}
-
-    public JoinCommunityDto(Long idUser) {
-        this.idUser = idUser;
-    }
-
-    // Getters y setters
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
-    }
 }

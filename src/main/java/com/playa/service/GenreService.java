@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -41,11 +40,8 @@ public class GenreService {
         if (!genreRepository.existsById(genreId)) {
             throw new ResourceNotFoundException("Género no encontrado");
         }
-
-        return songRepository.findByGenres_IdGenreAndVisibility(genreId, "public").stream()
+        return songRepository.findByGenre_IdGenreAndVisibility(genreId, "public").stream()
                 .map(song -> songService.getSongById(song.getIdSong()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 

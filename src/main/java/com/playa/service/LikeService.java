@@ -7,7 +7,6 @@ import com.playa.repository.LikeRepository;
 @Service
 public class LikeService {
 
-    @Autowired
     private LikeRepository likeRepository;
 
     // Métodos de lógica de negocio para likes
