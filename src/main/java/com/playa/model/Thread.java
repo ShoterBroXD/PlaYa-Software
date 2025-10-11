@@ -1,8 +1,13 @@
 package com.playa.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*;import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "threads")
 public class Thread {
@@ -27,18 +32,6 @@ public class Thread {
     // Constructores
     public Thread() {}
 
-    // Getters y Setters
-    public Long getIdThread() { return idThread; }
-    public void setIdThread(Long idThread) { this.idThread = idThread; }
-
-    public Long getIdUser() { return idUser; }
-    public void setIdUser(Long idUser) { this.idUser = idUser; }
-
-    public Long getIdCommunity() { return idCommunity; }
-    public void setIdCommunity(Long idCommunity) { this.idCommunity = idCommunity; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }

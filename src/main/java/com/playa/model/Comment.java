@@ -1,8 +1,13 @@
 package com.playa.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -35,22 +40,4 @@ public class Comment {
     // Constructores
     public Comment() {}
 
-    // Getters y Setters
-    public Long getIdComment() { return idComment; }
-    public void setIdComment(Long idComment) { this.idComment = idComment; }
-
-    public Long getIdUser() { return idUser; }
-    public void setIdUser(Long idUser) { this.idUser = idUser; }
-
-    public Long getIdSong() { return idSong; }
-    public void setIdSong(Long idSong) { this.idSong = idSong; }
-
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
-    public Long getParentComment() { return parentComment; }
-    public void setParentComment(Long parentComment) { this.parentComment = parentComment; }
-
-    public LocalDateTime getDate() { return date; }
-    public void setDate(LocalDateTime date) { this.date = date; }
 }
