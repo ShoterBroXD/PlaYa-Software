@@ -12,11 +12,6 @@ public class Comment {
     @Column(name = "idcomment")
     private Long idComment;
 
-    // Relación con User (idUser)
-
-    // Relación con Song (idSong)
-    // Relación con Comment (parentComment) para respuestas a comentarios
-
     @Column(nullable = false, name = "iduser")
     private Long idUser;
 
@@ -29,6 +24,9 @@ public class Comment {
     @Column(name = "parentcomment")
     private Long parentComment;
 
+    @Column(name = "visible", nullable = false)
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(nullable = false)
     private LocalDateTime date;
 
@@ -39,7 +37,7 @@ public class Comment {
     public Long getIdComment() { return idComment; }
     public void setIdComment(Long idComment) { this.idComment = idComment; }
 
-    public Long getIdUser() { return idUser; }
+    public Long getIdUser() { return this.getIdUser(); }
     public void setIdUser(Long idUser) { this.idUser = idUser; }
 
     public Long getIdSong() { return idSong; }
@@ -50,6 +48,9 @@ public class Comment {
 
     public Long getParentComment() { return parentComment; }
     public void setParentComment(Long parentComment) { this.parentComment = parentComment; }
+
+    public Boolean getVisible() { return visible; }
+    public void setVisible(Boolean visible) { this.visible = visible; }
 
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }

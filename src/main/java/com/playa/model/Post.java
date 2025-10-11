@@ -1,8 +1,13 @@
 package com.playa.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -18,22 +23,12 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "visible", nullable = false)
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(name = "postdate")
     private LocalDateTime postDate;
 
     // Constructores
     public Post() {}
-
-    // Getters y Setters
-    public Long getIdPost() { return idPost; }
-    public void setIdPost(Long idPost) { this.idPost = idPost; }
-
-    public Long getIdThread() { return idThread; }
-    public void setIdThread(Long idThread) { this.idThread = idThread; }
-
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
-    public LocalDateTime getPostDate() { return postDate; }
-    public void setPostDate(LocalDateTime postDate) { this.postDate = postDate; }
 }

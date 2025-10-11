@@ -1,6 +1,5 @@
 package com.playa.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.SongRepository;
@@ -8,16 +7,18 @@ import com.playa.model.Song;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class SongService {
 
-    private final SongRepository songRepository;
+    @Autowired
+    private SongRepository songRepository;
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
@@ -28,7 +29,7 @@ public class SongService {
     public SongResponseDto createSong(SongRequestDto songRequestDto) {
         Song song = new Song();
         song.setIdUser(songRequestDto.getIdUser());
-        song.setTittle(songRequestDto.getTitle());
+        song.setTitle(songRequestDto.getTitle());
         song.setDescription(songRequestDto.getDescription());
         song.setCoverURL(songRequestDto.getCoverURL());
         song.setFileURL(songRequestDto.getFileURL());
@@ -39,19 +40,22 @@ public class SongService {
         return convertToResponseDto(savedSong);
     }
 
-    public Optional<SongResponseDto> getSongById(Long id) {
-        return songRepository.findById(id)
-                .map(this::convertToResponseDto);
+    @Transactional(readOnly = true)
+    public SongResponseDto getSongById(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con ID: " + id));
+        return convertToResponseDto(song);
     }
 
+    @Transactional
     public SongResponseDto updateSong(Long id, SongRequestDto songRequestDto) {
         Song song = songRepository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
+                () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
         );
 
         // Actualizar solo los campos que no son null
         if (songRequestDto.getTitle() != null) {
-            song.setTittle(songRequestDto.getTitle());
+            song.setTitle(songRequestDto.getTitle());
         }
         if (songRequestDto.getDescription() != null) {
             song.setDescription(songRequestDto.getDescription());
@@ -66,7 +70,7 @@ public class SongService {
 
     public void deleteSong(Long id) {
         Song song = songRepository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
+                () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
         );
         songRepository.delete(song);
     }
@@ -83,17 +87,16 @@ public class SongService {
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Song a SongResponseDto
     private SongResponseDto convertToResponseDto(Song song) {
-        return new SongResponseDto(
-            song.getIdSong(),
-            song.getIdUser(),
-            song.getTittle(),
-            song.getDescription(),
-            song.getCoverURL(),
-            song.getFileURL(),
-            song.getVisibility(),
-            song.getUploadDate()
-        );
+        return SongResponseDto.builder()
+                .idSong(song.getIdSong())
+                .idUser(song.getIdUser())
+                .title(song.getTitle())
+                .description(song.getDescription())
+                .coverURL(song.getCoverURL())
+                .fileURL(song.getFileURL())
+                .visibility(song.getVisibility())
+                .uploadDate(song.getUploadDate())
+                .build();
     }
 }

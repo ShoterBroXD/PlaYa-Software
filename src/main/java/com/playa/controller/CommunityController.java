@@ -1,79 +1,70 @@
 package com.playa.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.playa.dto.CommunityRequestDto;
+import com.playa.dto.CommunityResponseDto;
+import com.playa.dto.JoinCommunityDto;
+import com.playa.dto.UserResponseDto;
+import com.playa.service.CommunityService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.playa.service.CommunityService;
-import com.playa.dto.CommunityRequestDto;
-import com.playa.dto.CommunityResponseDto;
-import com.playa.dto.UserResponseDto;
-import com.playa.dto.JoinCommunityDto;
-import com.playa.exception.ResourceNotFoundException;
+
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/communities")
+@RequiredArgsConstructor
 public class CommunityController {
-    
-    @Autowired
-    private CommunityService communityService;
-    
-    // POST /api/v1/communities - Crear comunidad
+
+    private final CommunityService communityService;
+
+    // POST /communities - Crear comunidad
     @PostMapping
-    public ResponseEntity<CommunityResponseDto> createCommunity(@RequestBody CommunityRequestDto communityRequestDto) {
-        try {
-            CommunityResponseDto createdCommunity = communityService.createCommunity(communityRequestDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCommunity);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<CommunityResponseDto> createCommunity(@Valid @RequestBody CommunityRequestDto requestDto) {
+        CommunityResponseDto responseDto = communityService.createCommunity(requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    // GET /api/v1/communities/{id} - Ver comunidad
+    // GET /communities/{id} - Ver comunidad
     @GetMapping("/{id}")
     public ResponseEntity<CommunityResponseDto> getCommunityById(@PathVariable Long id) {
-        Optional<CommunityResponseDto> community = communityService.getCommunityById(id);
-        return community.map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+        CommunityResponseDto responseDto = communityService.getCommunityById(id);
+        return ResponseEntity.ok(responseDto);
     }
 
-    // POST /api/v1/communities/{id}/users - Unirse a comunidad
+    // POST /communities/{id}/users - Unirse a comunidad
     @PostMapping("/{id}/users")
-    public ResponseEntity<String> joinCommunity(@PathVariable Long id, @RequestBody JoinCommunityDto joinDto) {
+    public ResponseEntity<String> joinCommunity(
+            @PathVariable Long id,
+            @Valid @RequestBody JoinCommunityDto requestDto) {
         try {
-            communityService.joinCommunity(id, joinDto);
-            return ResponseEntity.ok("Usuario unido exitosamente a la comunidad");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (RuntimeException e) {
+            communityService.joinCommunity(id, requestDto);
+            return ResponseEntity.ok("Usuario unido a la comunidad exitosamente");
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
         }
     }
 
-    // GET /api/v1/communities/{id}/users - Listar miembros
+    // GET /communities/{id}/users - Listar miembros
     @GetMapping("/{id}/users")
     public ResponseEntity<List<UserResponseDto>> getCommunityMembers(@PathVariable Long id) {
-        try {
-            List<UserResponseDto> members = communityService.getCommunityMembers(id);
-            return ResponseEntity.ok(members);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<UserResponseDto> members = communityService.getCommunityMembers(id);
+        return ResponseEntity.ok(members);
     }
 
-    // GET /api/v1/communities - Obtener todas las comunidades
+    // GET /communities - Obtener todas las comunidades
     @GetMapping
     public ResponseEntity<List<CommunityResponseDto>> getAllCommunities() {
         List<CommunityResponseDto> communities = communityService.getAllCommunities();
-        if(communities.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(communities);
+    }
+
+    // DELETE /communities/{id} - Eliminar comunidad
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCommunity(@PathVariable Long id) {
+        communityService.deleteCommunity(id);
+        return ResponseEntity.ok("Comunidad eliminada exitosamente");
     }
 }
