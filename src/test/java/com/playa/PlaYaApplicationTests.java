@@ -1,4 +1,4 @@
-package com.tralaleros;
+package com.playa;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
