@@ -1,7 +1,10 @@
 package com.playa.repository;
 
-import com.playa.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import com.playa.model.Post;
 
-interface PostRepository extends JpaRepository<Post, PK> {
+@Repository
+public interface PostRepository extends JpaRepository<Post, Long> {
+    // Métodos personalizados si los necesitas
 }
