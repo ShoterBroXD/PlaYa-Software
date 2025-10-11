@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import com.playa.dto.NotificationPreferenceRequestDto;
 import com.playa.dto.NotificationRequestDto;
 import com.playa.dto.NotificationResponseDto;
 import com.playa.service.NotificationService;
@@ -51,6 +52,15 @@ public class NotificationController {
     public ResponseEntity<Long> getUnreadCount(@PathVariable Long idUser) {
         long count = notificationService.getUnreadCount(idUser);
         return ResponseEntity.ok(count);
+    }
+
+    // Configurar preferencias
+    @PutMapping("/preferences")
+    public ResponseEntity<Void> updatePreferences(
+            @RequestHeader("userId") Long userId,
+            @RequestBody NotificationPreferenceRequestDto request) {
+        notificationService.updatePreferences(userId, request);
+        return ResponseEntity.ok().build();
     }
 
     // DELETE /notifications/{id} - Eliminar notificación

@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +33,7 @@ public class User {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
-   // @Column(nullable = false, length = 20)
+    // @Column(nullable = false, length = 20)
     //private String type; // 'artist', 'listener', 'admin' // Podría ser un ENUM
 
     @Enumerated(EnumType.STRING)
@@ -49,10 +51,16 @@ public class User {
     @Column(name = "redsocial", columnDefinition = "TEXT")
     private String redSocial;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_favorite_genres", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "genre")
-    private java.util.List<String> favoriteGenres;
+    @Column(name="idgenre")
+    private String idgenre;
 
+    public User(String name, String email, String password, Rol type) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.type = type;
+        this.premium = false;
+        this.registerDate = LocalDateTime.now();
+    }
 
 }

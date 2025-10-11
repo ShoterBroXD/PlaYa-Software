@@ -1,10 +1,12 @@
 package com.playa.service;
 
+import com.playa.dto.NotificationPreferenceRequestDto;
 import com.playa.dto.NotificationRequestDto;
 import com.playa.dto.NotificationResponseDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.mapper.NotificationMapper;
 import com.playa.model.Notification;
+import com.playa.model.User;
 import com.playa.repository.NotificationRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +20,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
 
     @Transactional
     public NotificationResponseDto createNotification(NotificationRequestDto requestDto) {
-        // Validar que el usuario existe
         if (!userRepository.existsById(requestDto.getIdUser())) {
             throw new ResourceNotFoundException("Usuario no encontrado con ID: " + requestDto.getIdUser());
         }
@@ -83,5 +83,12 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public long getUnreadCount(Long idUser) {
         return notificationRepository.countByIdUserAndRead(idUser, false);
+    }
+
+    @Transactional
+    public void updatePreferences(Long userId, NotificationPreferenceRequestDto request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        // Aquí podrías actualizar preferencias si tienes campos en User
     }
 }

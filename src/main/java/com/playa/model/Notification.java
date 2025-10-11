@@ -32,8 +32,10 @@ public class Notification {
     private String content;
 
     @Column(nullable = false, name = "read")
-    private Boolean read;
+    private Boolean read = false;
 
     @Column(nullable = false)
     private LocalDateTime date;
+
+
 }

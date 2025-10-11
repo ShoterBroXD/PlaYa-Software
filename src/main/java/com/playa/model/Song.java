@@ -28,8 +28,11 @@ public class Song {
     @JoinColumn(name = "iduser", insertable = false, updatable = false)
     private User user;
 
-    @Column(nullable = false, length = 150, name = "tittle")
+    @Column(nullable = false, length = 150)
     private String title;
+
+    @Column(nullable = false)
+    private float duration;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -49,4 +52,14 @@ public class Song {
 
     @Column(nullable = false, name = "uploaddate")
     private LocalDateTime uploadDate;
+
+    @ManyToOne
+    @JoinColumn(name="playlist_id", nullable=true)
+    private Playlist playlist;
+
+    @ManyToOne
+    @JoinTable(name = "song_genre",
+            joinColumns = @JoinColumn(name = "id_song"),
+            inverseJoinColumns = @JoinColumn(name = "id_genre"))
+    private Genre genre;
 }

@@ -12,7 +12,16 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     // Métodos personalizados para encontrar notificaciones por usuario
-    List<Notification> findByIdUser(Long idUser);
+    List<Notification> findByUser_IdUser(Long idUser);
+
+    // Método para encontrar notificaciones no leídas de un usuario
+    List<Notification> findByUser_IdUserAndReadFalse(Long idUser);
+
+    // Método para contar notificaciones no leídas
+    long countByUser_IdUserAndReadFalse(Long idUser);
+
+    // Método para obtener notificaciones de un usuario ordenadas por fecha
+    List<Notification> findByUser_IdUserOrderByDateDesc(Long idUser);
 
     List<Notification> findByIdUserAndRead(Long idUser, Boolean read);
 

@@ -4,18 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "comment")
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idcomment")
     private Long idComment;
-
-    // Relación con User (idUser)
-
-    // Relación con Song (idSong)
-    // Relación con Comment (parentComment) para respuestas a comentarios
 
     @Column(nullable = false, name = "iduser")
     private Long idUser;
@@ -42,7 +37,7 @@ public class Comment {
     public Long getIdComment() { return idComment; }
     public void setIdComment(Long idComment) { this.idComment = idComment; }
 
-    public Long getIdUser() { return idUser; }
+    public Long getIdUser() { return this.getIdUser(); }
     public void setIdUser(Long idUser) { this.idUser = idUser; }
 
     public Long getIdSong() { return idSong; }

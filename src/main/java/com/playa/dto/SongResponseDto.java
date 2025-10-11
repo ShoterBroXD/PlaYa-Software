@@ -1,11 +1,9 @@
 package com.playa.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,4 +19,20 @@ public class SongResponseDto {
     private String fileURL;
     private String visibility;
     private LocalDateTime uploadDate;
+    private ArtistResponseDto artist;
+    private Set<GenreResponseDto> genres;
+
+    //public SongResponseDto() {}
+
+    //public SongResponseDto(Long idSong, Long idUser, String title, String description, String coverURL, String fileURL, String visibility, LocalDateTime uploadDate) {
+    //    this.idSong = idSong;
+    //    this.idUser = idUser;
+    //    this.title = title;
+    //    this.description = description;
+    //    this.coverURL = coverURL;
+    //    this.fileURL = fileURL;
+    //    this.visibility = visibility;
+    //    this.uploadDate = uploadDate;
+    //}
+
 }
