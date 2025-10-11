@@ -82,6 +82,7 @@ public class SongService {
     public List<SongResponseDto> getAllSongs() {
         List<Song> songs = songRepository.findAll();
         return songs.stream()
+                .filter(song -> song.getVisible()) // Filtrar solo canciones visibles
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -90,6 +91,7 @@ public class SongService {
     public List<SongResponseDto> getSongsByUser(Long userId) {
         List<Song> songs = songRepository.findByIdUserOrderByUploadDateDesc(userId);
         return songs.stream()
+                .filter(song -> song.getVisible()) // Filtrar solo canciones visibles
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -98,8 +100,25 @@ public class SongService {
     public List<SongResponseDto> getPublicSongs() {
         List<Song> songs = songRepository.findPublicSongsOrderByUploadDateDesc();
         return songs.stream()
+                .filter(song -> song.getVisible()) // Filtrar solo canciones visibles
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void reportSong(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con ID: " + id));
+        song.setVisible(false);
+        songRepository.save(song);
+    }
+
+    @Transactional
+    public void unreportSong(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con ID: " + id));
+        song.setVisible(true);
+        songRepository.save(song);
     }
 
     private SongResponseDto convertToResponseDto(Song song) {

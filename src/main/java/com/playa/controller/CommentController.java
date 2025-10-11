@@ -3,6 +3,7 @@ package com.playa.controller;
 import com.playa.service.CommentService;
 import com.playa.dto.CommentRequestDto;
 import com.playa.dto.CommentResponseDto;
+import com.playa.exception.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +39,12 @@ public class CommentController {
     // GET /api/v1/comments/{id} - Obtener comentario
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponseDto> getComment(@PathVariable Long id) {
-        CommentResponseDto response = commentService.getComment(id);
-        if (response == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        try {
+            CommentResponseDto response = commentService.getComment(id);
+            return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build(); // 404 es correcto aquí - recurso específico no encontrado
         }
-        return ResponseEntity.ok(response);
     }
 
     // GET /api/v1/comments/song/{songId} - Obtener comentarios de una canción
@@ -53,6 +55,20 @@ public class CommentController {
             return ResponseEntity.noContent().build(); // 204
         }
         return ResponseEntity.ok(comments); // 200
+    }
+
+    // POST /api/v1/comments/{id}/report - Reportar/ocultar comentario
+    @PostMapping("/{id}/report")
+    public ResponseEntity<String> reportComment(@PathVariable Long id) {
+        commentService.reportComment(id);
+        return ResponseEntity.ok("Comentario reportado y ocultado exitosamente");
+    }
+
+    // POST /api/v1/comments/{id}/unreport - Mostrar comentario reportado
+    @PostMapping("/{id}/unreport")
+    public ResponseEntity<String> unreportComment(@PathVariable Long id) {
+        commentService.unreportComment(id);
+        return ResponseEntity.ok("Comentario habilitado exitosamente");
     }
 
     // DELETE /api/v1/comments/{id} - Eliminar comentario

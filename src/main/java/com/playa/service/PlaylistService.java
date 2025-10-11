@@ -120,6 +120,7 @@ public class PlaylistService {
     public List<PlaylistResponseDto> getAllPlaylists() {
         List<Playlist> playlists = playlistRepository.findAll();
         return playlists.stream()
+                .filter(playlist -> playlist.getVisible()) // Filtrar solo playlists visibles
                 .map(playlistMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -128,6 +129,7 @@ public class PlaylistService {
     public List<PlaylistResponseDto> getPlaylistsByUser(Long userId) {
         List<Playlist> playlists = playlistRepository.findByIdUserOrderByCreationDateDesc(userId);
         return playlists.stream()
+                .filter(playlist -> playlist.getVisible()) // Filtrar solo playlists visibles
                 .map(playlistMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -144,6 +146,22 @@ public class PlaylistService {
 
         // Luego eliminar la playlist
         playlistRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void reportPlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist no encontrada con ID: " + id));
+        playlist.setVisible(false);
+        playlistRepository.save(playlist);
+    }
+
+    @Transactional
+    public void unreportPlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist no encontrada con ID: " + id));
+        playlist.setVisible(true);
+        playlistRepository.save(playlist);
     }
 
     private SongResponseDto convertSongToResponseDto(Song song) {

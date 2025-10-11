@@ -71,6 +71,20 @@ public class PlaylistController {
         return ResponseEntity.ok(playlists); // 200
     }
 
+    // POST /api/v1/playlists/{id}/report - Reportar/ocultar playlist
+    @PostMapping("/{id}/report")
+    public ResponseEntity<String> reportPlaylist(@PathVariable Long id) {
+        playlistService.reportPlaylist(id);
+        return ResponseEntity.ok("Playlist reportada y ocultada exitosamente");
+    }
+
+    // POST /api/v1/playlists/{id}/unreport - Mostrar playlist reportada
+    @PostMapping("/{id}/unreport")
+    public ResponseEntity<String> unreportPlaylist(@PathVariable Long id) {
+        playlistService.unreportPlaylist(id);
+        return ResponseEntity.ok("Playlist habilitada exitosamente");
+    }
+
     // DELETE /api/v1/playlists/{id} - Eliminar playlist
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePlaylist(@PathVariable Long id) {

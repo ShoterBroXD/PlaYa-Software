@@ -77,4 +77,18 @@ public class SongController {
         }
         return ResponseEntity.ok(songs); // 200
     }
+
+    // POST /api/v1/songs/{id}/report - Reportar/ocultar canción
+    @PostMapping("/{id}/report")
+    public ResponseEntity<String> reportSong(@PathVariable Long id) {
+        songService.reportSong(id);
+        return ResponseEntity.ok("Canción reportada y ocultada exitosamente");
+    }
+
+    // POST /api/v1/songs/{id}/unreport - Mostrar canción reportada
+    @PostMapping("/{id}/unreport")
+    public ResponseEntity<String> unreportSong(@PathVariable Long id) {
+        songService.unreportSong(id);
+        return ResponseEntity.ok("Canción habilitada exitosamente");
+    }
 }
