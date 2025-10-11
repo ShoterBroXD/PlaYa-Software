@@ -1,21 +1,17 @@
 package com.playa.dto;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddSongToPlaylistDto {
+
+    @NotNull
     private Long idSong;
-
-    // Constructores
-    public AddSongToPlaylistDto() {}
-
-    public AddSongToPlaylistDto(Long idSong) {
-        this.idSong = idSong;
-    }
-
-    // Getters y setters
-    public Long getIdSong() {
-        return idSong;
-    }
-
-    public void setIdSong(Long idSong) {
-        this.idSong = idSong;
-    }
 }
