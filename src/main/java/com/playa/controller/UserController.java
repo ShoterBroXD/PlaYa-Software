@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales
+    // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (funcionanalidad premium)
     @PutMapping("/{id}/preferences")
     public ResponseEntity<?> updatePreferences(@PathVariable Long id, @RequestBody UserPreferencesDto preferencesDto) {
         List<String> genres = preferencesDto.getFavoriteGenres();
