@@ -11,7 +11,11 @@ import com.playa.service.ThreadService;
 @RequestMapping("/threads")
 public class ThreadController {
 
-    private ThreadService threadService;
+    private final ThreadService threadService;
+
+    public ThreadController(ThreadService threadService) {
+        this.threadService = threadService;
+    }
 
     // POST /api/v1/threads - Crear hilo en comunidad
     @PostMapping

@@ -15,11 +15,15 @@ import java.time.LocalDateTime;
 @Service
 public class ThreadService {
 
-    private ThreadRepository threadRepository;
+    private final ThreadRepository threadRepository;
+    private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
 
-    private UserRepository userRepository;
-
-    private CommunityRepository commentRepository;
+    public ThreadService(ThreadRepository threadRepository, UserRepository userRepository, CommunityRepository communityRepository) {
+        this.threadRepository = threadRepository;
+        this.userRepository = userRepository;
+        this.communityRepository = communityRepository;
+    }
 
     // Métodos de lógica de negocio para hilos
 
@@ -31,7 +35,7 @@ public class ThreadService {
         if (!userRepository.existsById(dto.getIdUser())) {
             throw new IllegalArgumentException("El usuario con ID " + dto.getIdUser() + " no existe");
         }
-        if (!commentRepository.existsById(dto.getIdCommunity())) {
+        if (!communityRepository.existsById(dto.getIdCommunity())) {
             throw new IllegalArgumentException("La comunidad con ID " + dto.getIdCommunity() + " no existe");
         }
 
