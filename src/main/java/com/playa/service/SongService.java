@@ -1,12 +1,10 @@
 package com.playa.service;
 
-import com.playa.dto.SongUploadRequestDto;
 import com.playa.model.Genre;
 import com.playa.model.User;
 import com.playa.repository.GenreRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.SongRepository;
 import com.playa.model.Song;
@@ -44,7 +42,7 @@ public class SongService {
         }
     }
 
-    public SongResponseDto createSong(Long userId, SongUploadRequestDto songRequestDto) {
+    public SongResponseDto createSong(Long userId, SongRequestDto songRequestDto) {
         User user=userRepository.findById(userId)
                 .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado."));
 
