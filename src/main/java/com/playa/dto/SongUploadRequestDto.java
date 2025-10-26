@@ -1,9 +1,7 @@
 package com.playa.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import com.playa.model.Genre;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 
@@ -26,6 +24,6 @@ public class SongUploadRequestDto {
     @Pattern(regexp = "public|private|unlisted", message = "La visibilidad debe ser 'PUBLIC', 'PRIVATE' o 'UNLISTED'")
     private String visibility="public";
 
-    @NotEmpty(message = "Debe seleccionar al menos un género")
-    private Set<Long> genreIds;
+    @NotNull(message = "Debe seleccionar un género")
+    private Long idgenre;
 }

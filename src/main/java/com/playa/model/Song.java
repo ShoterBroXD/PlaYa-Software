@@ -21,11 +21,11 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    @Column(name = "iduser", nullable = false)
-    private Long idUser;
+    //@Column(name = "iduser", nullable = false)
+    //private Long idUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iduser", insertable = false, updatable = false)
+    @JoinColumn(name = "iduser", updatable = false)
     private User user;
 
     @Column(nullable = false, length = 150)

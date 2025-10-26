@@ -38,21 +38,7 @@ public class SongRequestDto {
     @NotBlank
     @Pattern(regexp = "^(public|private|unlisted)$", message = "La visibilidad debe ser: public, private o unlisted")
     private String visibility;
+
     public Genre genre;
-    public Set<Genre> genres;
-
-    // Constructores
-    //public SongRequestDto() {}
-
-    //public SongRequestDto(Long idUser, String title, String description, String coverURL, String fileURL, String visibility) {
-    //    this.idUser = idUser;
-    //    this.title = title;
-    //    this.description = description;
-    //   this.coverURL = coverURL;
-    //    this.fileURL = fileURL;
-    //    this.visibility = visibility;
-    //}
-
-
 
 }

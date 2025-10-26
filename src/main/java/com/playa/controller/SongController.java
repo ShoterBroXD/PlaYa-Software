@@ -2,9 +2,11 @@ package com.playa.controller;
 
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
+import com.playa.dto.SongUploadRequestDto;
 import com.playa.service.SongService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +21,8 @@ public class SongController {
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
-    public ResponseEntity<SongResponseDto> createSong(@Valid @RequestBody SongRequestDto requestDto) {
-        SongResponseDto responseDto = songService.createSong(requestDto);
+    public ResponseEntity<SongResponseDto> createSong(@RequestHeader("iduser") Long idUser,@Valid @RequestBody SongUploadRequestDto requestDto) {
+        SongResponseDto responseDto = songService.createSong(idUser,requestDto);
         return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
 
     }
