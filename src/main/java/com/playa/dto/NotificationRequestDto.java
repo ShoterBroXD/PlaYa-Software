@@ -23,5 +23,7 @@ public class NotificationRequestDto {
     @Size(max = 100)
     private String content;
 
+    private Boolean read;
+    private String type;
     private LocalDateTime date;
 }
