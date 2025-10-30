@@ -470,7 +470,7 @@ public class PlayerService {
         response.setIsPlaying(state.getIsPlaying());
         response.setIsPaused(state.getIsPaused());
         response.setCurrentTime(state.getPlaybackTime());
-        response.setDuration(null); // Calcular desde metadata del archivo o BD
+        response.setDuration(null);
         response.setVolume(state.getVolume());
         response.setShuffleEnabled(state.getShuffleEnabled());
         response.setRepeatMode(state.getRepeatMode());

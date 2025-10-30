@@ -26,9 +26,9 @@ public class NotificationPreference {
     @Column(name = "enableFollowers", nullable = false)
     private Boolean enableFollowers = true;
 
-    @Column(name = "enableSistem", nullable = false)
-    private Boolean enableSistem = true;
+    @Column(name = "enableSystems", nullable = false)
+    private Boolean enableSystems = true;
 
-    @Column(name = "enableNewRelease", nullable = false)
-    private Boolean enableNewRelease = true;
+    @Column(name = "enableNewReleases", nullable = false)
+    private Boolean enableNewReleases = true;
 }

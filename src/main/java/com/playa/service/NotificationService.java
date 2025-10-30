@@ -105,8 +105,8 @@ public class NotificationService {
 
         preference.setEnableComments(request.getEnabledComments());
         preference.setEnableFollowers(request.getEnableFollowers());
-        preference.setEnableSistem(request.getEnableSistem());
-        preference.setEnableNewRelease(request.getEnableNewRelease());
+        preference.setEnableSystems(request.getEnableSystems());
+        preference.setEnableNewReleases(request.getEnableNewReleases());
 
         notificationPreferenceRepository.save(preference);
     }
