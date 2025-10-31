@@ -27,9 +27,6 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private LocalDateTime expirationDate;
 
-    @Column(nullable = false)
-    private boolean used = false;
-
     public boolean isExpired() {
         return expirationDate.isBefore(LocalDateTime.now());
     }

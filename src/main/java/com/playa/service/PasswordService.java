@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import com.playa.dto.PasswordChangeRequestDto;
 import com.playa.dto.PasswordResetRequestDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.PasswordResetToken;
@@ -7,7 +8,6 @@ import com.playa.model.User;
 import com.playa.repository.PasswordResetTokenRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +16,26 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PasswordResetService {
+public class PasswordService {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Transactional
+    public void changePassword(Long idUser, PasswordChangeRequestDto request){
+        User user=userRepository.findById(idUser)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        if(!user.getPassword().equals(request.getCurrentPassword())){
+            throw new RuntimeException("Credenciales no coinciden intentelo de nuevo");
+        }
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
+            throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
+        }
+        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
+    }
 
     @Transactional
     public String generateResetToken(String email) {
@@ -37,7 +52,6 @@ public class PasswordResetService {
                 .token(token)
                 .user(user)
                 .expirationDate(LocalDateTime.now().plusMinutes(15))
-                .used(false)
                 .build();
 
         tokenRepository.save(resetToken);
@@ -54,9 +68,6 @@ public class PasswordResetService {
         if (resetToken.isExpired()) {
             throw new RuntimeException("El token ha expirado");
         }
-        if (resetToken.isUsed()) {
-            throw new RuntimeException("El token ya fue utilizado");
-        }
 
         User user = resetToken.getUser();
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
@@ -67,7 +78,6 @@ public class PasswordResetService {
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
 
-        resetToken.setUsed(true);
-        tokenRepository.save(resetToken);
+        tokenRepository.delete(resetToken);
     }
 }

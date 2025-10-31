@@ -1,15 +1,9 @@
 package com.playa.service;
 
-import com.playa.dto.PasswordChangeRequestDto;
-import com.playa.dto.PasswordResetRequestDto;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.playa.repository.UserRepository;
@@ -85,17 +79,10 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(Long idUser, PasswordChangeRequestDto request){
-        User user=userRepository.findById(idUser)
-                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
-        if(!user.getPassword().equals(request.getCurrentPassword())){
-            throw new RuntimeException("Credenciales no coinciden intentelo de nuevo");
-        }
-        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
-            throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
-        }
-        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setPassword(request.getNewPassword());
-        userRepository.save(user);
+    public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
+         return userRepository.findAllByIdGenre(idGenre).stream()
+                 .map(userMapper::convertToResponseDto)
+                 .collect(Collectors.toList());
     }
+
 }

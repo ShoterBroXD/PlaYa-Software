@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import com.playa.dto.SongResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
@@ -55,5 +56,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/genre/{idgenre}")
+    public ResponseEntity<List<UserResponseDto>> getAllByIdGenre(@PathVariable Long idgenre) {
+        List<UserResponseDto> users=userService.findAllByIdGenre(idgenre);
+        return ResponseEntity.ok(users);
     }
 }
