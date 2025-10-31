@@ -88,13 +88,14 @@ public class UserService {
     public void changePassword(Long idUser, PasswordChangeRequestDto request){
         User user=userRepository.findById(idUser)
                 .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
-        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+        if(!user.getPassword().equals(request.getCurrentPassword())){
             throw new RuntimeException("Credenciales no coinciden intentelo de nuevo");
         }
-        if(passwordEncoder.matches(request.getNewPassword(), request.getConfirmNewPassword())){
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
             throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
         }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(request.getNewPassword());
         userRepository.save(user);
     }
 
@@ -104,11 +105,14 @@ public class UserService {
         if (user == null){
             throw new RuntimeException("Usuario no encontrado");
         }
-        if(!passwordEncoder.matches(request.getNewPassword(), request.getConfirmNewPassword())){
-            throw new RuntimeException("Password no coinciden intentelo de nuevo");
+        if(!user.getEmail().equals(request.getEmail())){
+            throw new RuntimeException("Email no registrado para el usuario, asegurese que el email introducido sea el ligado a su cuenta");
         }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
+            throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
+        }
+        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(request.getNewPassword());
         userRepository.save(user);
     }
-
 }

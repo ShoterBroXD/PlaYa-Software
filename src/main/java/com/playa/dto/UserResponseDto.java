@@ -17,5 +17,4 @@ public class UserResponseDto {
     private String biography;
     private Boolean premium;
     private String redSocial;
-    private String password;
 }
