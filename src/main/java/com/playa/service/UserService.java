@@ -98,21 +98,4 @@ public class UserService {
         user.setPassword(request.getNewPassword());
         userRepository.save(user);
     }
-
-    @Transactional
-    public void resetPassword(PasswordResetRequestDto request){
-        User user=userRepository.findByEmail(request.getEmail());
-        if (user == null){
-            throw new RuntimeException("Usuario no encontrado");
-        }
-        if(!user.getEmail().equals(request.getEmail())){
-            throw new RuntimeException("Email no registrado para el usuario, asegurese que el email introducido sea el ligado a su cuenta");
-        }
-        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
-            throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
-        }
-        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setPassword(request.getNewPassword());
-        userRepository.save(user);
-    }
 }
