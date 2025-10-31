@@ -1,5 +1,7 @@
 package com.playa.service;
 
+import com.playa.dto.PasswordChangeRequestDto;
+import com.playa.dto.PasswordResetRequestDto;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
@@ -8,6 +10,7 @@ import jakarta.validation.constraints.Max;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.playa.repository.UserRepository;
 import com.playa.model.User;
@@ -24,6 +27,8 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
     public List<UserResponseDto> getAllUsers() {
@@ -77,6 +82,33 @@ public class UserService {
             throw new RuntimeException("Usuario no encontrado con id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void changePassword(Long idUser, PasswordChangeRequestDto request){
+        User user=userRepository.findById(idUser)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+            throw new RuntimeException("Credenciales no coinciden intentelo de nuevo");
+        }
+        if(passwordEncoder.matches(request.getNewPassword(), request.getConfirmNewPassword())){
+            throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void resetPassword(PasswordResetRequestDto request){
+        User user=userRepository.findByEmail(request.getEmail());
+        if (user == null){
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        if(!passwordEncoder.matches(request.getNewPassword(), request.getConfirmNewPassword())){
+            throw new RuntimeException("Password no coinciden intentelo de nuevo");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
 }
