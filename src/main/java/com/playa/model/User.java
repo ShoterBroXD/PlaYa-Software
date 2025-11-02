@@ -24,7 +24,7 @@ public class User {
     @Column(name = "iduser")
     private Long idUser;
 
-    @Column(length = 100)
+    @Column(name = "name", columnDefinition = "VARCHAR(100)")
     private String name;
 
     @Column(nullable = false, length = 100)
@@ -52,7 +52,7 @@ public class User {
     private String redSocial;
 
     @Column(name="idgenre")
-    private String idgenre;
+    private Long idgenre;
 
     public User(String name, String email, String password, Rol type) {
         this.name = name;

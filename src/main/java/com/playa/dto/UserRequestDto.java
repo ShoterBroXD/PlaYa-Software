@@ -2,6 +2,7 @@ package com.playa.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -11,7 +12,7 @@ import lombok.NonNull;
 public class UserRequestDto {
 
     @NonNull
-    @Max(100)
+    @Size(max = 100)
     private String name;
     @Email
     private String email;

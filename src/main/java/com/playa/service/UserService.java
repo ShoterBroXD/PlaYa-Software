@@ -3,6 +3,13 @@ package com.playa.service;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
+import com.playa.model.enums.Rol;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,6 +17,7 @@ import com.playa.repository.UserRepository;
 import com.playa.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -78,11 +86,44 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @Transactional
-    public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
-         return userRepository.findAllByIdGenre(idGenre).stream()
-                 .map(userMapper::convertToResponseDto)
-                 .collect(Collectors.toList());
+    /*@Transactional(readOnly = true)
+    public List<UserResponseDto> filterArtists(Rol role,String name, Long idgenre) {
+        List<User> artists = userRepository.findArtistsByFilters(role,name, idgenre);
+        return artists.stream()
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }*/
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> filterArtists(Rol role, String name, Long idgenre) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> user = cq.from(User.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (role != null) {
+            predicates.add(cb.equal(user.get("type"), role));
+        }
+
+        if (name != null && !name.isEmpty()) {
+            predicates.add(cb.like(cb.lower(user.get("name")), "%" + name.toLowerCase() + "%"));
+        }
+
+        if (idgenre != null) {
+            predicates.add(cb.equal(user.get("idgenre"), idgenre));
+        }
+
+        cq.select(user).where(predicates.toArray(new Predicate[0]));
+
+        List<User> users = entityManager.createQuery(cq).getResultList();
+
+        return users.stream()
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
     }
 
 }

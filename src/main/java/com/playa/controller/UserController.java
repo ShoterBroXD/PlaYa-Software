@@ -1,11 +1,14 @@
 package com.playa.controller;
 
 import com.playa.dto.SongResponseDto;
+import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
+
+import javax.management.relation.Role;
 import java.util.List;
 
 @RestController
@@ -58,9 +61,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/genre/{idgenre}")
-    public ResponseEntity<List<UserResponseDto>> getAllByIdGenre(@PathVariable Long idgenre) {
-        List<UserResponseDto> users=userService.findAllByIdGenre(idgenre);
-        return ResponseEntity.ok(users);
+    @GetMapping("/artists/filter")
+    public ResponseEntity<List<UserResponseDto>> filterArtists(
+            @RequestParam(required = false) Rol role,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long idgenre) {
+
+        Rol rol= role != null ? role : Rol.ARTIST;
+        List<UserResponseDto> result = userService.filterArtists(rol,name, idgenre);
+        return ResponseEntity.ok(result);
     }
 }
