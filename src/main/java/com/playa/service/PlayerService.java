@@ -6,6 +6,7 @@ import com.playa.exception.PlayerException;
 import com.playa.exception.QueueEmptyException;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.*;
+import com.playa.model.enums.Mode;
 import com.playa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -274,19 +275,30 @@ public class PlayerService {
     public Map<String, Object> setRepeatMode(Long userId, RepeatModeRequestDto request) {
         PlayerState state = getPlayerStateOrThrow(userId);
 
-        state.setRepeatMode(request.getMode());
+        Mode mode;
+
+        if(request.getMode() == null)
+            mode = Mode.NONE;
+        else {
+            try {
+                mode = Mode.valueOf(request.getMode().trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Modo de repetición inválido: " + request.getMode());
+            }
+        }
+        state.setRepeatMode(mode);
         playerStateRepository.save(state);
 
-        String modeDescription = switch (request.getMode()) {
-            case "none" -> "sin repetición";
-            case "one" -> "una canción";
-            case "all" -> "toda la cola";
+        String modeDescription = switch (mode) {
+            case NONE -> "sin repetición";
+            case ONE -> "una canción";
+            case ALL -> "toda la cola";
             default -> request.getMode();
         };
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Modo repetir: " + modeDescription);
-        response.put("repeatMode", request.getMode());
+        response.put("repeatMode", mode.name().toLowerCase());
 
         return response;
     }
