@@ -1,6 +1,8 @@
 package com.playa.service;
 
 import com.playa.exception.ResourceNotFoundException;
+import com.playa.mapper.CommentMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.playa.repository.CommentRepository;
 import com.playa.dto.CommentRequestDto;
@@ -12,16 +14,13 @@ import com.playa.repository.UserRepository;
 import com.playa.repository.SongRepository;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final SongRepository songRepository;
+    private final CommentMapper commentMapper;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, SongRepository songRepository) {
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.songRepository = songRepository;
-    }
 
     @Transactional
     public CommentResponseDto createComment(CommentRequestDto dto) {
@@ -53,13 +52,13 @@ public class CommentService {
         comment.setDate(LocalDateTime.now());
 
         Comment saved = commentRepository.save(comment);
-        return toResponseDto(saved);
+        return commentMapper.convertToResponseDto(saved);
     }
 
     @Transactional(readOnly = true)
     public CommentResponseDto getComment(Long id) {
         return commentRepository.findById(id)
-            .map(this::toResponseDto)
+            .map(commentMapper::convertToResponseDto)
                 .orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
     }
 
@@ -69,14 +68,4 @@ public class CommentService {
          commentRepository.delete(comment);
     }
 
-    private CommentResponseDto toResponseDto(Comment comment) {
-        CommentResponseDto dto = new CommentResponseDto();
-        dto.setIdComment(comment.getIdComment());
-        dto.setIdUser(comment.getIdUser());
-        dto.setIdSong(comment.getIdSong());
-        dto.setContent(comment.getContent());
-        dto.setParentComment(comment.getParentComment());
-        dto.setDate(comment.getDate());
-        return dto;
-    }
 }

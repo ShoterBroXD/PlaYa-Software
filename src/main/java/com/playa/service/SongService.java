@@ -1,7 +1,11 @@
 package com.playa.service;
 
+import com.playa.dto.CommentResponseDto;
+import com.playa.mapper.CommentMapper;
+import com.playa.model.Comment;
 import com.playa.model.Genre;
 import com.playa.model.User;
+import com.playa.repository.CommentRepository;
 import com.playa.repository.GenreRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,8 @@ public class SongService {
     private final SongRepository songRepository;
     private final UserRepository userRepository;
     private final GenreRepository genreRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
@@ -107,6 +113,15 @@ public class SongService {
                 () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
         );
         songRepository.delete(song);
+    }
+
+    public List<CommentResponseDto> getAllComments(Long idsong) {
+        Song song = songRepository.findById(idsong).orElseThrow(()->new RuntimeException("Canción no encontrada"));
+
+        List<Comment> comments= commentRepository.findBySong_IdSongOrderByDateAsc(idsong);
+        return comments.stream()
+                .map(commentMapper::convertToResponseDto)
+                .collect(Collectors.toList());
     }
 
     public List<SongResponseDto> getSongsByUser(Long idUser) {

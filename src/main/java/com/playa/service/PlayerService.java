@@ -69,12 +69,26 @@ public class PlayerService {
         Song song = songRepository.findById(request.getIdSong())
                 .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
 
-        // Validar visibilidad (RB-008)
         if ("private".equals(song.getVisibility()) && !song.getUser().getIdUser().equals(userId)) {
             throw new IllegalArgumentException("Esta canción es privada y no puedes acceder a ella");
         }
 
-        // Obtener o crear estado del reproductor
+        if (request.getIdsqueue() != null && !request.getIdsqueue().isEmpty()) {
+            playQueueRepository.deleteAllByUser(user);
+
+            int position = 1;
+            for (Long songId : request.getIdsqueue()) {
+                Song queuesong = songRepository.findById(songId).orElse(null);
+                if (queuesong != null) {
+                    PlayQueue queueItem = new PlayQueue();
+                    queueItem.setSong(queuesong);
+                    queueItem.setUser(user);
+                    queueItem.setPosition(position++);
+                    playQueueRepository.save(queueItem);
+                }
+            }
+        }
+
         PlayerState state = playerStateRepository.findByUser(user)
                 .orElse(new PlayerState());
 
@@ -82,15 +96,13 @@ public class PlayerService {
             state.setUser(user);
         }
 
-        // RB-008: Solo una canción puede reproducirse a la vez
+        //Solo una canción puede reproducirse a la vez
         state.setCurrentSong(song);
         state.setIsPlaying(true);
         state.setIsPaused(false);
         state.setPlaybackTime(0);
 
         playerStateRepository.save(state);
-
-        // RB-021: Registrar en historial
         registerPlayHistory(user, song);
 
         PlaybackControlResponseDto response = new PlaybackControlResponseDto();
@@ -188,6 +200,20 @@ public class PlayerService {
         // Siguiente canción
         int nextIndex = currentIndex + 1;
         if (nextIndex >= queue.size()) {
+
+            if ("one".equals(state.getRepeatMode())) {
+                state.setPlaybackTime(0);
+                playerStateRepository.save(state);
+
+                PlaybackControlResponseDto response = new PlaybackControlResponseDto();
+                response.setMessage("Repitiendo canción actual");
+                response.setIsPlaying(true);
+                response.setIsPaused(false);
+                response.setSong(mapSongToResponseDto(state.getCurrentSong()));
+
+                return response;
+            }
+
             // Si estamos en repeat all, volver al inicio
             if ("all".equals(state.getRepeatMode())) {
                 nextIndex = 0;
@@ -258,11 +284,57 @@ public class PlayerService {
     }
 
     @Transactional
+    public Map<String, Object> seekTo(Long idUser, SeekRequestDto request) {
+        PlayerState state = getPlayerStateOrThrow(idUser);
+
+        state.setPlaybackTime(request.getTime());
+        playerStateRepository.save(state);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", idUser);
+        response.put("currentTime",request.getTime());
+
+        return response;
+    }
+
+    @Transactional
     public Map<String, Object> setShuffle(Long userId, ShuffleRequestDto request) {
+        User user = getUserOrThrow(userId);
         PlayerState state = getPlayerStateOrThrow(userId);
 
         state.setShuffleEnabled(request.getEnabled());
         playerStateRepository.save(state);
+
+        if (request.getEnabled()) {
+            List<PlayQueue> queue = playQueueRepository.findByUserOrderByPositionAsc(user);
+
+            if (!queue.isEmpty() && state.getCurrentSong() != null) {
+                PlayQueue currentQueue = queue.stream()
+                        .filter(q->q.getSong().getIdSong().equals(state.getCurrentSong().getIdSong()))
+                        .findFirst()
+                        .orElse(null);
+
+                List<PlayQueue> otherSongs = queue.stream()
+                        .filter(q->!q.getSong().getIdSong().equals(state.getCurrentSong().getIdSong()))
+                        .collect(Collectors.toList());
+
+
+                Collections.shuffle(otherSongs);
+
+                int position = 1;
+                if (currentQueue != null) {
+                    currentQueue.setPosition(position++);
+                    playQueueRepository.save(currentQueue);
+                }
+
+                for (PlayQueue q : otherSongs) {
+                    q.setPosition(position++);
+                    playQueueRepository.save(q);
+                }
+            }
+        } else {
+            //aaaaaaaaaaah falta :,(
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", request.getEnabled() ? "Modo aleatorio activado" : "Modo aleatorio desactivado");

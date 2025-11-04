@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "songs")
@@ -58,4 +60,8 @@ public class Song {
             joinColumns = @JoinColumn(name = "id_song"),
             inverseJoinColumns = @JoinColumn(name = "id_genre"))
     private Genre genre;
+
+    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments= new ArrayList<>();
+
 }
