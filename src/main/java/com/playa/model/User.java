@@ -24,6 +24,10 @@ public class User {
     @Column(nullable = false, length = 20)
     private String type; // 'artist', 'listener', 'admin'
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
     @Column(nullable = false, name = "registerdate")
     private LocalDateTime registerDate;
 
@@ -35,6 +39,8 @@ public class User {
 
     @Column(name = "redsocial", columnDefinition = "TEXT")
     private String redSocial;
+
+    private Boolean active = true;
 
     // Constructores
     public User() {}
@@ -75,4 +81,5 @@ public class User {
 
     public String getRedSocial() { return redSocial; }
     public void setRedSocial(String redSocial) { this.redSocial = redSocial; }
+
 }
