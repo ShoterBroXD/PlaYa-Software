@@ -23,9 +23,6 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    //@Column(name = "iduser", nullable = false)
-    //private Long idUser;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "iduser", updatable = false)
     private User user;

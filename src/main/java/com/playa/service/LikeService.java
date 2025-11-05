@@ -7,7 +7,6 @@ import com.playa.model.User;
 import com.playa.repository.SongRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.playa.repository.LikeRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ public class LikeService {
         User user = userRepository.findById(idUser)
                 .orElseThrow(()->new RuntimeException("Usuario no encontrado"));
 
-        LikeId likeId = new LikeId(idUser, idSong);
+        LikeId likeId = new LikeId(user, song);
         if (likeRepository.existsById(likeId)) {
             return;
         }
@@ -42,7 +41,12 @@ public class LikeService {
 
     @Transactional
     public void removeLike(Long idSong, Long idUser) {
-        LikeId likeId = new LikeId(idUser, idSong);
+        Song song = songRepository.findById(idSong)
+                .orElseThrow(()->new RuntimeException("Canción no encontrada"));
+        User user = userRepository.findById(idUser)
+                .orElseThrow(()->new RuntimeException("Usuario no encontrado"));
+
+        LikeId likeId = new LikeId(user, song);
         if (!likeRepository.existsById(likeId)) {
             throw new RuntimeException("Like no encontrado");
         }

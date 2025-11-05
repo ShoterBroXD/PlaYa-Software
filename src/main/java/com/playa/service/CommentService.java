@@ -2,6 +2,7 @@ package com.playa.service;
 
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.mapper.CommentMapper;
+import com.playa.model.Song;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.playa.repository.CommentRepository;
@@ -44,9 +45,11 @@ public class CommentService {
             throw new ResourceNotFoundException("El comentario padre con ID " + dto.getParentComment() + " no existe");
         }
 
+        Song song = songRepository.findById(dto.getIdSong()).
+                orElseThrow(()-> new RuntimeException("Cancion no encontrada"));
         Comment comment = new Comment();
         comment.setIdUser(dto.getIdUser());
-        comment.setIdSong(dto.getIdSong());
+        comment.setSong(song);
         comment.setContent(dto.getContent().trim());
         comment.setParentComment(dto.getParentComment());
         comment.setDate(LocalDateTime.now());

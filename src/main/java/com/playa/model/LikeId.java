@@ -1,42 +1,36 @@
 package com.playa.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Embeddable
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LikeId implements java.io.Serializable {
-    @Column(name = "iduser")
-    private Long idUser;
+    @ManyToOne
+    @JoinColumn(name = "idUser")
+    private User user;
 
-    @Column(name = "idsong")
-    private Long idSong;
-
-    // Constructores
-    public LikeId() {}
-
-    public LikeId(Long idUser, Long idSong) {
-        this.idUser = idUser;
-        this.idSong = idSong;
-    }
-
-    // Getters y Setters
-    public Long getIdUser() { return idUser; }
-    public void setIdUser(Long idUser) { this.idUser = idUser; }
-
-    public Long getIdSong() { return idSong; }
-    public void setIdSong(Long idSong) { this.idSong = idSong; }
+    @ManyToOne
+    @JoinColumn(name = "idsong")
+    private Song song;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LikeId likeId = (LikeId) o;
-        return idUser.equals(likeId.idUser) && idSong.equals(likeId.idSong);
+        return user.getIdUser().equals(likeId.user.getIdUser()) && song.getIdSong().equals(likeId.song.getIdSong());
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idUser, idSong);
+        return java.util.Objects.hash(user.getIdUser(), song.getIdSong());
     }
 }

@@ -26,7 +26,7 @@ public class CommentMapper {
         return CommentResponseDto.builder()
                 .idComment(c.getIdComment())
                 .idUser(c.getIdUser())
-                .idSong(c.getIdSong())
+                .idSong(c.getSong().getIdSong())
                 .content(c.getContent())
                 .parentComment(c.getParentComment())
                 .date(c.getDate())
