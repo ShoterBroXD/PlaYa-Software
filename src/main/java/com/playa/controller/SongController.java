@@ -19,8 +19,8 @@ public class SongController {
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
-    public ResponseEntity<SongResponseDto> createSong(@Valid @RequestBody SongRequestDto requestDto) {
-        SongResponseDto responseDto = songService.createSong(requestDto);
+    public ResponseEntity<SongResponseDto> createSong(@RequestHeader("iduser") Long idUser,@Valid @RequestBody SongRequestDto requestDto) {
+        SongResponseDto responseDto = songService.createSong(idUser,requestDto);
         return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
 
     }

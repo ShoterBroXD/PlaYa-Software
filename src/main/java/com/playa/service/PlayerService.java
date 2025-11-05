@@ -492,12 +492,7 @@ public class PlayerService {
         response.setArtist(mapUserToArtistResponseDto(song.getUser()));
 
         // Mapear géneros
-        Set<GenreResponseDto> genres = new HashSet<>();
-        Genre g = song.getGenre();
-        if (g != null) {
-            genres.add(new GenreResponseDto(g.getIdGenre(), g.getName()));
-        }
-        response.setGenres(genres);
+        response.setGenre(song.getGenre());
 
         return response;
     }
