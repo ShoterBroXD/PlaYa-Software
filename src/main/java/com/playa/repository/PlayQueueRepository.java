@@ -16,7 +16,9 @@ public interface PlayQueueRepository extends JpaRepository<PlayQueue, Long> {
     List<PlayQueue> findByUserOrderByPositionAsc(User user);
 
     // Eliminar toda la cola de un usuario
-    void deleteAllByUser(User user);
+    @Modifying
+    @Query("DELETE FROM PlayQueue pq WHERE pq.user = :user")
+    void deleteAllByUser(@Param("user") User user);
 
     // Eliminar una canción específica de la cola
     @Modifying
