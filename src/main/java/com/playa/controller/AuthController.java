@@ -1,4 +1,4 @@
-package com.playa.controller;
+/*package com.playa.controller;
 
 import com.playa.dto.request.LoginRequest;
 import com.playa.dto.request.RegisterRequest;
@@ -33,4 +33,4 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
-}
+}*/

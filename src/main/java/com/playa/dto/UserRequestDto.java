@@ -3,10 +3,7 @@ package com.playa.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -24,5 +21,6 @@ public class UserRequestDto {
     private String biography;
     private String redSocial;
     private Boolean premium;
+    private Long idgenre;
     private List<String> favoriteGenres;
 }

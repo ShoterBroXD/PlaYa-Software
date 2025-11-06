@@ -71,14 +71,15 @@ public class UserController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long idgenre) {
 
-        Rol rol= role != null ? role : Rol.ARTIST;
-        List<UserResponseDto> result = userService.filterArtists(rol,name, idgenre);
+        Rol rol = role != null ? role : Rol.ARTIST;
+        List<UserResponseDto> result = userService.filterArtists(rol, name, idgenre);
         return ResponseEntity.ok(result);
+    }
     @GetMapping("/genre/{idgenre}")
     public ResponseEntity<List<UserResponseDto>> getAllByIdGenre(@PathVariable Long idgenre) {
-        List<UserResponseDto> users=userService.findAllByIdGenre(idgenre);
+        List<UserResponseDto> users = userService.findAllByIdGenre(idgenre);
         return ResponseEntity.ok(users);
-      
+    }
     // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (funcionanalidad premium)
     @PutMapping("/{id}/preferences")
     public ResponseEntity<?> updatePreferences(@PathVariable Long id, @RequestBody UserPreferencesDto preferencesDto) {
