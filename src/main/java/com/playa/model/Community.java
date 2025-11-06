@@ -1,10 +1,19 @@
 package com.playa.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "community")
+@Table(name = "communities")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Community {
 
     @Id
@@ -20,56 +29,4 @@ public class Community {
 
     @Column(nullable = false, name = "creationdate")
     private LocalDateTime creationDate;
-
-    // Constructores
-    public Community() {}
-
-    public Community(String name, String description) {
-        this.name = name;
-        this.description = description;
-        this.creationDate = LocalDateTime.now();
-    }
-
-    // Getters y Setters
-    public Long getIdCommunity() {
-        return idCommunity;
-    }
-
-    public void setIdCommunity(Long idCommunity) {
-        this.idCommunity = idCommunity;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Community{" +
-                "idCommunity=" + idCommunity +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", creationDate=" + creationDate +
-                '}';
-    }
 }

@@ -1,119 +1,155 @@
 package com.playa.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.playa.repository.PlaylistRepository;
-import com.playa.repository.PlaylistSongRepository;
-import com.playa.repository.SongRepository;
-import com.playa.model.Playlist;
-import com.playa.model.PlaylistSong;
-import com.playa.model.Song;
+import com.playa.dto.AddSongToPlaylistDto;
 import com.playa.dto.PlaylistRequestDto;
 import com.playa.dto.PlaylistResponseDto;
 import com.playa.dto.SongResponseDto;
-import com.playa.dto.AddSongToPlaylistDto;
 import com.playa.exception.ResourceNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import com.playa.mapper.PlaylistMapper;
+import com.playa.model.Playlist;
+import com.playa.model.PlaylistSong;
+import com.playa.model.PlaylistSongId;
+import com.playa.model.Song;
+import com.playa.repository.PlaylistRepository;
+import com.playa.repository.PlaylistSongRepository;
+import com.playa.repository.SongRepository;
+import com.playa.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PlaylistService {
+    private final PlaylistRepository playlistRepository;
+    private final PlaylistSongRepository playlistSongRepository;
+    private final UserRepository userRepository;
+    private final SongRepository songRepository;
+    private final PlaylistMapper playlistMapper;
 
-    @Autowired
-    private PlaylistRepository playlistRepository;
-
-    @Autowired
-    private PlaylistSongRepository playlistSongRepository;
-
-    @Autowired
-    private SongRepository songRepository;
-
-    // Crear nueva playlist
-    public PlaylistResponseDto createPlaylist(PlaylistRequestDto playlistRequestDto) {
-        Playlist playlist = new Playlist();
-        playlist.setIdUser(playlistRequestDto.getIdUser());
-        playlist.setName(playlistRequestDto.getName());
-        playlist.setDescription(playlistRequestDto.getDescription());
-        playlist.setCreationDate(LocalDateTime.now());
-
-        Playlist savedPlaylist = playlistRepository.save(playlist);
-        return convertToResponseDto(savedPlaylist, null);
-    }
-
-    // Obtener playlist por ID incluyendo las canciones
-    @Transactional(readOnly = true)
-    public List<SongResponseDto> getPlaylistById(Long id) {
-
-        List<Song> songs = playlistSongRepository.findSongsByPlaylistId(id);
-        List<SongResponseDto> songDtos = songs.stream()
-                    .map(this::convertSongToResponseDto)
-                    .toList();
-
-        return songDtos;
-    }
-
-    // Agregar canción a playlist
     @Transactional
-    public void addSongToPlaylist(Long playlistId, AddSongToPlaylistDto addSongDto) {
-        // Verificar que la playlist existe
-        Playlist playlist = playlistRepository.findById(playlistId).orElseThrow(
-            () -> new ResourceNotFoundException("Playlist no encontrada con id: " + playlistId)
-        );
-
-        // Verificar que la canción existe
-        Song song = songRepository.findById(addSongDto.getIdSong()).orElseThrow(
-            () -> new ResourceNotFoundException("Canción no encontrada con id: " + addSongDto.getIdSong())
-        );
-
-        // Verificar si la canción ya está en la playlist
-        if (playlistSongRepository.existsByIdPlaylistAndIdSong(playlistId, addSongDto.getIdSong())) {
-            throw new RuntimeException("La canción ya existe en esta playlist");
+    public PlaylistResponseDto createPlaylist(PlaylistRequestDto requestDto) {
+        if (!userRepository.existsById(requestDto.getIdUser())) {
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + requestDto.getIdUser());
         }
+        Playlist playlist = Playlist.builder()
+                .idUser(requestDto.getIdUser())
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .creationDate(LocalDateTime.now())
+                .build();
+        Playlist savedPlaylist = playlistRepository.save(playlist);
+        return playlistMapper.convertToResponseDto(savedPlaylist);
+    }
 
-        // Agregar la canción a la playlist
-        PlaylistSong playlistSong = new PlaylistSong(playlistId, addSongDto.getIdSong());
+    @Transactional(readOnly = true)
+    public PlaylistResponseDto getPlaylistById(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Playlist no encontrada con ID: " + id));
+        List<PlaylistSong> playlistSongs = playlistSongRepository.findByPlaylistIdOrderByDateAsc(id);
+        List<SongResponseDto> songs = playlistSongs.stream()
+                .map(ps -> {
+                    Song song = songRepository.findById(ps.getId().getIdSong())
+                        .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
+                    return convertSongToResponseDto(song);
+                })
+                .collect(Collectors.toList());
+        PlaylistResponseDto responseDto = playlistMapper.convertToResponseDto(playlist);
+        responseDto.setSongs(songs);
+        return responseDto;
+    }
+
+    @Transactional
+    public void addSongToPlaylist(Long playlistId, AddSongToPlaylistDto requestDto) {
+        if (!playlistRepository.existsById(playlistId)) {
+            throw new ResourceNotFoundException("Playlist no encontrada con ID: " + playlistId);
+        }
+        if (!songRepository.existsById(requestDto.getIdSong())) {
+            throw new ResourceNotFoundException("Canción no encontrada con ID: " + requestDto.getIdSong());
+        }
+        if (playlistSongRepository.existsByIdIdPlaylistAndIdIdSong(playlistId, requestDto.getIdSong())) {
+            throw new IllegalArgumentException("La canción ya está en la playlist");
+        }
+        PlaylistSongId playlistSongId = PlaylistSongId.builder()
+                .idPlaylist(playlistId)
+                .idSong(requestDto.getIdSong())
+                .build();
+        PlaylistSong playlistSong = PlaylistSong.builder()
+                .id(playlistSongId)
+                .date(LocalDateTime.now())
+                .build();
         playlistSongRepository.save(playlistSong);
     }
 
-    // Quitar canción de playlist
     @Transactional
     public void removeSongFromPlaylist(Long playlistId, Long songId) {
-
-        playlistRepository.findById(playlistId).orElseThrow(
-            () -> new ResourceNotFoundException("Playlist no encontrada con id: " + playlistId)
-        );
-
-
-        if (!playlistSongRepository.existsByIdPlaylistAndIdSong(playlistId, songId)) {
-            throw new ResourceNotFoundException("La canción no está en esta playlist");
+        if (!playlistRepository.existsById(playlistId)) {
+            throw new ResourceNotFoundException("Playlist no encontrada con ID: " + playlistId);
         }
-
-        playlistSongRepository.deleteByIdPlaylistAndIdSong(playlistId, songId);
+        if (!playlistSongRepository.existsByIdIdPlaylistAndIdIdSong(playlistId, songId)) {
+            throw new ResourceNotFoundException("La canción no está en la playlist");
+        }
+        playlistSongRepository.deleteByIdIdPlaylistAndIdIdSong(playlistId, songId);
     }
 
-    // Obtener playlists de un usuario
-    public List<PlaylistResponseDto> getPlaylistsByUser(Long idUser) {
-        return playlistRepository.findByIdUserOrderByCreationDateDesc(idUser).stream()
-                .map(playlist -> convertToResponseDto(playlist, null))
+    @Transactional(readOnly = true)
+    public List<PlaylistResponseDto> getAllPlaylists() {
+        List<Playlist> playlists = playlistRepository.findAll();
+        return playlists.stream()
+                .filter(playlist -> playlist.getVisible()) // Filtrar solo playlists visibles
+                .map(playlistMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<PlaylistResponseDto> getPlaylistsByUser(Long userId) {
+        List<Playlist> playlists = playlistRepository.findByIdUserOrderByCreationDateDesc(userId);
+        return playlists.stream()
+                .filter(playlist -> playlist.getVisible()) // Filtrar solo playlists visibles
+                .map(playlistMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public void deletePlaylist(Long id) {
+        if (!playlistRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Playlist no encontrada con ID: " + id);
+        }
+        List<PlaylistSong> playlistSongs = playlistSongRepository.findByIdIdPlaylist(id);
+        playlistSongRepository.deleteAll(playlistSongs);
+        playlistRepository.deleteById(id);
+    }
 
-    // Método auxiliar para convertir Song a SongResponseDto
+    @Transactional
+    public void reportPlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist no encontrada con ID: " + id));
+        playlist.setVisible(false);
+        playlistRepository.save(playlist);
+    }
+
+    @Transactional
+    public void unreportPlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Playlist no encontrada con ID: " + id));
+        playlist.setVisible(true);
+        playlistRepository.save(playlist);
+    }
+
     private SongResponseDto convertSongToResponseDto(Song song) {
-        return new SongResponseDto(
-            song.getIdSong(),
-            song.getIdUser(),
-            song.getTittle(),
-            song.getDescription(),
-            song.getCoverURL(),
-            song.getFileURL(),
-            song.getVisibility(),
-            song.getUploadDate()
-        );
+        return SongResponseDto.builder()
+                .idSong(song.getIdSong())
+                .idUser(song.getUser().getIdUser())
+                .title(song.getTitle())
+                .description(song.getDescription())
+                .coverURL(song.getCoverURL())
+                .fileURL(song.getFileURL())
+                .visibility(song.getVisibility())
+                .uploadDate(song.getUploadDate())
+                .build();
     }
 }

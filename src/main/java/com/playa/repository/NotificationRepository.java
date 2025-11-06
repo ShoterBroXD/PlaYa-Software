@@ -1,21 +1,25 @@
 package com.playa.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import com.playa.model.Notification;
+import com.playa.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    // Métodos personalizados para encontrar notificaciones por usuario
-    List<Notification> findByIdUser(Long idUser);
 
-    // Método para encontrar notificaciones no leídas de un usuario
-    List<Notification> findByIdUserAndReadFalse(Long idUser);
+    @Query("SELECT n FROM Notification n WHERE n.user.idUser = :idUser ORDER BY n.date DESC")
+    List<Notification> findByUserOrderByDateDesc(@Param("idUser") Long idUser);
+
+    @Query("SELECT n FROM Notification n WHERE n.user.idUser = :idUser AND n.read = false ORDER BY n.date DESC")
+    List<Notification> findByUserIdUserAndReadFalseOrderByDateDesc(@Param("idUser") Long idUser);
 
     // Método para contar notificaciones no leídas
-    long countByIdUserAndReadFalse(Long idUser);
+    long countByUserIdUserAndRead(Long idUser, Boolean read);
 
-    // Método para obtener notificaciones de un usuario ordenadas por fecha
-    List<Notification> findByIdUserOrderByDateDesc(Long idUser);
+    List<Notification> findByUserAndReadFalseOrderByDateDesc(User user);
 }

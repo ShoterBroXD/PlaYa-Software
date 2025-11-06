@@ -1,79 +1,94 @@
 package com.playa.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.playa.dto.CommentResponseDto;
+import com.playa.dto.SongRequestDto;
+import com.playa.dto.SongResponseDto;
+import com.playa.service.CommentService;
+import com.playa.service.SongService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.playa.service.SongService;
-import com.playa.dto.SongRequestDto;
-import com.playa.dto.SongResponseDto;
-import com.playa.exception.ResourceNotFoundException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/songs")
+@RequiredArgsConstructor
 public class SongController {
 
-    @Autowired
-    private SongService songService;
+    private final SongService songService;
+    private final CommentService commentService;
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
-    public ResponseEntity<SongResponseDto> createSong(@RequestBody SongRequestDto songRequestDto) {
-        try {
-            SongResponseDto createdSong = songService.createSong(songRequestDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdSong);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<SongResponseDto> createSong(@RequestHeader("iduser") Long idUser,@Valid @RequestBody SongRequestDto requestDto) {
+        SongResponseDto responseDto = songService.createSong(idUser,requestDto);
+        return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
+
     }
 
     // GET /api/v1/songs/{id} - Consultar detalles canción
     @GetMapping("/{id}")
     public ResponseEntity<SongResponseDto> getSongById(@PathVariable Long id) {
-        Optional<SongResponseDto> song = songService.getSongById(id);
-        return song.map(s -> ResponseEntity.ok(s))
-                  .orElse(ResponseEntity.notFound().build());
+        SongResponseDto responseDto = songService.getSongById(id);
+        return ResponseEntity.ok(responseDto);
     }
 
     // PUT /api/v1/songs/{id} - Actualizar canción
     @PutMapping("/{id}")
-    public ResponseEntity<SongResponseDto> updateSong(@PathVariable Long id, @RequestBody SongRequestDto songRequestDto) {
-        try {
-            SongResponseDto updatedSong = songService.updateSong(id, songRequestDto);
-            return ResponseEntity.ok(updatedSong);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<SongResponseDto> updateSong(
+            @PathVariable Long id,
+            @Valid @RequestBody SongRequestDto requestDto) {
+            SongResponseDto responseDto = songService.updateSong(id, requestDto);
+            return ResponseEntity.ok(responseDto);
     }
 
     // DELETE /api/v1/songs/{id} - Eliminar canción
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSong(@PathVariable Long id) {
-        try {
+    public ResponseEntity<String> deleteSong(@PathVariable Long id) {
             songService.deleteSong(id);
-            return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+            return ResponseEntity.ok("Canción eliminada exitosamente");
     }
 
-    // GET /api/v1/songs - Obtener todas las canciones públicas
-    @GetMapping
-    public ResponseEntity<List<SongResponseDto>> getPublicSongs() {
-        List<SongResponseDto> songs = songService.getPublicSongs();
-        return ResponseEntity.ok(songs);
+    @GetMapping("/{idsong}/comments")
+    public ResponseEntity<List<CommentResponseDto>> getComments(
+            @PathVariable Long idsong) {
+        List<CommentResponseDto> comments = songService.getAllComments(idsong);
+        return ResponseEntity.ok(comments);
     }
 
     // GET /api/v1/songs/user/{userId} - Obtener canciones de un usuario
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<SongResponseDto>> getSongsByUser(@PathVariable Long userId) {
         List<SongResponseDto> songs = songService.getSongsByUser(userId);
-        return ResponseEntity.ok(songs);
+        if (songs.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(songs); // 200
+    }
+
+    // GET /api/v1/songs - Obtener todas las canciones públicas
+    @GetMapping("/public")
+    public ResponseEntity<List<SongResponseDto>> getPublicSongs() {
+        List<SongResponseDto> songs = songService.getPublicSongs();
+        if (songs.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(songs); // 200
+    }
+
+    // POST /api/v1/songs/{id}/report - Reportar/ocultar canción
+    @PostMapping("/{id}/report")
+    public ResponseEntity<String> reportSong(@PathVariable Long id) {
+        songService.reportSong(id);
+        return ResponseEntity.ok("Canción reportada y ocultada exitosamente");
+    }
+
+    // POST /api/v1/songs/{id}/unreport - Mostrar canción reportada
+    @PostMapping("/{id}/unreport")
+    public ResponseEntity<String> unreportSong(@PathVariable Long id) {
+        songService.unreportSong(id);
+        return ResponseEntity.ok("Canción habilitada exitosamente");
     }
 }

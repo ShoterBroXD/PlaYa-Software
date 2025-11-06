@@ -1,10 +1,21 @@
 package com.playa.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "song")
+@Table(name = "songs")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Song {
 
     @Id
@@ -12,11 +23,15 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    @Column(name = "iduser", nullable = false)
-    private Long idUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "iduser", updatable = false)
+    private User user;
 
     @Column(nullable = false, length = 150)
-    private String tittle;
+    private String title;
+
+    @Column(nullable = false)
+    private float duration;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -30,98 +45,24 @@ public class Song {
     @Column(nullable = false, length = 20)
     private String visibility; // 'public', 'private', 'unlisted'
 
+    @Column(nullable = false, name = "visible")
+    @Builder.Default
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(nullable = false, name = "uploaddate")
     private LocalDateTime uploadDate;
 
-    // Constructores
-    public Song() {}
+    @ManyToOne
+    @JoinColumn(name="playlist_id", nullable=true)
+    private Playlist playlist;
 
-    public Song(Long idUser, String tittle, String description, String coverURL, String fileURL, String visibility) {
-        this.idUser = idUser;
-        this.tittle = tittle;
-        this.description = description;
-        this.coverURL = coverURL;
-        this.fileURL = fileURL;
-        this.visibility = visibility;
-        this.uploadDate = LocalDateTime.now();
-    }
+    @ManyToOne
+    @JoinTable(name = "song_genre",
+            joinColumns = @JoinColumn(name = "id_song"),
+            inverseJoinColumns = @JoinColumn(name = "id_genre"))
+    private Genre genre;
 
-    // Getters y Setters
-    public Long getIdSong() {
-        return idSong;
-    }
+    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments= new ArrayList<>();
 
-    public void setIdSong(Long idSong) {
-        this.idSong = idSong;
-    }
-
-    public Long getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(Long idUser) {
-        this.idUser = idUser;
-    }
-
-    public String getTittle() {
-        return tittle;
-    }
-
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getCoverURL() {
-        return coverURL;
-    }
-
-    public void setCoverURL(String coverURL) {
-        this.coverURL = coverURL;
-    }
-
-    public String getFileURL() {
-        return fileURL;
-    }
-
-    public void setFileURL(String fileURL) {
-        this.fileURL = fileURL;
-    }
-
-    public String getVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(String visibility) {
-        this.visibility = visibility;
-    }
-
-    public LocalDateTime getUploadDate() {
-        return uploadDate;
-    }
-
-    public void setUploadDate(LocalDateTime uploadDate) {
-        this.uploadDate = uploadDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Song{" +
-                "idSong=" + idSong +
-                ", idUser=" + idUser +
-                ", tittle='" + tittle + '\'' +
-                ", description='" + description + '\'' +
-                ", coverURL='" + coverURL + '\'' +
-                ", fileURL='" + fileURL + '\'' +
-                ", visibility='" + visibility + '\'' +
-                ", uploadDate=" + uploadDate +
-                '}';
-    }
 }
