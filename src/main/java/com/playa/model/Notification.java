@@ -22,9 +22,6 @@ public class Notification {
     @Column(name = "idnotification")
     private Long idNotification;
 
-    //@Column(nullable = false, name = "iduser")
-    //private Long idUser;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUser", updatable = false)
     private User user;

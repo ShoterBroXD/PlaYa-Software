@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import com.playa.repository.UserRepository;
 import com.playa.repository.SongRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -50,10 +52,29 @@ public class CommentService {
         comment.setIdSong(dto.getIdSong());
         comment.setContent(dto.getContent().trim());
         comment.setParentComment(dto.getParentComment());
+        comment.setVisible(true); // Inicializar como visible por defecto
         comment.setDate(LocalDateTime.now());
 
         Comment saved = commentRepository.save(comment);
         return toResponseDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getAllComments() {
+        List<Comment> comments = commentRepository.findAll();
+        return comments.stream()
+                .filter(comment -> comment.getVisible()) // Filtrar solo comentarios visibles
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getCommentsBySong(Long songId) {
+        List<Comment> comments = commentRepository.findByIdSongOrderByDateDesc(songId);
+        return comments.stream()
+                .filter(comment -> comment.getVisible()) // Filtrar solo comentarios visibles
+                .map(this::toResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -67,6 +88,22 @@ public class CommentService {
     public void deleteComment(Long id) {
         Comment comment = commentRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
          commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public void reportComment(Long id) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("El comentario no existe"));
+        comment.setVisible(false);
+        commentRepository.save(comment);
+    }
+
+    @Transactional
+    public void unreportComment(Long id) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("El comentario no existe"));
+        comment.setVisible(true);
+        commentRepository.save(comment);
     }
 
     private CommentResponseDto toResponseDto(Comment comment) {
