@@ -34,6 +34,9 @@ public class Comment {
     @Column(name = "parentcomment")
     private Long parentComment;
 
+    @Column(name = "visible", nullable = false)
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(nullable = false)
     private LocalDateTime date;
 

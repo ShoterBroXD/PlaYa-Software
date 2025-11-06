@@ -6,6 +6,9 @@ import com.playa.model.User;
 import com.playa.model.enums.Rol;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class UserMapper {
 
@@ -17,6 +20,8 @@ public class UserMapper {
                 .type(dto.getType() != null ? Rol.valueOf(dto.getType().toUpperCase()) : null)
                 .biography(dto.getBiography())
                 .redSocial(dto.getRedSocial())
+                .idgenre(dto.getFavoriteGenres() != null && !dto.getFavoriteGenres().isEmpty()
+                    ? String.join(",", dto.getFavoriteGenres()) : null)
                 .build();
     }
 
@@ -30,6 +35,8 @@ public class UserMapper {
                 .biography(user.getBiography())
                 .premium(user.getPremium())
                 .redSocial(user.getRedSocial())
+                .favoriteGenres(user.getIdgenre() != null
+                    ? List.of(user.getIdgenre().split(",")) : new ArrayList<>())
                 .build();
     }
 }
