@@ -1,5 +1,6 @@
 package com.playa.repository;
 
+import com.playa.model.Genre;
 import com.playa.model.enums.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,9 +16,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findById(long id);
 
-    User findByEmail(String email);
+    @Query("SELECT u FROM User u WHERE u.email=: email")
+    User findByEmail(@Param("email") String email);
 
     boolean existsByEmail(String email);
+
+    @Query(value = "SELECT u FROM users u WHERE u.type = 'ARTIST' AND u.registerdate >= (CURRENT_TIMESTAMP - INTERVAL '14 days')",nativeQuery = true)
+    List<User> findNewArtists();
 
     /*@Query("SELECT u FROM User u " +
             "WHERE (:role IS NULL OR u.type = :role )" +
@@ -26,4 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findArtistsByFilters(@Param("role") Rol role ,
                                     @Param("name") String name,
                                     @Param("idgenre") Long idgenre);*/
+    @Query("SELECT u FROM User u WHERE u.idgenre = :idGenre")
+    List<User> findAllByIdGenre(Long idGenre);
 }

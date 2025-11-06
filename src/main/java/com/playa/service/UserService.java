@@ -3,7 +3,9 @@ package com.playa.service;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
+import com.playa.model.Genre;
 import com.playa.model.enums.Rol;
+import com.playa.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class UserService {
     
     private final UserRepository userRepository;
+    private final GenreRepository genreRepository;
     private final UserMapper userMapper;
 
     //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -114,15 +117,20 @@ public class UserService {
         return users.stream()
                 .map(userMapper::convertToResponseDto)
                 .collect(Collectors.toList());
+    }
     @Transactional
+
     public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
-         return userRepository.findAllByIdGenre(idGenre).stream()
-                 .map(userMapper::convertToResponseDto)
-                 .collect(Collectors.toList());
+        return userRepository.findAllByIdGenre(idGenre)
+                .stream().map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public void updateUserPreferences(Long id, List<String> genres) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
-        user.setIdgenre(genres != null && !genres.isEmpty() ? String.join(",", genres) : null);
+        user.setFavoriteGenres(genres);
         userRepository.save(user);
     }
 

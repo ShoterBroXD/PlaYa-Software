@@ -1,4 +1,4 @@
-package com.playa.service;
+/*package com.playa.service;
 
 import com.playa.dto.request.LoginRequest;
 import com.playa.dto.request.RegisterRequest;
@@ -85,4 +85,4 @@ public class AuthService {
 
         return new AuthResponse(token, user.getEmail(), customer.getName());
     }
-}
+}*/

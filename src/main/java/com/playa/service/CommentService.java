@@ -66,16 +66,16 @@ public class CommentService {
         List<Comment> comments = commentRepository.findAll();
         return comments.stream()
                 .filter(comment -> comment.getVisible()) // Filtrar solo comentarios visibles
-                .map(this::toResponseDto)
+                .map(commentMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsBySong(Long songId) {
-        List<Comment> comments = commentRepository.findByIdSongOrderByDateDesc(songId);
+        List<Comment> comments = commentRepository.findBySong_IdSongOrderByDateDesc(songId);
         return comments.stream()
                 .filter(comment -> comment.getVisible()) // Filtrar solo comentarios visibles
-                .map(this::toResponseDto)
+                .map(commentMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -108,14 +108,4 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    private CommentResponseDto toResponseDto(Comment comment) {
-        CommentResponseDto dto = new CommentResponseDto();
-        dto.setIdComment(comment.getIdComment());
-        dto.setIdUser(comment.getIdUser());
-        dto.setIdSong(comment.getIdSong());
-        dto.setContent(comment.getContent());
-        dto.setParentComment(comment.getParentComment());
-        dto.setDate(comment.getDate());
-        return dto;
-    }
 }
