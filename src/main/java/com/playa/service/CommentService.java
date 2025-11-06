@@ -1,6 +1,9 @@
 package com.playa.service;
 
 import com.playa.exception.ResourceNotFoundException;
+import com.playa.mapper.CommentMapper;
+import com.playa.model.Song;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.playa.repository.CommentRepository;
 import com.playa.dto.CommentRequestDto;
@@ -14,16 +17,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final SongRepository songRepository;
+    private final CommentMapper commentMapper;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, SongRepository songRepository) {
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.songRepository = songRepository;
-    }
 
     @Transactional
     public CommentResponseDto createComment(CommentRequestDto dto) {
@@ -47,16 +47,18 @@ public class CommentService {
             throw new ResourceNotFoundException("El comentario padre con ID " + dto.getParentComment() + " no existe");
         }
 
+        Song song = songRepository.findById(dto.getIdSong()).
+                orElseThrow(()-> new RuntimeException("Cancion no encontrada"));
         Comment comment = new Comment();
         comment.setIdUser(dto.getIdUser());
-        comment.setIdSong(dto.getIdSong());
+        comment.setSong(song);
         comment.setContent(dto.getContent().trim());
         comment.setParentComment(dto.getParentComment());
         comment.setVisible(true); // Inicializar como visible por defecto
         comment.setDate(LocalDateTime.now());
 
         Comment saved = commentRepository.save(comment);
-        return toResponseDto(saved);
+        return commentMapper.convertToResponseDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +82,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public CommentResponseDto getComment(Long id) {
         return commentRepository.findById(id)
-            .map(this::toResponseDto)
+            .map(commentMapper::convertToResponseDto)
                 .orElseThrow(()-> new ResourceNotFoundException("El comentario no existe"));
     }
 

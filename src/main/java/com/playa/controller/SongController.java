@@ -1,7 +1,9 @@
 package com.playa.controller;
 
+import com.playa.dto.CommentResponseDto;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
+import com.playa.service.CommentService;
 import com.playa.service.SongService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.List;
 public class SongController {
 
     private final SongService songService;
+    private final CommentService commentService;
 
     // POST /api/v1/songs - Subir canción
     @PostMapping
@@ -48,6 +51,12 @@ public class SongController {
             return ResponseEntity.ok("Canción eliminada exitosamente");
     }
 
+    @GetMapping("/{idsong}/comments")
+    public ResponseEntity<List<CommentResponseDto>> getComments(
+            @PathVariable Long idsong) {
+        List<CommentResponseDto> comments = songService.getAllComments(idsong);
+        return ResponseEntity.ok(comments);
+    }
 
     // GET /api/v1/songs/user/{userId} - Obtener canciones de un usuario
     @GetMapping("/user/{userId}")

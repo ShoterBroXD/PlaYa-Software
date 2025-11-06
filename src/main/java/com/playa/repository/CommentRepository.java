@@ -11,7 +11,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     // Métodos personalizados si los necesitas
 
     // Buscar comentarios por canción
-    List<Comment> findByIdSongOrderByDateAsc(Long idSong);
+    List<Comment> findBySong_IdSongOrderByDateAsc(Long idSong);
 
     // Buscar comentarios por canción ordenados por fecha descendente
     List<Comment> findByIdSongOrderByDateDesc(Long idSong);
