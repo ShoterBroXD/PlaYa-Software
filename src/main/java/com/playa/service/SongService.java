@@ -121,7 +121,24 @@ public class SongService {
                 .collect(Collectors.toList());
     }
 
-    // Método auxiliar para convertir Song a SongResponseDto
+    @Transactional
+    public void reportSong(Long id) {
+        Song song = songRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
+        );
+        song.setVisible(false);
+        songRepository.save(song);
+    }
+
+    @Transactional
+    public void unreportSong(Long id) {
+        Song song = songRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Canción no encontrada con id: " + id)
+        );
+        song.setVisible(true);
+        songRepository.save(song);
+    }
+
     private SongResponseDto convertToResponseDto(Song song) {
         return SongResponseDto.builder()
                 .idSong(song.getIdSong())

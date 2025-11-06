@@ -23,6 +23,9 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "visible", nullable = false)
+    private Boolean visible = true; // true = visible, false = oculto por reporte
+
     @Column(name = "postdate")
     private LocalDateTime postDate;
 
