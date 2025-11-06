@@ -54,9 +54,7 @@ public class UserService {
         );
 
         // Actualizar solo los campos que no son null
-        if (userDetails.getName() != null) {
-            user.setName(userDetails.getName());
-        }
+        user.setName(userDetails.getName());
         if (userDetails.getEmail() != null) {
             user.setEmail(userDetails.getEmail());
         }
@@ -77,6 +75,24 @@ public class UserService {
             throw new RuntimeException("Usuario no encontrado con id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void updateUserPreferences(Long id, List<String> genres) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        user.setIdgenre(genres != null && !genres.isEmpty() ? String.join(",", genres) : null);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void resetUserPreferences(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        user.setIdgenre(null); // Limpia géneros favoritos
+        // Aquí deberías limpiar historial y likes si tienes esos modelos relacionados
+        // Por ejemplo: historyRepository.deleteByUserId(id); likeRepository.deleteByUserId(id);
+        userRepository.save(user);
     }
 
 }
