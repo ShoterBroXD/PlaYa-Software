@@ -3,11 +3,8 @@ package com.playa.service;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.playa.repository.UserRepository;
 import com.playa.model.User;
@@ -24,6 +21,8 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
     public List<UserResponseDto> getAllUsers() {
@@ -78,6 +77,10 @@ public class UserService {
     }
 
     @Transactional
+    public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
+         return userRepository.findAllByIdGenre(idGenre).stream()
+                 .map(userMapper::convertToResponseDto)
+                 .collect(Collectors.toList());
     public void updateUserPreferences(Long id, List<String> genres) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
