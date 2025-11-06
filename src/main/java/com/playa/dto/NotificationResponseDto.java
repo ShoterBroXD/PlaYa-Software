@@ -1,5 +1,6 @@
 package com.playa.dto;
 
+import com.playa.model.enums.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +15,8 @@ import java.time.LocalDateTime;
 public class NotificationResponseDto {
 
     private Long idNotification;
-    private Long idUser;
     private String content;
     private Boolean read;
     private LocalDateTime date;
+    private Category type;
 }
