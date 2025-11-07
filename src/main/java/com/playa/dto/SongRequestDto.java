@@ -39,4 +39,6 @@ public class SongRequestDto {
     @NotNull(message = "Debe seleccionar un género")
     private Long idgenre;
 
+    private Float duration; // Duración en segundos (opcional)
+
 }

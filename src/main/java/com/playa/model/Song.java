@@ -23,7 +23,7 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "iduser", updatable = false)
     private User user;
 
@@ -56,10 +56,8 @@ public class Song {
     @JoinColumn(name="playlist_id", nullable=true)
     private Playlist playlist;
 
-    @ManyToOne
-    @JoinTable(name = "song_genre",
-            joinColumns = @JoinColumn(name = "id_song"),
-            inverseJoinColumns = @JoinColumn(name = "id_genre"))
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "idgenre")
     private Genre genre;
 
     @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)

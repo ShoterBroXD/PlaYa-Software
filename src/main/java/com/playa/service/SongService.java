@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import com.playa.dto.ArtistResponseDto;
 import com.playa.dto.CommentResponseDto;
 import com.playa.mapper.CommentMapper;
 import com.playa.model.Comment;
@@ -68,6 +69,7 @@ public class SongService {
         song.setCoverURL(songRequestDto.getCoverURL());
         song.setFileURL(songRequestDto.getFileURL());
         song.setVisibility(songRequestDto.getVisibility());
+        song.setDuration(songRequestDto.getDuration() != null ? songRequestDto.getDuration() : 0.0f);
         song.setUploadDate(LocalDateTime.now());
 
         Genre genre=songRequestDto.getIdgenre()!=null?
@@ -155,6 +157,17 @@ public class SongService {
     }
 
     private SongResponseDto convertToResponseDto(Song song) {
+        // Crear ArtistResponseDto desde el User
+        ArtistResponseDto artist = null;
+        if (song.getUser() != null) {
+            artist = new ArtistResponseDto(
+                song.getUser().getIdUser(),
+                song.getUser().getName(),
+                song.getUser().getBiography(),
+                null // El genre del artist se maneja por separado
+            );
+        }
+
         return SongResponseDto.builder()
                 .idSong(song.getIdSong())
                 .idUser(song.getUser().getIdUser())
@@ -163,7 +176,10 @@ public class SongService {
                 .coverURL(song.getCoverURL())
                 .fileURL(song.getFileURL())
                 .visibility(song.getVisibility())
+                .duration(song.getDuration())
                 .uploadDate(song.getUploadDate())
+                .artist(artist)
+                .genre(song.getGenre())
                 .build();
     }
 }

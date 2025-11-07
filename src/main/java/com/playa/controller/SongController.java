@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,8 +21,9 @@ public class SongController {
     private final SongService songService;
     private final CommentService commentService;
 
-    // POST /api/v1/songs - Subir canción
+    // POST /api/v1/songs - Subir canción (Solo artistas)
     @PostMapping
+    @PreAuthorize("hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<SongResponseDto> createSong(@RequestHeader("iduser") Long idUser,@Valid @RequestBody SongRequestDto requestDto) {
         SongResponseDto responseDto = songService.createSong(idUser,requestDto);
         return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
@@ -35,8 +37,9 @@ public class SongController {
         return ResponseEntity.ok(responseDto);
     }
 
-    // PUT /api/v1/songs/{id} - Actualizar canción
+    // PUT /api/v1/songs/{id} - Actualizar canción (Solo propietario o admin)
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<SongResponseDto> updateSong(
             @PathVariable Long id,
             @Valid @RequestBody SongRequestDto requestDto) {
@@ -44,8 +47,9 @@ public class SongController {
             return ResponseEntity.ok(responseDto);
     }
 
-    // DELETE /api/v1/songs/{id} - Eliminar canción
+    // DELETE /api/v1/songs/{id} - Eliminar canción (Solo propietario o admin)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteSong(@PathVariable Long id) {
             songService.deleteSong(id);
             return ResponseEntity.ok("Canción eliminada exitosamente");
@@ -78,15 +82,17 @@ public class SongController {
         return ResponseEntity.ok(songs); // 200
     }
 
-    // POST /api/v1/songs/{id}/report - Reportar/ocultar canción
+    // POST /api/v1/songs/{id}/report - Reportar/ocultar canción (Solo admin)
     @PostMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> reportSong(@PathVariable Long id) {
         songService.reportSong(id);
         return ResponseEntity.ok("Canción reportada y ocultada exitosamente");
     }
 
-    // POST /api/v1/songs/{id}/unreport - Mostrar canción reportada
+    // POST /api/v1/songs/{id}/unreport - Mostrar canción reportada (Solo admin)
     @PostMapping("/{id}/unreport")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unreportSong(@PathVariable Long id) {
         songService.unreportSong(id);
         return ResponseEntity.ok("Canción habilitada exitosamente");

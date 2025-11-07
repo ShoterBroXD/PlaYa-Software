@@ -19,6 +19,7 @@ public class SongResponseDto {
     private String coverURL;
     private String fileURL;
     private String visibility;
+    private Float duration;
     private LocalDateTime uploadDate;
     private ArtistResponseDto artist;
     private Genre genre;
