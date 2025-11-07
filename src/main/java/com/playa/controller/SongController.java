@@ -1,15 +1,20 @@
 package com.playa.controller;
 
 import com.playa.dto.CommentResponseDto;
+import com.playa.dto.RateSongRequestDto;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.service.CommentService;
 import com.playa.service.SongService;
+import com.playa.repository.UserRepository;
+import com.playa.model.User;
+import com.playa.exception.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,6 +25,7 @@ public class SongController {
 
     private final SongService songService;
     private final CommentService commentService;
+    private final UserRepository userRepository; // nuevo para resolver usuario autenticado
 
     // POST /api/v1/songs - Subir canción (Solo artistas)
     @PostMapping
@@ -96,5 +102,18 @@ public class SongController {
     public ResponseEntity<String> unreportSong(@PathVariable Long id) {
         songService.unreportSong(id);
         return ResponseEntity.ok("Canción habilitada exitosamente");
+    }
+
+    // POST /api/v1/songs/{id}/rate - Calificar canción (ahora toma usuario del token)
+    @PostMapping("/{id}/rate")
+    public ResponseEntity<SongResponseDto> rateSong(
+            @PathVariable Long id,
+            @Valid @RequestBody RateSongRequestDto request,
+            Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        SongResponseDto responseDto = songService.rateSong(id, user.getIdUser(), request.getRating());
+        return ResponseEntity.ok(responseDto);
     }
 }
