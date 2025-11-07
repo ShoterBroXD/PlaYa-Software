@@ -99,7 +99,7 @@ class AuthServiceTest {
 
         User savedUser = createMockUser(1L, "test_listener@mail.com", "encodedPassword", "Test Listener", Rol.LISTENER);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(jwtUtil.generateToken("test_listener@mail.com", "Test Listener", "1")).thenReturn("fake-jwt-token");
+        when(jwtUtil.generateToken("test_listener@mail.com", "Test Listener", 1L)).thenReturn("fake-jwt-token");
 
         // Act
         AuthResponse response = authService.register(request);
@@ -132,7 +132,7 @@ class AuthServiceTest {
 
         User savedUser = createMockUser(2L, "artist@mail.com", "encodedPassword", "Test Artist", Rol.ARTIST);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(jwtUtil.generateToken("artist@mail.com", "Test Artist", "2")).thenReturn("artist-jwt-token");
+        when(jwtUtil.generateToken("artist@mail.com", "Test Artist", 2L)).thenReturn("artist-jwt-token");
 
         // Act
         AuthResponse response = authService.register(request);
@@ -197,7 +197,7 @@ class AuthServiceTest {
 
         User user = createMockUser(1L, "usuario@valido.com", "encodedPassword", "Usuario Válido", Rol.LISTENER);
         when(userRepository.findByEmail("usuario@valido.com")).thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken("usuario@valido.com", "Usuario Válido", "1")).thenReturn("login-jwt-token");
+        when(jwtUtil.generateToken("usuario@valido.com", "Usuario Válido", 1L)).thenReturn("login-jwt-token");
 
         // Act
         AuthResponse response = authService.login(request);
@@ -269,7 +269,7 @@ class AuthServiceTest {
             return savedUser;
         });
 
-        when(jwtUtil.generateToken("test@mail.com", "Test User", "1")).thenReturn("jwt-token");
+        when(jwtUtil.generateToken("test@mail.com", "Test User", 1L)).thenReturn("jwt-token");
 
         // Act
         AuthResponse response = authService.register(request);

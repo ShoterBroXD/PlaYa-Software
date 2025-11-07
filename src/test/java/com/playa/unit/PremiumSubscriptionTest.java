@@ -90,10 +90,11 @@ class PremiumSubscriptionTest {
     void viewSubscriptionStatus_PremiumUser_Success() {
         // Arrange
         String email = "user_premium@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(mockPremiumUser);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockPremiumUser));
 
         // Act
-        User user = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.orElseThrow();
 
         // Assert
         assertThat(user).isNotNull();
@@ -116,10 +117,11 @@ class PremiumSubscriptionTest {
     void viewSubscriptionStatus_FreeUser_Success() {
         // Arrange
         String email = "user_free@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(mockFreeUser);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockFreeUser));
 
         // Act
-        User user = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        User user = userOptional.orElseThrow();
 
         // Assert
         assertThat(user).isNotNull();

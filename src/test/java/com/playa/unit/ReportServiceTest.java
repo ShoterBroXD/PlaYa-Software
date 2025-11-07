@@ -50,7 +50,7 @@ class ReportContentTest {
         Song song = new Song();
         song.setIdSong(id);
         song.setTitle(title);
-        song.setIdUser(1L);
+        song.setUser(mockUser); // Usar el objeto User en lugar de idUser
         song.setDuration(3.5f);
         song.setVisibility("public");
         song.setVisible(true);
@@ -84,14 +84,14 @@ class ReportContentTest {
         // Arrange
         String email = "test_listener@mail.com";
 
-        when(userRepository.findByEmail(email)).thenReturn(mockUser);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
 
         // Act & Assert
-        User foundUser = userRepository.findByEmail(email);
+        Optional<User> foundUser = userRepository.findByEmail(email);
 
-        assertThat(foundUser).isNotNull();
-        assertThat(foundUser.getIdUser()).isEqualTo(123L);
-        assertThat(foundUser.getEmail()).isEqualTo("test_listener@mail.com");
+        assertThat(foundUser).isPresent();
+        assertThat(foundUser.get().getIdUser()).isEqualTo(123L);
+        assertThat(foundUser.get().getEmail()).isEqualTo("test_listener@mail.com");
 
         verify(userRepository).findByEmail(email);
     }

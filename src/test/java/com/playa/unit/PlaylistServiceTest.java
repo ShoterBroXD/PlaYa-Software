@@ -64,7 +64,7 @@ class PlaylistServiceTest {
     void setUp() {
         mockUser = createMockUser(123L, "test_listener@mail.com", "Test Listener");
         mockPlaylist = createMockPlaylist(1L, 123L, "Test Playlist", "Test Description");
-        mockSong = createMockSong(55L, "Test Song", "Test Artist");
+        mockSong = createMockSong(55L, "Test Song");
     }
 
     private User createMockUser(Long id, String email, String name) {
@@ -86,11 +86,11 @@ class PlaylistServiceTest {
                 .build();
     }
 
-    private Song createMockSong(Long id, String title, String artist) {
+    private Song createMockSong(Long id, String title) {
         Song song = new Song();
         song.setIdSong(id);
         song.setTitle(title);
-        song.setIdUser(1L); // Usuario que creó la canción
+        song.setUser(mockUser); // Usar el objeto User en lugar de idUser
         song.setDuration(3.5f);
         song.setVisibility("public");
         song.setVisible(true);
