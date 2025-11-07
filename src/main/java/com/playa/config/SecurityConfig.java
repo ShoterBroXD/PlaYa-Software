@@ -34,6 +34,9 @@ public class SecurityConfig {
                         // Auth endpoints
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/accounts").permitAll()
+                        .requestMatchers("/users").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("auth/**").permitAll()
                         // Actuator endpoints (Health Check)
                         .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                         // Swagger/OpenAPI endpoints

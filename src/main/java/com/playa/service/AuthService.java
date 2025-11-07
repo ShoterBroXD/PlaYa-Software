@@ -1,15 +1,13 @@
-/*package com.playa.service;
+package com.playa.service;
 
 import com.playa.dto.request.LoginRequest;
 import com.playa.dto.request.RegisterRequest;
 import com.playa.dto.response.AuthResponse;
 import com.playa.exception.DuplicateEmailException;
 import com.playa.exception.RoleNotFoundException;
-import com.playa.model.Customer;
 import com.playa.model.Role;
 import com.playa.model.RoleType;
 import com.playa.model.User;
-import com.playa.repository.CustomerRepository;
 import com.playa.repository.RoleRepository;
 import com.playa.repository.UserRepository;
 import com.playa.security.JwtUtil;
@@ -22,12 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final CustomerRepository customerRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -36,12 +35,18 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateEmailException("Email already registered");
+            throw new DuplicateEmailException("El correo ya está registrado");
         }
 
-        User user = new User();
-        user.setEmail(request.email());
-        user.setPassword(passwordEncoder.encode(request.password()));
+        User user = User.builder()
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .name(request.name())
+                .type(request.type())
+                .registerDate(LocalDateTime.now())
+                .premium(false)
+                .active(true)
+                .build();
 
         Role userRole = roleRepository.findByName(RoleType.ROLE_USER)
                 .orElseThrow(() -> new RoleNotFoundException("Role ROLE_USER not found"));
@@ -49,21 +54,9 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        // Crear Customer asociado al User con todos los datos
-        Customer customer = new Customer();
-        customer.setUser(savedUser);
-        customer.setName(request.name());
-        customer.setPhone(request.phone());
-        customer.setDni(request.dni());
-        customer.setAddress(request.address());
-        customer.setDateOfBirth(request.dateOfBirth());
-        customer.setNationality(request.nationality());
-        customer.setOccupation(request.occupation());
-        Customer savedCustomer = customerRepository.save(customer);
+        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getName(), savedUser.getIdUser().toString());
 
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedCustomer.getName(), savedCustomer.getId());
-
-        return new AuthResponse(token, savedUser.getEmail(), request.name());
+        return new AuthResponse(token, savedUser.getEmail(), savedUser.getName());
     }
 
     @Transactional(readOnly = true)
@@ -76,13 +69,10 @@ public class AuthService {
         );
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        Customer customer = customerRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Customer not found for user"));
+        String token = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser().toString());
 
-        String token = jwtUtil.generateToken(user.getEmail(), customer.getName(), customer.getId());
-
-        return new AuthResponse(token, user.getEmail(), customer.getName());
+        return new AuthResponse(token, user.getEmail(), user.getName());
     }
-}*/
+}

@@ -39,10 +39,8 @@ public class PasswordService {
 
     @Transactional
     public String generateResetToken(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new ResourceNotFoundException("Usuario no encontrado");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         tokenRepository.deleteByUser(user);
 

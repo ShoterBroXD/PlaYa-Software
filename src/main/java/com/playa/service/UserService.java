@@ -121,7 +121,7 @@ public class UserService {
     @Transactional
 
     public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
-        return userRepository.findAllByIdGenre(idGenre)
+        return userRepository.findAllByIdgenre(idGenre)
                 .stream().map(userMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
