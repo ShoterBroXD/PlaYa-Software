@@ -65,6 +65,14 @@ public class User {
     @Column(name = "genre")
     private java.util.List<String> favoriteGenres;
 
+    // Nuevo: Idioma preferido de la interfaz (Español, Inglés, Português)
+    @Column(name = "language", length = 20)
+    private String language = "Español";
+
+    // Nuevo: Visibilidad del historial de reproducción
+    @Column(name = "history_visible")
+    private Boolean historyVisible = true;
+
     public User(String name, String email, String password, Rol type) {
         this.name = name;
         this.email = email;

@@ -12,6 +12,9 @@ import javax.management.relation.Role;
 import com.playa.dto.UserPreferencesDto;
 import java.util.List;
 
+import com.playa.dto.UpdateLanguageRequest;
+import com.playa.dto.UpdatePrivacyRequest;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -99,5 +102,19 @@ public class UserController {
     public ResponseEntity<?> resetPreferences(@PathVariable Long id) {
         userService.resetUserPreferences(id);
         return ResponseEntity.ok("Preferencias reiniciadas. Recibirás recomendaciones desde cero");
+    }
+
+    // NUEVO: PUT /api/v1/users/{id}/settings/language - Actualizar idioma de interfaz
+    @PutMapping("/{id}/settings/language")
+    public ResponseEntity<?> updateLanguage(@PathVariable Long id, @RequestBody UpdateLanguageRequest request) {
+        userService.updateUserLanguage(id, request.getLanguage());
+        return ResponseEntity.ok("Idioma actualizado correctamente");
+    }
+
+    // NUEVO: PUT /api/v1/users/{id}/settings/privacy - Actualizar privacidad del historial
+    @PutMapping("/{id}/settings/privacy")
+    public ResponseEntity<?> updatePrivacy(@PathVariable Long id, @RequestBody UpdatePrivacyRequest request) {
+        userService.updateUserHistoryVisibility(id, request.getHistoryVisible());
+        return ResponseEntity.ok("Configuración de privacidad actualizada correctamente");
     }
 }
