@@ -138,9 +138,9 @@ public class UserService {
     public void resetUserPreferences(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
-        user.setIdgenre(null); // Limpia géneros favoritos
-        // Aquí deberías limpiar historial y likes si tienes esos modelos relacionados
-        // Por ejemplo: historyRepository.deleteByUserId(id); likeRepository.deleteByUserId(id);
+        user.setIdgenre(null); // Limpia género principal
+        user.setFavoriteGenres(new java.util.ArrayList<>()); // Limpia lista de géneros favoritos
+        // TODO: Limpiar historial y likes si corresponde (historyRepository, likeRepository) cuando existan métodos.
         userRepository.save(user);
     }
 
