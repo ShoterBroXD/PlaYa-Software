@@ -47,6 +47,10 @@ public class SecurityConfig {
                         // Public comment endpoints (GET requests for reading comments)
                         .requestMatchers("GET", "/comments/song/*").permitAll()
                         .requestMatchers("GET", "/comments/*").permitAll()
+                        // Public social endpoints (GET requests for reading shares)
+                        .requestMatchers("GET", "/social/shares/song/*").permitAll()
+                        .requestMatchers("GET", "/social/shares/count/*").permitAll()
+                        .requestMatchers("GET", "/social/share-link/*").permitAll()
                         // Protected endpoints - SPECIFIC BEFORE GENERAL
                         .requestMatchers("POST", "/comments/**").authenticated()
                         .requestMatchers("PUT", "/comments/**").authenticated()
@@ -54,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("POST", "/songs/**").authenticated()
                         .requestMatchers("PUT", "/songs/**").authenticated()
                         .requestMatchers("DELETE", "/songs/**").authenticated()
+                        .requestMatchers("/social/**").authenticated()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

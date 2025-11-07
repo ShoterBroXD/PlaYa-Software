@@ -1,0 +1,718 @@
+{
+	"info": {
+		"_postman_id": "a58bc10d-72ff-4372-b789-1e34c5d6e890",
+		"name": "PlaYa - Funcionalidad 04: Integración con Redes Sociales",
+		"description": "Colección para probar la funcionalidad de integración con redes sociales con protecciones de seguridad JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ESCENARIO 1: ✅ Acceso Autorizado",
+			"item": [
+				{
+					"name": "1.1 Compartir en Facebook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"facebook\",\n  \"message\": \"¡Escuchen esta increíble canción de Queen!\",\n  \"hashtags\": \"#music #rock #queen #playa\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Compartir en Twitter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"twitter\",\n  \"message\": \"🎵 Bohemian Rhapsody en PlaYa! Una obra maestra del rock progresivo 🎸\",\n  \"hashtags\": \"#BohemianRhapsody #Queen #Rock #Music\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Compartir en WhatsApp",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"whatsapp\",\n  \"message\": \"¡Hey! Tienes que escuchar esta canción en PlaYa 🎵\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Ver Mis Comparticiones",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/social/shares",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"shares"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 Actualizar Perfil de Redes Sociales",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"facebookUrl\": \"https://www.facebook.com/miartista\",\n  \"twitterUrl\": \"https://www.twitter.com/miartista\",\n  \"instagramUrl\": \"https://www.instagram.com/miartista\",\n  \"youtubeUrl\": \"https://www.youtube.com/c/miartista\",\n  \"tiktokUrl\": \"https://www.tiktok.com/@miartista\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.6 Verificar Si Puedo Compartir",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/social/can-share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"can-share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ESCENARIO 01: Generar Enlace de Compartir con Metadatos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/social/share-link/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share-link",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ESCENARIO 02: Vincular Red Social (Credenciales Correctas)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"platform\": \"instagram\",\n  \"credentials\": \"miartista_oficial\",\n  \"profileUrl\": \"https://www.instagram.com/miartista_oficial\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/connect",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"connect"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ESCENARIO 2: ❌ Sin Token",
+			"item": [
+				{
+					"name": "2.1 Compartir Canción Sin Token (401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"facebook\",\n  \"message\": \"Esta compartición debería fallar por falta de autenticación.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Actualizar Perfil Sin Token (401)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"facebookUrl\": \"https://www.facebook.com/hacker\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ESCENARIO 3: ❌ Rol Insuficiente",
+			"item": [
+				{
+					"name": "3.1 Ver Comparticiones de Otro Usuario (403 - Solo ADMIN)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token_listener}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/social/shares/user/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"shares",
+								"user",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ADMIN: Funciones Especiales",
+			"item": [
+				{
+					"name": "ADMIN: Ver Comparticiones de Cualquier Usuario",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token_admin}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/social/shares/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"shares",
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Endpoints Públicos (Sin Token)",
+			"item": [
+				{
+					"name": "Ver Comparticiones de Canción (Público)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/social/shares/song/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"shares",
+								"song",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contador de Comparticiones (Público)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/social/shares/count/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"shares",
+								"count",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Casos de Error - Validaciones",
+			"item": [
+				{
+					"name": "Error: Plataforma No Soportada (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"snapchat\",\n  \"message\": \"Plataforma no soportada\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Error: Canción Inexistente (404)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 99999,\n  \"platform\": \"facebook\",\n  \"message\": \"Canción que no existe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Error: URL Redes Sociales Inválida (400)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"facebookUrl\": \"url-invalida\",\n  \"twitterUrl\": \"no-es-twitter.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Error: Límite de Comparticiones Alcanzado (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token_free_user}}"
+							},
+							{
+								"key": "iduser",
+								"value": "2"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"facebook\",\n  \"message\": \"Esta será la compartición número 11 (debería fallar para usuario gratuito)\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ESCENARIO 02: Error - Credenciales Incorrectas",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"platform\": \"twitter\",\n  \"credentials\": \"\",\n  \"profileUrl\": \"https://www.twitter.com/invalid\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/connect",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"connect"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pruebas de Todas las Plataformas",
+			"item": [
+				{
+					"name": "Compartir en Instagram",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"instagram\",\n  \"message\": \"🎵 Nueva música en mi historia! #NewMusic #PlaYa\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compartir en Telegram",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "iduser",
+								"value": "1"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"songId\": 3,\n  \"platform\": \"telegram\",\n  \"message\": \"🎼 Escucha esta canción en PlaYa! Te va a encantar 🎵\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/social/share",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"social",
+								"share"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "YOUR_ARTIST_JWT_TOKEN_HERE",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token_listener",
+			"value": "YOUR_LISTENER_JWT_TOKEN_HERE",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token_admin",
+			"value": "YOUR_ADMIN_JWT_TOKEN_HERE",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token_free_user",
+			"value": "YOUR_FREE_USER_JWT_TOKEN_HERE",
+			"type": "string"
+		}
+	]
+}
+
