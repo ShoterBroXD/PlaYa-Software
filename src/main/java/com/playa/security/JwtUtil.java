@@ -20,14 +20,14 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
 
-    public String generateToken(String email, String name, String customerId) {
+    public String generateToken(String email, String name, Long userId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("name", name)
-                .claim("customerId", customerId)
+                .claim("userId", userId)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -44,9 +44,9 @@ public class JwtUtil {
         return claims.get("name", String.class);
     }
 
-    public String getCustomerIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
-        return claims.get("customerId", String.class);
+        return claims.get("userId", Long.class);
     }
 
     private Claims getAllClaimsFromToken(String token) {
