@@ -4,8 +4,10 @@ import com.playa.service.CommentService;
 import com.playa.dto.CommentRequestDto;
 import com.playa.dto.CommentResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,10 +31,11 @@ public class CommentController {
         return ResponseEntity.ok(comments); // 200
     }
 
-    // POST /api/v1/comments - Crear comentario
+    // POST /api/v1/comments - Crear comentario (Solo usuarios autenticados)
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
-        CommentResponseDto response = commentService.createComment(dto);
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<CommentResponseDto> createComment(@RequestHeader("iduser") Long idUser, @Valid @RequestBody CommentRequestDto dto) {
+        CommentResponseDto response = commentService.createComment(idUser, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -57,22 +60,25 @@ public class CommentController {
         return ResponseEntity.ok(comments); // 200
     }
 
-    // POST /api/v1/comments/{id}/report - Reportar/ocultar comentario
+    // POST /api/v1/comments/{id}/report - Reportar/ocultar comentario (Solo admin)
     @PostMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> reportComment(@PathVariable Long id) {
         commentService.reportComment(id);
         return ResponseEntity.ok("Comentario reportado y ocultado exitosamente");
     }
 
-    // POST /api/v1/comments/{id}/unreport - Mostrar comentario reportado
+    // POST /api/v1/comments/{id}/unreport - Mostrar comentario reportado (Solo admin)
     @PostMapping("/{id}/unreport")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unreportComment(@PathVariable Long id) {
         commentService.unreportComment(id);
         return ResponseEntity.ok("Comentario habilitado exitosamente");
     }
 
-    // DELETE /api/v1/comments/{id} - Eliminar comentario
+    // DELETE /api/v1/comments/{id} - Eliminar comentario (Solo propietario o admin)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @commentService.isCommentOwner(#id, authentication.name)")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.noContent().build();
