@@ -22,6 +22,9 @@ import java.util.List;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.playa.repository.SongRatingRepository;
+import com.playa.model.SongRating;
+import com.playa.model.SongRatingId;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class SongService {
     private final GenreRepository genreRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final SongRatingRepository songRatingRepository;
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
@@ -58,6 +62,10 @@ public class SongService {
             if(activeSongs>=MAX_FREE_SONGS){
                 throw new IllegalStateException("Los usuarios gratuitos no pueden subir más de " + MAX_FREE_SONGS + " canciones. Actualiza a premium para subir más canciones.");
             }
+        }
+
+        if (songRequestDto.getCoverURL() == null || songRequestDto.getCoverURL().isBlank()) {
+            throw new IllegalArgumentException("La URL de la portada no puede estar vacía");
         }
 
         validateFileFormat(songRequestDto.getFileURL());
@@ -180,7 +188,56 @@ public class SongService {
                 .uploadDate(song.getUploadDate())
                 .artist(artist)
                 .genre(song.getGenre())
+                .averageRating(song.getAverageRating())
+                .ratingCount(song.getRatingCount())
                 .build();
     }
-}
 
+    @Transactional
+    public SongResponseDto rateSong(Long songId, Long userId, int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("La calificación debe estar entre 1 y 5");
+        }
+
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con id: " + songId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        // Buscar calificación existente del usuario
+        var existingOpt = songRatingRepository.findBySongAndUser(song, user);
+
+        double total = (song.getAverageRating() != null ? song.getAverageRating() : 0.0) * (song.getRatingCount() != null ? song.getRatingCount() : 0);
+        int count = song.getRatingCount() != null ? song.getRatingCount() : 0;
+
+        if (existingOpt.isPresent()) {
+            // Actualizar calificación existente
+            SongRating existing = existingOpt.get();
+            int previous = existing.getRating();
+            existing.setRating(rating);
+            existing.setUpdatedAt(java.time.LocalDateTime.now());
+            songRatingRepository.save(existing);
+
+            total = total - previous + rating;
+            // count no cambia
+        } else {
+            // Nueva calificación
+            SongRating ratingEntity = new SongRating();
+            ratingEntity.setId(new SongRatingId(songId, userId));
+            ratingEntity.setSong(song);
+            ratingEntity.setUser(user);
+            ratingEntity.setRating(rating);
+            ratingEntity.setUpdatedAt(java.time.LocalDateTime.now());
+            songRatingRepository.save(ratingEntity);
+
+            count = count + 1;
+            total = total + rating;
+        }
+
+        song.setRatingCount(count);
+        song.setAverageRating(count == 0 ? 0.0 : total / count);
+        Song saved = songRepository.save(song);
+        return convertToResponseDto(saved);
+    }
+}

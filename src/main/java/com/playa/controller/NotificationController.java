@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class NotificationController {
 
     // GET /notifications - Listar notificaciones de usuario
     @GetMapping
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<List<NotificationResponseDto>> getNotificationsByUser(@RequestHeader Long idUser, @RequestParam(required = false, defaultValue = "false") Boolean unreadOnly) {
         List<NotificationResponseDto> notifications = notificationService.getUserNotifications(idUser, unreadOnly);
         return ResponseEntity.ok(notifications);
@@ -35,8 +37,9 @@ public class NotificationController {
 
     // PUT /notifications/{id} - Marcar como leída
     @PutMapping("/{id}/read")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<NotificationResponseDto> markAsRead(@RequestHeader("idUser") Long iduser,@PathVariable Long id) {
-        notificationService.markAsRead(iduser,id);
+        notificationService.markAsRead(id,iduser);
         return ResponseEntity.ok().build();
     }
 
@@ -55,9 +58,17 @@ public class NotificationController {
     }
 
     // Configurar preferencias
-    @PutMapping("/preferences")
+    @PutMapping("/preferences/edit")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Void> updatePreferences(@RequestHeader("idUser") Long idUser,@RequestBody NotificationPreferenceRequestDto request) {
-        notificationService.updatePreferences(idUser, request);
+        notificationService.setpreferences(idUser, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/preferences")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<Void> togglePreferences(@RequestHeader("idUser") Long idUser) {
+        notificationService.togglePreferences(idUser);
         return ResponseEntity.ok().build();
     }
 

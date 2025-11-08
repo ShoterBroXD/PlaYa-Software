@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,22 +20,24 @@ public class PlaylistController {
 
     private final PlaylistService playlistService;
 
-    // POST /api/v1/playlists - Crear playlist
+    // POST /api/v1/playlists - Crear playlist (US-013)
     @PostMapping
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
     public ResponseEntity<PlaylistResponseDto> createPlaylist(@Valid @RequestBody PlaylistRequestDto requestDto) {
         PlaylistResponseDto responseDto = playlistService.createPlaylist(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    // GET /api/v1/playlists/{id} - Obtener playlist
+    // GET /api/v1/playlists/{id} - Obtener playlist (Solo propietario, admin o si es pública)
     @GetMapping("/{id}")
     public ResponseEntity<PlaylistResponseDto> getPlaylistById(@PathVariable Long id) {
         PlaylistResponseDto responseDto = playlistService.getPlaylistById(id);
         return ResponseEntity.ok(responseDto);
     }
 
-    // POST /api/v1/playlists/{id}/songs - Agregar canción a playlist
+    // POST /api/v1/playlists/{id}/songs - Agregar canción a playlist (Solo propietario)
     @PostMapping("/{id}/songs")
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
     public ResponseEntity<String> addSongToPlaylist(
             @PathVariable Long id,
             @Valid @RequestBody AddSongToPlaylistDto requestDto) {
@@ -42,8 +45,9 @@ public class PlaylistController {
         return ResponseEntity.ok("Canción agregada a la playlist exitosamente");
     }
 
-    // DELETE /api/v1/playlists/{id}/songs/{songId} - Quitar canción de playlist
+    // DELETE /api/v1/playlists/{id}/songs/{songId} - Quitar canción de playlist (Solo propietario)
     @DeleteMapping("/{id}/songs/{songId}")
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
     public ResponseEntity<String> removeSongFromPlaylist(
             @PathVariable Long id,
             @PathVariable Long songId) {
@@ -51,7 +55,7 @@ public class PlaylistController {
         return ResponseEntity.ok("Canción removida de la playlist exitosamente");
     }
 
-    // GET /api/v1/playlists - Obtener todas las playlists
+    // GET /api/v1/playlists - Obtener todas las playlists públicas
     @GetMapping
     public ResponseEntity<List<PlaylistResponseDto>> getAllPlaylists() {
         List<PlaylistResponseDto> playlists = playlistService.getAllPlaylists();
@@ -61,8 +65,9 @@ public class PlaylistController {
         return ResponseEntity.ok(playlists); // 200
     }
 
-    // GET /api/v1/playlists/user/{userId} - Obtener playlists de un usuario
+    // GET /api/v1/playlists/user/{userId} - Obtener playlists de un usuario (Solo propietario o admin)
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
     public ResponseEntity<List<PlaylistResponseDto>> getPlaylistsByUser(@PathVariable Long userId) {
         List<PlaylistResponseDto> playlists = playlistService.getPlaylistsByUser(userId);
         if (playlists.isEmpty()) {
@@ -71,22 +76,25 @@ public class PlaylistController {
         return ResponseEntity.ok(playlists); // 200
     }
 
-    // POST /api/v1/playlists/{id}/report - Reportar/ocultar playlist
+    // POST /api/v1/playlists/{id}/report - Reportar/ocultar playlist (Solo admin)
     @PostMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> reportPlaylist(@PathVariable Long id) {
         playlistService.reportPlaylist(id);
         return ResponseEntity.ok("Playlist reportada y ocultada exitosamente");
     }
 
-    // POST /api/v1/playlists/{id}/unreport - Mostrar playlist reportada
+    // POST /api/v1/playlists/{id}/unreport - Mostrar playlist reportada (Solo admin)
     @PostMapping("/{id}/unreport")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unreportPlaylist(@PathVariable Long id) {
         playlistService.unreportPlaylist(id);
         return ResponseEntity.ok("Playlist habilitada exitosamente");
     }
 
-    // DELETE /api/v1/playlists/{id} - Eliminar playlist
+    // DELETE /api/v1/playlists/{id} - Eliminar playlist (Solo propietario o admin)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<String> deletePlaylist(@PathVariable Long id) {
         playlistService.deletePlaylist(id);
         return ResponseEntity.ok("Playlist eliminada exitosamente");
