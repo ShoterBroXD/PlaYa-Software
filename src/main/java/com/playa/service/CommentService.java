@@ -26,15 +26,15 @@ public class CommentService {
 
 
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto dto) {
+    public CommentResponseDto createComment(Long idUser, CommentRequestDto dto) {
         // Validar que los campos requeridos no sean nulos
-        if (dto.getIdUser() == null || dto.getIdSong() == null || dto.getContent() == null || dto.getContent().trim().isEmpty()) {
+        if (idUser == null || dto.getIdSong() == null || dto.getContent() == null || dto.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("Los campos idUser, idSong y content son obligatorios");
         }
 
         // Validar que el usuario existe
-        if (!userRepository.existsById(dto.getIdUser())) {
-            throw new ResourceNotFoundException("El usuario con ID " + dto.getIdUser() + " no existe");
+        if (!userRepository.existsById(idUser)) {
+            throw new ResourceNotFoundException("El usuario con ID " + idUser + " no existe");
         }
 
         // Validar que la canción existe
@@ -50,7 +50,7 @@ public class CommentService {
         Song song = songRepository.findById(dto.getIdSong()).
                 orElseThrow(()-> new RuntimeException("Cancion no encontrada"));
         Comment comment = new Comment();
-        comment.setIdUser(dto.getIdUser());
+        comment.setIdUser(idUser);
         comment.setSong(song);
         comment.setContent(dto.getContent().trim());
         comment.setParentComment(dto.getParentComment());
@@ -106,6 +106,17 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("El comentario no existe"));
         comment.setVisible(true);
         commentRepository.save(comment);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isCommentOwner(Long commentId, String userEmail) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("El comentario no existe"));
+
+        // Buscar el usuario por email
+        return userRepository.findByEmail(userEmail)
+                .map(user -> user.getIdUser().equals(comment.getIdUser()))
+                .orElse(false);
     }
 
 }

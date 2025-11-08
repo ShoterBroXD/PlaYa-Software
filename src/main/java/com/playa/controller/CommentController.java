@@ -4,6 +4,7 @@ import com.playa.service.CommentService;
 import com.playa.dto.CommentRequestDto;
 import com.playa.dto.CommentResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;

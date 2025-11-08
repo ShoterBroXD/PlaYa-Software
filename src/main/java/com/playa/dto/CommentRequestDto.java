@@ -1,7 +1,7 @@
 package com.playa.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -10,11 +10,13 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 public class CommentRequestDto {
     // Constructores, getters y setters
-    private Long idUser;
+    @NotNull(message = "El ID de la canción es obligatorio")
     private Long idSong;
-    @NotBlank
-    @Length(max = 100)
+
+    @NotBlank(message = "El contenido del comentario no puede estar vacío")
+    @Length(max = 500, message = "El comentario no puede tener más de 500 caracteres")
     private String content;
+
     private Long parentComment; // null si no es respuesta
 
 }
