@@ -35,8 +35,8 @@ public class CommentController {
     // POST /api/v1/comments - Crear comentario (Requiere autenticación)
     @PostMapping
     @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
-        CommentResponseDto response = commentService.createComment(dto);
+    public ResponseEntity<CommentResponseDto> createComment(@RequestHeader("iduser") Long idUser, @RequestBody CommentRequestDto dto) {
+        CommentResponseDto response = commentService.createComment(idUser, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
