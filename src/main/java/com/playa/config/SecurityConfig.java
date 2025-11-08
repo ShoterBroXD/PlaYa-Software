@@ -41,19 +41,24 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        // Public song endpoints (SPECIFIC PATTERNS FIRST)
-                        .requestMatchers("GET", "/songs/public").permitAll()
-                        .requestMatchers("GET", "/songs/*/comments").permitAll()
-                        // Public comment endpoints (GET requests for reading comments)
-                        .requestMatchers("GET", "/comments/song/*").permitAll()
-                        .requestMatchers("GET", "/comments/*").permitAll()
-                        // Protected endpoints - SPECIFIC BEFORE GENERAL
-                        .requestMatchers("POST", "/comments/**").authenticated()
-                        .requestMatchers("PUT", "/comments/**").authenticated()
-                        .requestMatchers("DELETE", "/comments/**").authenticated()
-                        .requestMatchers("POST", "/songs/**").authenticated()
-                        .requestMatchers("PUT", "/songs/**").authenticated()
-                        .requestMatchers("DELETE", "/songs/**").authenticated()
+                        // Public song endpoints (GET requests for public songs)
+                        .requestMatchers("/songs/public").permitAll()
+                        .requestMatchers("/songs/*/comments").permitAll()
+                        // Reports endpoints - require authentication
+                        .requestMatchers("/reports/**").authenticated()
+                        // Premium functionality endpoints - require authentication and premium validation
+                        .requestMatchers("/users/*/preferences/**").authenticated()
+                        .requestMatchers("/premium/**").authenticated()
+                        // Songs endpoints - require authentication and role validation
+                        .requestMatchers("/songs/**").authenticated()
+                        // Playlists endpoints - require authentication
+                        .requestMatchers("/playlists/**").authenticated()
+                        // Comments endpoints - require authentication
+                        .requestMatchers("/comments/**").authenticated()
+                        // Notifications endpoints - require authentication
+                        .requestMatchers("/notifications/**").authenticated()
+                        // Users endpoints - require authentication
+                        .requestMatchers("/users/**").authenticated()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

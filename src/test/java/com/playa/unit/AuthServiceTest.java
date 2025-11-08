@@ -68,11 +68,11 @@ class AuthServiceTest {
         userRole.setName(RoleType.ROLE_USER);
     }
 
-    private User createMockUser(Long id, String email, String password, String name, Rol type) {
+    private User createMockUser(Long id, String email, String name, Rol type) {
         return User.builder()
                 .idUser(id)
                 .email(email)
-                .password(password)
+                .password("encodedPassword")
                 .name(name)
                 .type(type)
                 .role(userRole)
@@ -97,7 +97,7 @@ class AuthServiceTest {
         when(roleRepository.findByName(RoleType.ROLE_USER)).thenReturn(Optional.of(userRole));
         when(passwordEncoder.encode(request.password())).thenReturn("encodedPassword");
 
-        User savedUser = createMockUser(1L, "test_listener@mail.com", "encodedPassword", "Test Listener", Rol.LISTENER);
+        User savedUser = createMockUser(1L, "test_listener@mail.com", "Test Listener", Rol.LISTENER);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(jwtUtil.generateToken("test_listener@mail.com", "Test Listener", 1L)).thenReturn("fake-jwt-token");
 
@@ -130,7 +130,7 @@ class AuthServiceTest {
         when(roleRepository.findByName(RoleType.ROLE_USER)).thenReturn(Optional.of(userRole));
         when(passwordEncoder.encode(request.password())).thenReturn("encodedPassword");
 
-        User savedUser = createMockUser(2L, "artist@mail.com", "encodedPassword", "Test Artist", Rol.ARTIST);
+        User savedUser = createMockUser(2L, "artist@mail.com", "Test Artist", Rol.ARTIST);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(jwtUtil.generateToken("artist@mail.com", "Test Artist", 2L)).thenReturn("artist-jwt-token");
 
@@ -195,7 +195,7 @@ class AuthServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
 
-        User user = createMockUser(1L, "usuario@valido.com", "encodedPassword", "Usuario Válido", Rol.LISTENER);
+        User user = createMockUser(1L, "usuario@valido.com", "Usuario Válido", Rol.LISTENER);
         when(userRepository.findByEmail("usuario@valido.com")).thenReturn(Optional.of(user));
         when(jwtUtil.generateToken("usuario@valido.com", "Usuario Válido", 1L)).thenReturn("login-jwt-token");
 

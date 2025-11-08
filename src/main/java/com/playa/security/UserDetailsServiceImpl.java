@@ -24,8 +24,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + email));
 
-        // Usar el tipo de usuario (Rol) para las autoridades
+        // Usar el tipo de usuario (Rol) para las autoridades - asegurar que siempre hay un rol
         String roleAuthority = user.getType() != null ? user.getType().name() : "LISTENER";
+
+        // Debug log para verificar qué rol se está asignando
+        System.out.println("DEBUG: Usuario " + email + " tiene tipo: " + user.getType() + " -> authority: ROLE_" + roleAuthority);
+
         Collection<GrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + roleAuthority)
         );
@@ -33,7 +37,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.getActive(),
+                user.getActive() != null ? user.getActive() : true, // Asegurar que no sea null
                 true,
                 true,
                 true,
