@@ -60,6 +60,10 @@ public class SongService {
             }
         }
 
+        if (songRequestDto.getCoverURL() == null || songRequestDto.getCoverURL().isBlank()) {
+            throw new IllegalArgumentException("La URL de la portada no puede estar vacía");
+        }
+
         validateFileFormat(songRequestDto.getFileURL());
 
         Song song=new Song();
