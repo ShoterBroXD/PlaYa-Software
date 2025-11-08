@@ -76,6 +76,7 @@ public class UserController {
 
     // GET /api/v1/users/artists/filter - Filtrar artistas (público)
     @GetMapping("/artists/filter")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> filterArtists(
             @RequestParam(required = false) Rol role,
             @RequestParam(required = false) String name,

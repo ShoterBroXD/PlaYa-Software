@@ -7,6 +7,7 @@ import com.playa.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,9 +17,10 @@ public class PasswordController {
     private final UserService userService;
     private final PasswordService passwordService;
 
-    @PutMapping("/{id}/password")
-    public ResponseEntity<String> changePassword(@PathVariable Long id, @Valid @RequestBody PasswordChangeRequestDto request){
-        passwordService.changePassword(id, request);
+    @PutMapping("/password/change")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeRequestDto request){
+        passwordService.changePassword(request);
         return ResponseEntity.ok("Contraseña cambiada exitosamente");
     }
 
