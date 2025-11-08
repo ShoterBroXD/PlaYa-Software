@@ -1,5 +1,6 @@
 package com.playa.dto;
 
+import com.playa.model.Genre;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,9 +19,10 @@ public class SongResponseDto {
     private String coverURL;
     private String fileURL;
     private String visibility;
+    private Float duration;
     private LocalDateTime uploadDate;
     private ArtistResponseDto artist;
-    private Set<GenreResponseDto> genres;
+    private Genre genre;
 
     //public SongResponseDto() {}
 

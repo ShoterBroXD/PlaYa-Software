@@ -19,40 +19,26 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SongRequestDto {
 
-    @NotNull
-    private Long idUser;
-
-    @NotBlank(message = "El título es obligatorio")
-    @Size(max = 150)
+    @NotBlank(message = "El título de la canción no puede estar vacío")
+    @Size(max = 150, message = "El título de la canción no puede tener más de 150 caracteres")
     private String title;
 
     @Size(max = 100)
     private String description;
 
-    @NotBlank
+    @NotBlank(message = "La URL de la portada no puede estar vacía")
     private String coverURL;
 
-    @NotBlank
+    @NotBlank(message = "La URL del archivo no puede estar vacía")
     private String fileURL;
 
     @NotBlank
     @Pattern(regexp = "^(public|private|unlisted)$", message = "La visibilidad debe ser: public, private o unlisted")
-    private String visibility;
-    public Genre genre;
-    public Set<Genre> genres;
+    private String visibility="public";
 
-    // Constructores
-    //public SongRequestDto() {}
+    @NotNull(message = "Debe seleccionar un género")
+    private Long idgenre;
 
-    //public SongRequestDto(Long idUser, String title, String description, String coverURL, String fileURL, String visibility) {
-    //    this.idUser = idUser;
-    //    this.title = title;
-    //    this.description = description;
-    //   this.coverURL = coverURL;
-    //    this.fileURL = fileURL;
-    //    this.visibility = visibility;
-    //}
-
-
+    private Float duration; // Duración en segundos (opcional)
 
 }

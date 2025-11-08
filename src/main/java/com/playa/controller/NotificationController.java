@@ -26,18 +26,18 @@ public class NotificationController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    // PUT /notifications/{id} - Marcar como leída
-    @PutMapping("/{id}")
-    public ResponseEntity<NotificationResponseDto> markAsRead(@PathVariable Long id) {
-        NotificationResponseDto responseDto = notificationService.markAsRead(id);
-        return ResponseEntity.ok(responseDto);
+    // GET /notifications - Listar notificaciones de usuario
+    @GetMapping
+    public ResponseEntity<List<NotificationResponseDto>> getNotificationsByUser(@RequestHeader Long idUser, @RequestParam(required = false, defaultValue = "false") Boolean unreadOnly) {
+        List<NotificationResponseDto> notifications = notificationService.getUserNotifications(idUser, unreadOnly);
+        return ResponseEntity.ok(notifications);
     }
 
-    // GET /notifications/{idUser} - Listar notificaciones de usuario
-    @GetMapping("/{idUser}")
-    public ResponseEntity<List<NotificationResponseDto>> getNotificationsByUser(@PathVariable Long idUser) {
-        List<NotificationResponseDto> notifications = notificationService.getNotificationsByUser(idUser);
-        return ResponseEntity.ok(notifications);
+    // PUT /notifications/{id} - Marcar como leída
+    @PutMapping("/{id}/read")
+    public ResponseEntity<NotificationResponseDto> markAsRead(@RequestHeader("idUser") Long iduser,@PathVariable Long id) {
+        notificationService.markAsRead(iduser,id);
+        return ResponseEntity.ok().build();
     }
 
     // GET /notifications/{idUser}/unread - Obtener notificaciones no leídas
@@ -56,10 +56,8 @@ public class NotificationController {
 
     // Configurar preferencias
     @PutMapping("/preferences")
-    public ResponseEntity<Void> updatePreferences(
-            @RequestHeader("userId") Long userId,
-            @RequestBody NotificationPreferenceRequestDto request) {
-        notificationService.updatePreferences(userId, request);
+    public ResponseEntity<Void> updatePreferences(@RequestHeader("idUser") Long idUser,@RequestBody NotificationPreferenceRequestDto request) {
+        notificationService.updatePreferences(idUser, request);
         return ResponseEntity.ok().build();
     }
 

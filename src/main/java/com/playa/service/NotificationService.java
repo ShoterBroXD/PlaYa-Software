@@ -6,7 +6,10 @@ import com.playa.dto.NotificationResponseDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.mapper.NotificationMapper;
 import com.playa.model.Notification;
+import com.playa.model.NotificationPreference;
 import com.playa.model.User;
+import com.playa.model.enums.Category;
+import com.playa.repository.NotificationPreferenceRepository;
 import com.playa.repository.NotificationRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,43 +25,46 @@ import java.util.stream.Collectors;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationPreferenceRepository notificationPreferenceRepository;
     private final NotificationMapper notificationMapper;
 
     @Transactional
-    public NotificationResponseDto createNotification(NotificationRequestDto requestDto) {
-        if (!userRepository.existsById(requestDto.getIdUser())) {
-            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + requestDto.getIdUser());
-        }
+    public NotificationResponseDto createNotification(NotificationRequestDto notificationRequestDto) {
+        User user= userRepository.findById(notificationRequestDto.getIdUser())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        Notification notification = Notification.builder()
-                .idUser(requestDto.getIdUser())
-                .content(requestDto.getContent())
-                .date(requestDto.getDate() != null ? requestDto.getDate() : LocalDateTime.now())
-                .read(false)
-                .build();
+        Notification notification = notificationMapper.convertToEntity(notificationRequestDto);
+        notification.setUser(user);
+        notification.setContent(notificationRequestDto.getContent());
+        notification.setRead(notificationRequestDto.getRead());
+        notification.setDate(LocalDateTime.now());
 
-        Notification savedNotification = notificationRepository.save(notification);
-        return notificationMapper.convertToResponseDto(savedNotification);
+        notificationRepository.save(notification);
+        return notificationMapper.convertToResponseDto(notification);
     }
 
     @Transactional
-    public NotificationResponseDto markAsRead(Long idNotification) {
+    public void markAsRead(Long idUser,Long idNotification) {
         Notification notification = notificationRepository.findById(idNotification)
-                .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada con ID: " + idNotification));
+                .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada "));
+
+        if(!notification.getUser().getIdUser().equals(idUser)){
+            throw new IllegalArgumentException("Notificación no pertenece al usuario especificado");
+        }
 
         notification.setRead(true);
-        Notification updatedNotification = notificationRepository.save(notification);
-        return notificationMapper.convertToResponseDto(updatedNotification);
+        notificationRepository.save(notification);
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationResponseDto> getNotificationsByUser(Long idUser) {
-        // Validar que el usuario existe
-        if (!userRepository.existsById(idUser)) {
-            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + idUser);
-        }
+    public List<NotificationResponseDto> getUserNotifications(Long userId, Boolean unreadOnly) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        List<Notification> notifications = notificationRepository.findByIdUserOrderByDateDesc(idUser);
+        List<Notification> notifications = unreadOnly
+                ? notificationRepository.findByUserAndReadFalseOrderByDateDesc(user)
+                : notificationRepository.findByUserOrderByDateDesc(user.getIdUser());
+
         return notifications.stream()
                 .map(notificationMapper::convertToResponseDto)
                 .collect(Collectors.toList());
@@ -66,7 +72,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<NotificationResponseDto> getUnreadNotificationsByUser(Long idUser) {
-        List<Notification> notifications = notificationRepository.findUnreadByIdUserOrderByDateDesc(idUser);
+        List<Notification> notifications = notificationRepository.findByUserIdUserAndReadFalseOrderByDateDesc(idUser);
         return notifications.stream()
                 .map(notificationMapper::convertToResponseDto)
                 .collect(Collectors.toList());
@@ -82,13 +88,26 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public long getUnreadCount(Long idUser) {
-        return notificationRepository.countByIdUserAndRead(idUser, false);
+        return notificationRepository.countByUserIdUserAndRead(idUser, false);
     }
 
     @Transactional
     public void updatePreferences(Long userId, NotificationPreferenceRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        // Aquí podrías actualizar preferencias si tienes campos en User
+
+        NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
+
+        if(preference == null){
+            preference = new NotificationPreference();
+            preference.setUser(user);
+        }
+
+        preference.setEnableComments(request.getEnabledComments());
+        preference.setEnableFollowers(request.getEnableFollowers());
+        preference.setEnableSystems(request.getEnableSystems());
+        preference.setEnableNewReleases(request.getEnableNewReleases());
+
+        notificationPreferenceRepository.save(preference);
     }
 }

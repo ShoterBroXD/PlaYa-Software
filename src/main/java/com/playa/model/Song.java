@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "songs")
@@ -21,11 +23,8 @@ public class Song {
     @Column(name = "idsong")
     private Long idSong;
 
-    @Column(name = "iduser", nullable = false)
-    private Long idUser;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iduser", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "iduser", updatable = false)
     private User user;
 
     @Column(nullable = false, length = 150)
@@ -57,9 +56,11 @@ public class Song {
     @JoinColumn(name="playlist_id", nullable=true)
     private Playlist playlist;
 
-    @ManyToOne
-    @JoinTable(name = "song_genre",
-            joinColumns = @JoinColumn(name = "id_song"),
-            inverseJoinColumns = @JoinColumn(name = "id_genre"))
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "idgenre")
     private Genre genre;
+
+    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments= new ArrayList<>();
+
 }

@@ -22,13 +22,4 @@ public class PlaylistResponseDto {
     private LocalDateTime creationDate;
     private List<SongResponseDto> songs;
 
-    //public PlaylistResponseDto(Long idPlaylist, Long idUser, String name, String description, LocalDateTime creationDate,List<SongResponseDto> songs) {
-    //    this.idPlaylist = idPlaylist;
-    //    this.idUser = idUser;
-    //    this.name = name;
-    //    this.description = description;
-    //    this.creationDate = creationDate;
-    //    this.songs = songs;
-    //}
-
 }

@@ -1,10 +1,12 @@
 package com.playa.controller;
 
+import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
+
 import com.playa.dto.UserPreferencesDto;
 import java.util.List;
 
@@ -61,6 +63,21 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/artists/filter")
+    public ResponseEntity<List<UserResponseDto>> filterArtists(
+            @RequestParam(required = false) Rol role,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long idgenre) {
+
+        Rol rol = role != null ? role : Rol.ARTIST;
+        List<UserResponseDto> result = userService.filterArtists(rol, name, idgenre);
+        return ResponseEntity.ok(result);
+    }
+    @GetMapping("/genre/{idgenre}")
+    public ResponseEntity<List<UserResponseDto>> getAllByIdGenre(@PathVariable Long idgenre) {
+        List<UserResponseDto> users = userService.findAllByIdGenre(idgenre);
+        return ResponseEntity.ok(users);
+    }
     // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (funcionanalidad premium)
     @PutMapping("/{id}/preferences")
     public ResponseEntity<?> updatePreferences(@PathVariable Long id, @RequestBody UserPreferencesDto preferencesDto) {
@@ -80,5 +97,14 @@ public class UserController {
     public ResponseEntity<?> resetPreferences(@PathVariable Long id) {
         userService.resetUserPreferences(id);
         return ResponseEntity.ok("Preferencias reiniciadas. Recibirás recomendaciones desde cero");
+    }
+
+    @GetMapping("/nuevos")
+    public ResponseEntity<List<UserResponseDto>> getNewArtists(Rol role) {
+        List<UserResponseDto> users = userService.getNewArtists();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(users);
     }
 }

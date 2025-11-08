@@ -1,6 +1,15 @@
 package com.playa.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.playa.dto.ArtistResponseDto;
+import com.playa.dto.CommentResponseDto;
+import com.playa.mapper.CommentMapper;
+import com.playa.model.Comment;
+import com.playa.model.Genre;
+import com.playa.model.User;
+import com.playa.repository.CommentRepository;
+import com.playa.repository.GenreRepository;
+import com.playa.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.playa.repository.SongRepository;
 import com.playa.model.Song;
@@ -10,15 +19,22 @@ import com.playa.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SongService {
 
-    @Autowired
-    private SongRepository songRepository;
+    private static final Long MAX_FREE_SONGS = 10L;
+    private static final Set<String> ALLOWED_FILE_FORMATS = Set.of("mp3", "wav", "flac");
+
+    private final SongRepository songRepository;
+    private final UserRepository userRepository;
+    private final GenreRepository genreRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     public List<SongResponseDto> getAllSongs() {
         return songRepository.findAll().stream()
@@ -26,18 +42,44 @@ public class SongService {
                 .collect(Collectors.toList());
     }
 
-    public SongResponseDto createSong(SongRequestDto songRequestDto) {
-        Song song = new Song();
-        song.setIdUser(songRequestDto.getIdUser());
+    private void validateFileFormat(String fileURL) {
+        String fileExtension = fileURL.substring(fileURL.lastIndexOf('.') + 1).toLowerCase();
+        if (!ALLOWED_FILE_FORMATS.contains(fileExtension)) {
+            throw new IllegalArgumentException("Formato de archivo no permitido: " + fileExtension);
+        }
+    }
+
+    public SongResponseDto createSong(Long userId, SongRequestDto songRequestDto) {
+        User user=userRepository.findById(userId)
+                .orElseThrow(()->new ResourceNotFoundException("Usuario no encontrado."));
+
+        if(!user.getPremium()){
+            Long activeSongs=songRepository.countByUserAndVisibilityNot(user,"deleted");
+            if(activeSongs>=MAX_FREE_SONGS){
+                throw new IllegalStateException("Los usuarios gratuitos no pueden subir más de " + MAX_FREE_SONGS + " canciones. Actualiza a premium para subir más canciones.");
+            }
+        }
+
+        validateFileFormat(songRequestDto.getFileURL());
+
+        Song song=new Song();
+        song.setUser(user);
         song.setTitle(songRequestDto.getTitle());
         song.setDescription(songRequestDto.getDescription());
         song.setCoverURL(songRequestDto.getCoverURL());
         song.setFileURL(songRequestDto.getFileURL());
         song.setVisibility(songRequestDto.getVisibility());
+        song.setDuration(songRequestDto.getDuration() != null ? songRequestDto.getDuration() : 0.0f);
         song.setUploadDate(LocalDateTime.now());
 
-        Song savedSong = songRepository.save(song);
+        Genre genre=songRequestDto.getIdgenre()!=null?
+                genreRepository.findById(songRequestDto.getIdgenre())
+                        .orElseThrow(()->new ResourceNotFoundException("Género no encontrado.")):null;
+        song.setGenre(genre);
+
+        Song savedSong=songRepository.save(song);
         return convertToResponseDto(savedSong);
+
     }
 
     @Transactional(readOnly = true)
@@ -75,8 +117,17 @@ public class SongService {
         songRepository.delete(song);
     }
 
+    public List<CommentResponseDto> getAllComments(Long idsong) {
+        Song song = songRepository.findById(idsong).orElseThrow(()->new RuntimeException("Canción no encontrada"));
+
+        List<Comment> comments= commentRepository.findBySong_IdSongOrderByDateAsc(idsong);
+        return comments.stream()
+                .map(commentMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
     public List<SongResponseDto> getSongsByUser(Long idUser) {
-        return songRepository.findByIdUser(idUser).stream()
+        return songRepository.findByUser_IdUser(idUser).stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -106,15 +157,30 @@ public class SongService {
     }
 
     private SongResponseDto convertToResponseDto(Song song) {
+        // Crear ArtistResponseDto desde el User
+        ArtistResponseDto artist = null;
+        if (song.getUser() != null) {
+            artist = new ArtistResponseDto(
+                song.getUser().getIdUser(),
+                song.getUser().getName(),
+                song.getUser().getBiography(),
+                null // El genre del artist se maneja por separado
+            );
+        }
+
         return SongResponseDto.builder()
                 .idSong(song.getIdSong())
-                .idUser(song.getIdUser())
+                .idUser(song.getUser().getIdUser())
                 .title(song.getTitle())
                 .description(song.getDescription())
                 .coverURL(song.getCoverURL())
                 .fileURL(song.getFileURL())
                 .visibility(song.getVisibility())
+                .duration(song.getDuration())
                 .uploadDate(song.getUploadDate())
+                .artist(artist)
+                .genre(song.getGenre())
                 .build();
     }
 }
+

@@ -76,6 +76,14 @@ public class PlayerController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/seek")
+    public ResponseEntity<Map<String, Object>> seekTo(
+            @RequestHeader("idUser") Long idUser,
+            @Valid @RequestBody SeekRequestDto request) {
+        Map<String, Object> response = playerService.seekTo(idUser, request);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/next")
     public ResponseEntity<PlaybackControlResponseDto> next(
             @RequestHeader("iduser") Long userId) {

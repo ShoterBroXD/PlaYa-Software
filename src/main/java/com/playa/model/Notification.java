@@ -1,5 +1,6 @@
 package com.playa.model;
 
+import com.playa.model.enums.Category;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,22 +22,20 @@ public class Notification {
     @Column(name = "idnotification")
     private Long idNotification;
 
-    @Column(nullable = false, name = "iduser")
-    private Long idUser;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iduser", insertable = false, updatable = false)
+    @JoinColumn(name = "idUser", updatable = false)
     private User user;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content",nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false, name = "read")
-    @Builder.Default
+    @Column(name = "read" ,nullable = false)
     private Boolean read = false;
 
-    @Column(nullable = false)
+    @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
-
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", length = 50)
+    private Category type;
 }

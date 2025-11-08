@@ -24,7 +24,7 @@ public class User {
     @Column(name = "iduser")
     private Long idUser;
 
-    @Column(length = 100)
+    @Column(name = "name", columnDefinition = "VARCHAR(100)")
     private String name;
 
     @Column(nullable = false, length = 100)
@@ -33,11 +33,12 @@ public class User {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    // @Column(nullable = false, length = 20)
-    //private String type; // 'artist', 'listener', 'admin' // Podría ser un ENUM
-
     @Enumerated(EnumType.STRING)
     private Rol type;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @Column(nullable = false, name = "registerdate")
     private LocalDateTime registerDate;
@@ -51,8 +52,15 @@ public class User {
     @Column(name = "redsocial", columnDefinition = "TEXT")
     private String redSocial;
 
+    private Boolean active = true;
+
     @Column(name="idgenre")
-    private String idgenre;
+    private Long idgenre;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_favorite_genres", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "genre")
+    private java.util.List<String> favoriteGenres;
 
     public User(String name, String email, String password, Rol type) {
         this.name = name;
