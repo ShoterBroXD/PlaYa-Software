@@ -3,6 +3,7 @@ package com.playa.controller;
 import com.playa.dto.SongResponseDto;
 import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
@@ -66,6 +67,7 @@ public class UserController {
     }
 
     @GetMapping("/artists/filter")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> filterArtists(
             @RequestParam(required = false) Rol role,
             @RequestParam(required = false) String name,

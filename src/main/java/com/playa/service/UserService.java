@@ -33,7 +33,6 @@ public class UserService {
     private final GenreRepository genreRepository;
     private final UserMapper userMapper;
 
-    //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional(readOnly = true)
     public List<UserResponseDto> getAllUsers() {
@@ -119,7 +118,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
     @Transactional
-
     public List<UserResponseDto> findAllByIdGenre(Long idGenre) {
         return userRepository.findAllByIdgenre(idGenre)
                 .stream().map(userMapper::convertToResponseDto)

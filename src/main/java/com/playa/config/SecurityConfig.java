@@ -41,6 +41,12 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
+                        //
+                        .requestMatchers("/notifications/**").permitAll()
+                        .requestMatchers("/notifications/preferences").permitAll()
+                        .requestMatchers("/notifications/preferences/edit").permitAll()
+                        .requestMatchers("/player/**").permitAll()
+                        .requestMatchers("/users/password/**").permitAll()
                         // Public song endpoints (GET requests for public songs)
                         .requestMatchers("/songs/public").permitAll()
                         .requestMatchers("/songs/*/comments").permitAll()

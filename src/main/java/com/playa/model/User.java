@@ -33,9 +33,6 @@ public class User {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    // @Column(nullable = false, length = 20)
-    //private String type; // 'artist', 'listener', 'admin' // Podría ser un ENUM
-
     @Enumerated(EnumType.STRING)
     private Rol type;
 

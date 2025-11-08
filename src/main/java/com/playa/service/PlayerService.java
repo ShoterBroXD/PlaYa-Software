@@ -11,6 +11,7 @@ import com.playa.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -552,6 +553,7 @@ public class PlayerService {
         return playerStateRepository.findByUser(user)
                 .orElseThrow(() -> new ResourceNotFoundException("No hay estado de reproductor activo"));
     }
+
 
     @Transactional
     protected void registerPlayHistory(User user, Song song) {
