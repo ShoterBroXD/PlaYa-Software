@@ -115,6 +115,13 @@ public class UserController {
         return ResponseEntity.ok("Preferencias reiniciadas. Recibirás recomendaciones desde cero");
     }
 
+    @GetMapping("/nuevos")
+    public ResponseEntity<List<UserResponseDto>> getNewArtists(Rol role) {
+        List<UserResponseDto> users = userService.getNewArtists();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(users);
     // NUEVO: PUT /api/v1/users/{id}/settings/language - Actualizar idioma de interfaz
     @PutMapping("/{id}/settings/language")
     public ResponseEntity<?> updateLanguage(@PathVariable Long id, @RequestBody UpdateLanguageRequest request) {
