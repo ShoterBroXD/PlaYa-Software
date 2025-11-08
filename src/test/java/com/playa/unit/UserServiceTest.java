@@ -111,4 +111,85 @@ public class UserServiceTest {
         verifyNoInteractions(userMapper);
     }
 
+    @Test
+    @DisplayName("CP-037: Editar usuario correctamente")
+    void updateUser_ShouldUpdateAndReturnUpdatedUser() {
+        // Arrange
+        Long userId = 1L;
+
+        User existingUser = User.builder()
+                .idUser(userId)
+                .name("Old Name")
+                .email("old@mail.com")
+                .type(Rol.LISTENER)
+                .premium(false)
+                .active(true)
+                .build();
+
+        UserRequestDto userRequestDto = UserRequestDto.builder()
+                .name("New Name")
+                .email("new@mail.com")
+                .type(Rol.ARTIST)
+                .premium(true)
+                .build();
+
+        User updatedUser = User.builder()
+                .idUser(userId)
+                .name("New Name")
+                .email("new@mail.com")
+                .type(Rol.ARTIST)
+                .premium(true)
+                .active(true)
+                .build();
+
+        UserResponseDto mockResponse = UserResponseDto.builder()
+                .idUser(userId)
+                .name("New Name")
+                .email("new@mail.com")
+                .type(Rol.ARTIST)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.convertToResponseDto(updatedUser)).thenReturn(mockResponse);
+
+        // Act
+        UserResponseDto response = userService.updateUser(userId, userRequestDto);
+
+        // Assert
+        assertThat(response).isNotNull();
+        assertThat(response.getIdUser()).isEqualTo(userId);
+        assertThat(response.getName()).isEqualTo("New Name");
+        assertThat(response.getEmail()).isEqualTo("new@mail.com");
+        assertThat(response.getType()).isEqualTo(Rol.ARTIST);
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(userMapper, times(1)).convertToResponseDto(any(User.class));
+    }
+
+    @Test
+    @DisplayName("CP-038: Debe lanzar excepción si el usuario no existe al actualizar")
+    void updateUser_ShouldThrowException_WhenUserNotFound() {
+        // Arrange
+        Long invalidId = 99L;
+        UserRequestDto userRequestDto = UserRequestDto.builder()
+                .name("Doesn't Matter")
+                .email("no@mail.com")
+                .type(Rol.LISTENER)
+                .premium(false)
+                .build();
+
+        when(userRepository.findById(invalidId)).thenReturn(java.util.Optional.empty());
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(
+                RuntimeException.class,
+                () -> userService.updateUser(invalidId, userRequestDto)
+        );
+
+        verify(userRepository, times(1)).findById(invalidId);
+        verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(userMapper);
+    }
 }
