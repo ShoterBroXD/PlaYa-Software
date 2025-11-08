@@ -115,7 +115,7 @@ class SongServiceTest {
         verify(genreRepository).findById(1L);
         verify(songRepository).save(any(Song.class));
     }
-
+    // habian errores
     @Test
     @DisplayName("CP-040: Falta de archivo al subir cancion")
     void createSong_MissingCover_ShouldThrowException() {
