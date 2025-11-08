@@ -3,7 +3,6 @@ package com.playa.service;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
-import com.playa.model.Genre;
 import com.playa.model.enums.Rol;
 import com.playa.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
@@ -13,7 +12,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.playa.repository.UserRepository;
 import com.playa.model.User;
@@ -169,4 +167,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getNewArtists(){
+        LocalDateTime fourteenDaysAgo = LocalDateTime.now().minusDays(14);
+        return userRepository.findNewArtists(fourteenDaysAgo).stream()
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
 }

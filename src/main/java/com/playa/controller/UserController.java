@@ -1,6 +1,5 @@
 package com.playa.controller;
 
-import com.playa.dto.SongResponseDto;
 import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,7 +8,6 @@ import com.playa.service.UserService;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 
-import javax.management.relation.Role;
 import com.playa.dto.UserPreferencesDto;
 import java.util.List;
 
