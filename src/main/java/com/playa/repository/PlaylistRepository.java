@@ -13,8 +13,6 @@ public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
 
     List<Playlist> findByIdUser(Long idUser);
 
-
-
     @Query("SELECT p FROM Playlist p WHERE p.idUser = :idUser ORDER BY p.creationDate DESC")
     List<Playlist> findByIdUserOrderByCreationDateDesc(@Param("idUser") Long idUser);
 }

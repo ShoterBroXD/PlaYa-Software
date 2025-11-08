@@ -2,78 +2,71 @@ package com.playa.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.time.LocalDateTime;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+
 import java.util.HashMap;
 import java.util.Map;
-
-
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-//import java.net.URI;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(SongLimitExceededException.class)
-    public ResponseEntity<Map<String, Object>> handleSongLimitExceeded(SongLimitExceededException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateEmail(DuplicateEmailException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidFormat(InvalidFormatException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
+    public ResponseEntity<Map<String, String>> handleInvalidCredentials(Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Usuario o contraseña incorrectos");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleRoleNotFound(RoleNotFoundException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problem.setTitle("Recurso no encontrado");
-        problem.setDetail(ex.getMessage());
-        //problem.setType(URI.create("https://api.upc.com/errors/not-found"));
-        return problem;
+    public ResponseEntity<Map<String, String>> handleResourceNotFound(ResourceNotFoundException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(BusinessRuleException.class)
-    public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problem.setTitle("Violación de regla de negocio");
-        problem.setDetail(ex.getMessage());
-        //problem.setType(URI.create("https://api.upc.com/errors/business-rule"));
-        return problem;
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGeneral(Exception ex) {
-        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problem.setTitle("Error interno");
-        problem.setDetail("Ha ocurrido un error inesperado: " + ex.getMessage());
-        //problem.setType(URI.create("https://api.upc.com/errors/internal-error"));
-        return problem;
-    }
-
-    @ExceptionHandler(PlayerException.class)
-    public ResponseEntity<Map<String, Object>> handlePlayerException(PlayerException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(QueueEmptyException.class)
-    public ResponseEntity<Map<String, Object>> handleQueueEmpty(QueueEmptyException ex) {
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-        return new ResponseEntity<>(body, status);
+    @ExceptionHandler({OptimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<Map<String, String>> handleOptimisticLock(Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Conflicto de actualización concurrente. Por favor, reintenta la operación.");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 }
-

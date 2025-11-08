@@ -5,6 +5,7 @@ import com.playa.service.PlayerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @PostMapping("/play")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> registerPlay(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody PlayHistoryRequestDto request) {
@@ -26,6 +28,7 @@ public class PlayerController {
     }
 
     @GetMapping("/history")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<List<SongResponseDto>> getHistory(
             @RequestHeader("iduser") Long userId) {
         List<SongResponseDto> history = playerService.getPlayHistory(userId);
@@ -33,6 +36,7 @@ public class PlayerController {
     }
 
     @GetMapping("/history/extended")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<List<HistoryResponseDto>> getExtendedHistory(
             @RequestHeader("iduser") Long userId,
             @RequestParam(required = false, defaultValue = "50") Integer limit) {
@@ -41,6 +45,7 @@ public class PlayerController {
     }
 
     @GetMapping("/current")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CurrentPlaybackResponseDto> getCurrentPlayback(
             @RequestHeader("iduser") Long userId) {
         CurrentPlaybackResponseDto response = playerService.getCurrentPlayback(userId);
@@ -48,6 +53,7 @@ public class PlayerController {
     }
 
     @PostMapping("/play/song")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<PlaybackControlResponseDto> playSong(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody PlaySongRequestDto request) {
@@ -56,6 +62,7 @@ public class PlayerController {
     }
 
     @PutMapping("/pause")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<PlaybackControlResponseDto> pause(
             @RequestHeader("iduser") Long userId) {
         PlaybackControlResponseDto response = playerService.pause(userId);
@@ -63,6 +70,7 @@ public class PlayerController {
     }
 
     @PutMapping("/resume")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlaybackControlResponseDto> resume(
             @RequestHeader("iduser") Long userId) {
         PlaybackControlResponseDto response = playerService.resume(userId);
@@ -70,13 +78,25 @@ public class PlayerController {
     }
 
     @PutMapping("/stop")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<PlaybackControlResponseDto> stop(
             @RequestHeader("iduser") Long userId) {
         PlaybackControlResponseDto response = playerService.stop(userId);
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/seek")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> seekTo(
+            @RequestHeader("idUser") Long idUser,
+            @Valid @RequestBody SeekRequestDto request) {
+        Map<String, Object> response = playerService.seekTo(idUser, request);
+        return ResponseEntity.ok(response);
+    }
+
+
     @PutMapping("/next")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<PlaybackControlResponseDto> next(
             @RequestHeader("iduser") Long userId) {
         PlaybackControlResponseDto response = playerService.next(userId);
@@ -84,6 +104,7 @@ public class PlayerController {
     }
 
     @PutMapping("/previous")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<PlaybackControlResponseDto> previous(
             @RequestHeader("iduser") Long userId) {
         PlaybackControlResponseDto response = playerService.previous(userId);
@@ -91,6 +112,7 @@ public class PlayerController {
     }
 
     @PutMapping("/shuffle")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Map<String, Object>> setShuffle(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody ShuffleRequestDto request) {
@@ -99,6 +121,7 @@ public class PlayerController {
     }
 
     @PutMapping("/repeat")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Map<String, Object>> setRepeatMode(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody RepeatModeRequestDto request) {
@@ -107,6 +130,7 @@ public class PlayerController {
     }
 
     @PutMapping("/volume")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Map<String, Object>> setVolume(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody VolumeRequestDto request) {
@@ -115,6 +139,7 @@ public class PlayerController {
     }
 
     @GetMapping("/queue")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<QueueResponseDto> getQueue(
             @RequestHeader("iduser") Long userId) {
         QueueResponseDto response = playerService.getQueue(userId);
@@ -122,6 +147,7 @@ public class PlayerController {
     }
 
     @PostMapping("/queue")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Map<String, Object>> addToQueue(
             @RequestHeader("iduser") Long userId,
             @Valid @RequestBody AddToQueueRequestDto request) {
@@ -130,6 +156,7 @@ public class PlayerController {
     }
 
     @DeleteMapping("/queue/{position}")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Void> removeFromQueue(
             @RequestHeader("iduser") Long userId,
             @PathVariable Integer position) {
@@ -139,6 +166,7 @@ public class PlayerController {
 
 
     @GetMapping("/recommendations")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<RecommendationResponseDto>> getRecommendations(
             @RequestHeader("iduser") Long userId) {
         List<RecommendationResponseDto> recommendations = playerService.getRecommendations(userId);

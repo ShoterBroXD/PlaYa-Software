@@ -1,5 +1,6 @@
 package com.playa.model;
 
+import com.playa.model.enums.Mode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,12 +21,12 @@ public class PlayerState {
     private Long idPlayerState;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iduser", nullable = false, unique = true) // Un usuario = un estado de reproductor
+    @JoinColumn(name = "iduser", nullable = false, unique = true)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idsong")
-    private Song currentSong; // Canción actual (puede ser null si no hay reproducción)
+    private Song currentSong;
 
     @Column(name = "is_playing", nullable = false)
     private Boolean isPlaying = false;
@@ -34,7 +35,7 @@ public class PlayerState {
     private Boolean isPaused = false;
 
     @Column(name = "playback_time")
-    private Integer playbackTime = 0; // Segundos de reproducción actual
+    private Integer playbackTime = 0;
 
     @Column(name = "volume")
     private Integer volume = 80; // Volumen (0-100)
@@ -42,8 +43,8 @@ public class PlayerState {
     @Column(name = "shuffle_enabled", nullable = false)
     private Boolean shuffleEnabled = false;
 
-    @Column(name = "repeat_mode", length = 10)
-    private String repeatMode = "none"; // none, one, all
+    @Enumerated(EnumType.STRING)
+    private Mode repeatMode = Mode.NONE;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;

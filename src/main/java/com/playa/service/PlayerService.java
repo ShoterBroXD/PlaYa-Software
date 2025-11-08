@@ -6,14 +6,20 @@ import com.playa.exception.PlayerException;
 import com.playa.exception.QueueEmptyException;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.*;
+import com.playa.model.enums.Mode;
 import com.playa.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,7 @@ public class PlayerService {
     private final UserRepository userRepository;
     private final SongService songService;
 
+
     @Transactional
     public void registerPlay(Long userId, Long songId) {
         User user = userRepository.findById(userId)
@@ -35,7 +42,7 @@ public class PlayerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
 
         // Crear registro de historial
-        SongHistoryId historyId = new SongHistoryId(userId, songId);
+        SongHistoryId historyId = new SongHistoryId(songId, userId);
         Optional<SongHistory> existingHistory = songHistoryRepository.findById(historyId);
 
         SongHistory history = existingHistory.orElseGet(() -> {
@@ -68,12 +75,19 @@ public class PlayerService {
         Song song = songRepository.findById(request.getIdSong())
                 .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
 
-        // Validar visibilidad (RB-008)
         if ("private".equals(song.getVisibility()) && !song.getUser().getIdUser().equals(userId)) {
             throw new IllegalArgumentException("Esta canción es privada y no puedes acceder a ella");
         }
 
-        // Obtener o crear estado del reproductor
+        if (request.getIdsqueue() != null && !request.getIdsqueue().isEmpty()) {
+            playQueueRepository.deleteAllByUser(user);
+
+            int position = 1;
+            for (Long songId : request.getIdsqueue()) {
+                addSongToQueueInternal(user, songId, position++);
+            }
+        }
+
         PlayerState state = playerStateRepository.findByUser(user)
                 .orElse(new PlayerState());
 
@@ -81,15 +95,13 @@ public class PlayerService {
             state.setUser(user);
         }
 
-        // RB-008: Solo una canción puede reproducirse a la vez
+        //Solo una canción puede reproducirse a la vez
         state.setCurrentSong(song);
         state.setIsPlaying(true);
         state.setIsPaused(false);
         state.setPlaybackTime(0);
 
         playerStateRepository.save(state);
-
-        // RB-021: Registrar en historial
         registerPlayHistory(user, song);
 
         PlaybackControlResponseDto response = new PlaybackControlResponseDto();
@@ -168,6 +180,19 @@ public class PlayerService {
         User user = getUserOrThrow(userId);
         PlayerState state = getPlayerStateOrThrow(userId);
 
+        if (state.getRepeatMode() == Mode.ONE) {
+            state.setPlaybackTime(0);
+            playerStateRepository.save(state);
+
+            PlaybackControlResponseDto response = new PlaybackControlResponseDto();
+            response.setMessage("Repitiendo canción actual");
+            response.setIsPlaying(true);
+            response.setIsPaused(false);
+            response.setSong(mapSongToResponseDto(state.getCurrentSong()));
+
+            return response;
+        }
+
         // Buscar siguiente en la cola
         List<PlayQueue> queue = playQueueRepository.findByUserOrderByPositionAsc(user);
 
@@ -175,20 +200,29 @@ public class PlayerService {
             throw new QueueEmptyException("No hay siguiente canción en la cola");
         }
 
+        Long currentSongId = state.getCurrentSong() != null ? state.getCurrentSong().getIdSong() : null;
+
         // Encontrar índice actual
         int currentIndex = -1;
-        for (int i = 0; i < queue.size(); i++) {
-            if (queue.get(i).getSong().getIdSong().equals(state.getCurrentSong().getIdSong())) {
-                currentIndex = i;
-                break;
+        if (currentSongId != null) {
+            for (int i = 0; i < queue.size(); i++) {
+                Long idqs=queue.get(i).getSong() != null ? queue.get(i).getSong().getIdSong() : null;
+                if (Objects.equals(idqs, currentSongId)) {
+                    currentIndex = i;
+                    break;
+                }
             }
         }
 
         // Siguiente canción
         int nextIndex = currentIndex + 1;
+        if (currentIndex == -1){
+            nextIndex = 0;
+        }
+
         if (nextIndex >= queue.size()) {
             // Si estamos en repeat all, volver al inicio
-            if ("all".equals(state.getRepeatMode())) {
+            if (state.getRepeatMode() == Mode.ALL) {
                 nextIndex = 0;
             } else {
                 throw new QueueEmptyException("No hay más canciones en la cola");
@@ -199,6 +233,7 @@ public class PlayerService {
         state.setCurrentSong(nextSong);
         state.setPlaybackTime(0);
         playerStateRepository.save(state);
+        playerStateRepository.flush();
 
         // Registrar en historial
         registerPlayHistory(user, nextSong);
@@ -233,7 +268,7 @@ public class PlayerService {
 
         int previousIndex = currentIndex - 1;
         if (previousIndex < 0) {
-            if ("all".equals(state.getRepeatMode())) {
+            if (state.getRepeatMode() == Mode.ALL) {
                 previousIndex = queue.size() - 1;
             } else {
                 throw new QueueEmptyException("No hay canción anterior en la cola");
@@ -257,11 +292,66 @@ public class PlayerService {
     }
 
     @Transactional
+    public Map<String, Object> seekTo(Long idUser, SeekRequestDto request) {
+        PlayerState state = getPlayerStateOrThrow(idUser);
+
+        state.setPlaybackTime(request.getTime());
+        playerStateRepository.save(state);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", idUser);
+        response.put("currentTime",request.getTime());
+
+        return response;
+    }
+
+    @Transactional
     public Map<String, Object> setShuffle(Long userId, ShuffleRequestDto request) {
+        User user = getUserOrThrow(userId);
         PlayerState state = getPlayerStateOrThrow(userId);
 
         state.setShuffleEnabled(request.getEnabled());
         playerStateRepository.save(state);
+
+        List<PlayQueue> queue = playQueueRepository.findByUserOrderByPositionAsc(user);
+
+        if (request.getEnabled()) {
+
+            if (!queue.isEmpty() && state.getCurrentSong() != null) {
+
+                for (PlayQueue q : queue) {
+                    q.setOriginalPosition(q.getPosition());
+                }
+
+                PlayQueue currentQueue = queue.stream()
+                        .filter(q->q.getSong().getIdSong().equals(state.getCurrentSong().getIdSong()))
+                        .findFirst()
+                        .orElse(null);
+
+                List<PlayQueue> otherSongs = queue.stream()
+                        .filter(q->!q.getSong().getIdSong().equals(state.getCurrentSong().getIdSong()))
+                        .collect(Collectors.toList());
+
+
+                Collections.shuffle(otherSongs);
+
+                int position = 1;
+                if (currentQueue != null) {
+                    currentQueue.setPosition(position++);
+                    playQueueRepository.save(currentQueue);
+                }
+
+                for (PlayQueue q : otherSongs) {
+                    q.setPosition(position++);
+                    playQueueRepository.save(q);
+                }
+            }
+        } else {
+            for(PlayQueue q : queue){
+                q.setPosition(q.getOriginalPosition());
+                playQueueRepository.save(q);
+            }
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", request.getEnabled() ? "Modo aleatorio activado" : "Modo aleatorio desactivado");
@@ -274,19 +364,30 @@ public class PlayerService {
     public Map<String, Object> setRepeatMode(Long userId, RepeatModeRequestDto request) {
         PlayerState state = getPlayerStateOrThrow(userId);
 
-        state.setRepeatMode(request.getMode());
+        Mode mode;
+
+        if(request.getMode() == null)
+            mode = Mode.NONE;
+        else {
+            try {
+                mode = Mode.valueOf(request.getMode().trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Modo de repetición inválido: " + request.getMode());
+            }
+        }
+        state.setRepeatMode(mode);
         playerStateRepository.save(state);
 
-        String modeDescription = switch (request.getMode()) {
-            case "none" -> "sin repetición";
-            case "one" -> "una canción";
-            case "all" -> "toda la cola";
+        String modeDescription = switch (mode) {
+            case NONE -> "sin repetición";
+            case ONE -> "una canción";
+            case ALL -> "toda la cola";
             default -> request.getMode();
         };
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Modo repetir: " + modeDescription);
-        response.put("repeatMode", request.getMode());
+        response.put("repeatMode", mode.name().toLowerCase());
 
         return response;
     }
@@ -333,27 +434,35 @@ public class PlayerService {
         return response;
     }
 
+    private PlayQueue addSongToQueueInternal(User user, Long idSong, Integer fixedPosition) {
+        Song song = songRepository.findById(idSong)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
+        Long count = playQueueRepository.countByUser(user);
+        Integer nextPosition = (fixedPosition != null) ? fixedPosition : count.intValue() + 1;
+
+        PlayQueue queueItem = new PlayQueue();
+        queueItem.setUser(user);
+        queueItem.setSong(song);
+        queueItem.setPosition(nextPosition);
+        queueItem.setOriginalPosition(nextPosition);
+
+        playQueueRepository.save(queueItem);
+        return queueItem;
+    }
+
+
     @Transactional
     public Map<String, Object> addToQueue(Long userId, AddToQueueRequestDto request) {
         User user = getUserOrThrow(userId);
         Song song = songRepository.findById(request.getIdSong())
                 .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
 
-        // Obtener siguiente posición en la cola
-        Long count = playQueueRepository.countByUser(user);
-        Integer nextPosition = count.intValue() + 1;
-
-        PlayQueue queueItem = new PlayQueue();
-        queueItem.setUser(user);
-        queueItem.setSong(song);
-        queueItem.setPosition(nextPosition);
-
-        playQueueRepository.save(queueItem);
+        PlayQueue queueItem = addSongToQueueInternal(user, request.getIdSong(),null);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Canción agregada a la cola");
         response.put("song", mapSongToBasicResponseDto(song));
-        response.put("queuePosition", nextPosition);
+        response.put("queuePosition", queueItem.getPosition());
 
         return response;
     }
@@ -445,9 +554,10 @@ public class PlayerService {
                 .orElseThrow(() -> new ResourceNotFoundException("No hay estado de reproductor activo"));
     }
 
+
     @Transactional
     protected void registerPlayHistory(User user, Song song) {
-        SongHistoryId historyId = new SongHistoryId(user.getIdUser(), song.getIdSong());
+        SongHistoryId historyId = new SongHistoryId(song.getIdSong(), user.getIdUser());
 
         SongHistory history = new SongHistory();
         history.setId(historyId);
@@ -470,7 +580,7 @@ public class PlayerService {
         response.setIsPlaying(state.getIsPlaying());
         response.setIsPaused(state.getIsPaused());
         response.setCurrentTime(state.getPlaybackTime());
-        response.setDuration(null); // Calcular desde metadata del archivo o BD
+        response.setDuration(null);
         response.setVolume(state.getVolume());
         response.setShuffleEnabled(state.getShuffleEnabled());
         response.setRepeatMode(state.getRepeatMode());
@@ -492,12 +602,7 @@ public class PlayerService {
         response.setArtist(mapUserToArtistResponseDto(song.getUser()));
 
         // Mapear géneros
-        Set<GenreResponseDto> genres = new HashSet<>();
-        Genre g = song.getGenre();
-        if (g != null) {
-            genres.add(new GenreResponseDto(g.getIdGenre(), g.getName()));
-        }
-        response.setGenres(genres);
+        response.setGenre(song.getGenre());
 
         return response;
     }

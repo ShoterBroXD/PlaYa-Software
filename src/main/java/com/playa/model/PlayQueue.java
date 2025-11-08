@@ -32,6 +32,9 @@ public class PlayQueue {
     @Column(name = "added_at", nullable = false)
     private LocalDateTime addedAt;
 
+    @Column(name = "original_position")
+    private Integer originalPosition;
+
     @PrePersist
     protected void onCreate() {
         if (addedAt == null) {

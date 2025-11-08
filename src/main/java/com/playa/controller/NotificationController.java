@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,18 +27,20 @@ public class NotificationController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    // PUT /notifications/{id} - Marcar como leída
-    @PutMapping("/{id}")
-    public ResponseEntity<NotificationResponseDto> markAsRead(@PathVariable Long id) {
-        NotificationResponseDto responseDto = notificationService.markAsRead(id);
-        return ResponseEntity.ok(responseDto);
+    // GET /notifications - Listar notificaciones de usuario
+    @GetMapping
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<List<NotificationResponseDto>> getNotificationsByUser(@RequestHeader Long idUser, @RequestParam(required = false, defaultValue = "false") Boolean unreadOnly) {
+        List<NotificationResponseDto> notifications = notificationService.getUserNotifications(idUser, unreadOnly);
+        return ResponseEntity.ok(notifications);
     }
 
-    // GET /notifications/{idUser} - Listar notificaciones de usuario
-    @GetMapping("/{idUser}")
-    public ResponseEntity<List<NotificationResponseDto>> getNotificationsByUser(@PathVariable Long idUser) {
-        List<NotificationResponseDto> notifications = notificationService.getNotificationsByUser(idUser);
-        return ResponseEntity.ok(notifications);
+    // PUT /notifications/{id} - Marcar como leída
+    @PutMapping("/{id}/read")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<NotificationResponseDto> markAsRead(@RequestHeader("idUser") Long iduser,@PathVariable Long id) {
+        notificationService.markAsRead(id,iduser);
+        return ResponseEntity.ok().build();
     }
 
     // GET /notifications/{idUser}/unread - Obtener notificaciones no leídas
@@ -55,11 +58,17 @@ public class NotificationController {
     }
 
     // Configurar preferencias
+    @PutMapping("/preferences/edit")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<Void> updatePreferences(@RequestHeader("idUser") Long idUser,@RequestBody NotificationPreferenceRequestDto request) {
+        notificationService.setpreferences(idUser, request);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/preferences")
-    public ResponseEntity<Void> updatePreferences(
-            @RequestHeader("userId") Long userId,
-            @RequestBody NotificationPreferenceRequestDto request) {
-        notificationService.updatePreferences(userId, request);
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<Void> togglePreferences(@RequestHeader("idUser") Long idUser) {
+        notificationService.togglePreferences(idUser);
         return ResponseEntity.ok().build();
     }
 

@@ -1,5 +1,6 @@
 package com.playa.dto;
 
+import com.playa.model.enums.Mode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,5 @@ public class CurrentPlaybackResponseDto {
     private Integer duration;    // Segundos (de la canción)
     private Integer volume;
     private Boolean shuffleEnabled;
-    private String repeatMode; // none, one, all
+    private Mode repeatMode; // none, one, all
 }

@@ -19,4 +19,6 @@ public class UserResponseDto {
     private Boolean premium;
     private String redSocial;
     private List<String> favoriteGenres;
+    private String language;
+    private Boolean historyVisible;
 }
