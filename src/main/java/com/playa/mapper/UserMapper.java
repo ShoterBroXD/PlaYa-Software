@@ -17,7 +17,7 @@ public class UserMapper {
                 .name(dto.getName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
-                .type(dto.getType() != null ? Rol.valueOf(dto.getType().toUpperCase()) : null)
+                .type(dto.getType())  //!= null ? Rol.valueOf(dto.getType().toUpperCase()) : null)
                 .biography(dto.getBiography())
                 .redSocial(dto.getRedSocial())
                 .favoriteGenres(dto.getFavoriteGenres())
