@@ -4,8 +4,10 @@ import com.playa.service.CommentService;
 import com.playa.dto.CommentRequestDto;
 import com.playa.dto.CommentResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,9 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // GET /api/v1/comments - Obtener todos los comentarios
+    // GET /api/v1/comments - Obtener todos los comentarios (Solo admin)
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CommentResponseDto>> getAllComments() {
         List<CommentResponseDto> comments = commentService.getAllComments();
         if (comments.isEmpty()) {
@@ -29,14 +32,15 @@ public class CommentController {
         return ResponseEntity.ok(comments); // 200
     }
 
-    // POST /api/v1/comments - Crear comentario
+    // POST /api/v1/comments - Crear comentario (Requiere autenticación)
     @PostMapping
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
     public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto) {
         CommentResponseDto response = commentService.createComment(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // GET /api/v1/comments/{id} - Obtener comentario
+    // GET /api/v1/comments/{id} - Obtener comentario (público)
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponseDto> getComment(@PathVariable Long id) {
         try {
@@ -47,7 +51,7 @@ public class CommentController {
         }
     }
 
-    // GET /api/v1/comments/song/{songId} - Obtener comentarios de una canción
+    // GET /api/v1/comments/song/{songId} - Obtener comentarios de una canción (público)
     @GetMapping("/song/{songId}")
     public ResponseEntity<List<CommentResponseDto>> getCommentsBySong(@PathVariable Long songId) {
         List<CommentResponseDto> comments = commentService.getCommentsBySong(songId);
@@ -57,22 +61,25 @@ public class CommentController {
         return ResponseEntity.ok(comments); // 200
     }
 
-    // POST /api/v1/comments/{id}/report - Reportar/ocultar comentario
+    // POST /api/v1/comments/{id}/report - Reportar/ocultar comentario (Solo admin)
     @PostMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> reportComment(@PathVariable Long id) {
         commentService.reportComment(id);
         return ResponseEntity.ok("Comentario reportado y ocultado exitosamente");
     }
 
-    // POST /api/v1/comments/{id}/unreport - Mostrar comentario reportado
+    // POST /api/v1/comments/{id}/unreport - Mostrar comentario reportado (Solo admin)
     @PostMapping("/{id}/unreport")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> unreportComment(@PathVariable Long id) {
         commentService.unreportComment(id);
         return ResponseEntity.ok("Comentario habilitado exitosamente");
     }
 
-    // DELETE /api/v1/comments/{id} - Eliminar comentario
+    // DELETE /api/v1/comments/{id} - Eliminar comentario (Solo propietario o admin)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.noContent().build();

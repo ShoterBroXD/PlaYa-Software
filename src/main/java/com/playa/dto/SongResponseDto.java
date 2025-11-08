@@ -23,6 +23,8 @@ public class SongResponseDto {
     private LocalDateTime uploadDate;
     private ArtistResponseDto artist;
     private Genre genre;
+    private Double averageRating;
+    private Integer ratingCount;
 
     //public SongResponseDto() {}
 

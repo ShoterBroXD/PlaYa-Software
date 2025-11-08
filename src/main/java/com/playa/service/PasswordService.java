@@ -8,6 +8,9 @@ import com.playa.model.User;
 import com.playa.repository.PasswordResetTokenRepository;
 import com.playa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,20 +23,24 @@ public class PasswordService {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
-    //private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional
-    public void changePassword(Long idUser, PasswordChangeRequestDto request){
-        User user=userRepository.findById(idUser)
-                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
-        if(!user.getPassword().equals(request.getCurrentPassword())){
+    public void changePassword(PasswordChangeRequestDto request){
+        // Obtener el usuario autenticado del contexto de seguridad
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
             throw new RuntimeException("Credenciales no coinciden intentelo de nuevo");
         }
         if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
             throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
         }
-        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
@@ -72,8 +79,7 @@ public class PasswordService {
             throw new RuntimeException("La contraseña de este campo debe de coincidir con la nueva contraseña");
         }
 
-        //user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
         tokenRepository.delete(resetToken);

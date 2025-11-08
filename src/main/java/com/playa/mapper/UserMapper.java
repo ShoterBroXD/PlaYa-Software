@@ -36,6 +36,8 @@ public class UserMapper {
                 .premium(user.getPremium())
                 .redSocial(user.getRedSocial())
                 .favoriteGenres(user.getFavoriteGenres())
+                .language(user.getLanguage())
+                .historyVisible(user.getHistoryVisible())
                 .build();
     }
 }

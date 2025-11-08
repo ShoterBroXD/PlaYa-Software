@@ -1,29 +1,40 @@
 package com.playa.unit;
 
-import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
-import com.playa.model.enums.Rol;
 import com.playa.mapper.UserMapper;
 import com.playa.model.User;
+import com.playa.model.enums.Rol;
+import com.playa.repository.GenreRepository;
 import com.playa.repository.UserRepository;
 import com.playa.service.UserService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserServiceTest {
+@ExtendWith(MockitoExtension.class)
+@DisplayName("UserService - Pruebas Unitarias - US-009: Filtrar artistas por género musical")
+class UserServiceTest {
+
     @Mock
     private UserRepository userRepository;
 

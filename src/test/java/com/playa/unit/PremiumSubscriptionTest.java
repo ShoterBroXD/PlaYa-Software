@@ -4,11 +4,15 @@ import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.User;
 import com.playa.model.enums.Rol;
 import com.playa.repository.UserRepository;
+import com.playa.repository.GenreRepository;
+import com.playa.mapper.UserMapper;
+import com.playa.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -25,6 +29,15 @@ class PremiumSubscriptionTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private GenreRepository genreRepository;
+
+    @Mock
+    private UserMapper userMapper;
+
+    @InjectMocks
+    private UserService userService;
 
     private User mockFreeUser;
     private User mockPremiumUser;
@@ -49,129 +62,171 @@ class PremiumSubscriptionTest {
     @Test
     @DisplayName("CP-019: Debe mejorar plan a Premium exitosamente")
     void upgradeToPremiun_ValidPayment_Success() {
-        // Arrange
-        String planType = "Premium Anual";
-        boolean validPaymentMethod = true;
+        // Arrange - Preparar datos para actualizar usuario a premium
+        Long userId = 300L;
+        com.playa.dto.UserRequestDto userRequestDto = new com.playa.dto.UserRequestDto();
+        userRequestDto.setName("premium_user");
+        userRequestDto.setEmail("user_free@mail.com");
+        userRequestDto.setPremium(true);
 
-        when(userRepository.findById(300L)).thenReturn(Optional.of(mockFreeUser));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setPremium(true);
-            return user;
-        });
+        com.playa.dto.UserResponseDto responseDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(userId)
+            .name("premium_user")
+            .email("user_free@mail.com")
+            .premium(true)
+            .build();
 
-        // Act - Simular proceso de mejora a premium
-        Optional<User> userOptional = userRepository.findById(300L);
-        assertThat(userOptional).isPresent();
-        User userToUpgrade = userOptional.get();
+        // Mocks para updateUser
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockFreeUser));
+        when(userRepository.save(any(User.class))).thenReturn(mockPremiumUser);
+        when(userMapper.convertToResponseDto(any(User.class))).thenReturn(responseDto);
 
-        // Validaciones previas
-        assertThat(userToUpgrade.getPremium()).isFalse(); // Era usuario gratuito
-        assertThat(validPaymentMethod).isTrue(); // Método de pago válido
-        assertThat(planType).isEqualTo("Premium Anual");
-
-        // Simular actualización
-        userToUpgrade.setPremium(true);
-        User savedUser = userRepository.save(userToUpgrade);
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        com.playa.dto.UserResponseDto result = userService.updateUser(userId, userRequestDto);
 
         // Assert
-        assertThat(savedUser.getPremium()).isTrue();
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("user_free@mail.com");
 
-        // Simular mensaje de éxito
-        String expectedMessage = "¡Bienvenido a Premium!";
-        assertThat(expectedMessage).isEqualTo("¡Bienvenido a Premium!");
-
-        verify(userRepository).findById(300L);
+        verify(userRepository).findById(userId);
         verify(userRepository).save(any(User.class));
+        verify(userMapper).convertToResponseDto(any(User.class));
     }
 
     @Test
     @DisplayName("CP-020: Debe visualizar estado de suscripción activa")
     void viewSubscriptionStatus_PremiumUser_Success() {
         // Arrange
-        String email = "user_premium@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockPremiumUser));
+        Long userId = 301L;
+        com.playa.dto.UserResponseDto responseDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(userId)
+            .name("premium_user")
+            .email("user_premium@mail.com")
+            .premium(true)
+            .build();
 
-        // Act
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        User user = userOptional.orElseThrow();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockPremiumUser));
+        when(userMapper.convertToResponseDto(any(User.class))).thenReturn(responseDto);
+
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        Optional<com.playa.dto.UserResponseDto> result = userService.getUserById(userId);
 
         // Assert
-        assertThat(user).isNotNull();
-        assertThat(user.getIdUser()).isEqualTo(301L);
-        assertThat(user.getPremium()).isTrue();
+        assertThat(result).isPresent();
+        assertThat(result.get().getIdUser()).isEqualTo(userId);
+        assertThat(result.get().getEmail()).isEqualTo("user_premium@mail.com");
 
-        // Simular visualización del estado
-        String subscriptionStatus = user.getPremium() ? "Premium" : "Gratuita";
-        assertThat(subscriptionStatus).isEqualTo("Premium");
-
-        // Simular mensaje en perfil
-        String profileMessage = "Estado: " + subscriptionStatus;
-        assertThat(profileMessage).isEqualTo("Estado: Premium");
-
-        verify(userRepository).findByEmail(email);
+        verify(userRepository).findById(userId);
+        verify(userMapper).convertToResponseDto(mockPremiumUser);
     }
 
     @Test
     @DisplayName("Debe visualizar estado gratuito para usuario no premium")
     void viewSubscriptionStatus_FreeUser_Success() {
         // Arrange
-        String email = "user_free@mail.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockFreeUser));
+        Long userId = 300L;
+        com.playa.dto.UserResponseDto responseDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(userId)
+            .name("free_user")
+            .email("user_free@mail.com")
+            .premium(false)
+            .build();
 
-        // Act
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        User user = userOptional.orElseThrow();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockFreeUser));
+        when(userMapper.convertToResponseDto(any(User.class))).thenReturn(responseDto);
+
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        Optional<com.playa.dto.UserResponseDto> result = userService.getUserById(userId);
 
         // Assert
-        assertThat(user).isNotNull();
-        assertThat(user.getPremium()).isFalse();
+        assertThat(result).isPresent();
+        assertThat(result.get().getIdUser()).isEqualTo(userId);
 
-        // Simular visualización del estado
-        String subscriptionStatus = user.getPremium() ? "Premium" : "Gratuita";
-        assertThat(subscriptionStatus).isEqualTo("Gratuita");
-
-        verify(userRepository).findByEmail(email);
+        verify(userRepository).findById(userId);
+        verify(userMapper).convertToResponseDto(mockFreeUser);
     }
 
     @Test
-    @DisplayName("CP-021: Debe revertir a cuenta gratuita por suscripción vencida")
-    void revertToFree_ExpiredSubscription_Success() {
+    @DisplayName("CP-021: Debe crear usuario con premium=false por defecto")
+    void createUser_DefaultPremiumFalse_Success() {
         // Arrange
-        Long userId = 301L;
-        boolean paymentFailed = true;
+        com.playa.dto.UserRequestDto userRequestDto = new com.playa.dto.UserRequestDto();
+        userRequestDto.setName("new_user");
+        userRequestDto.setEmail("newuser@mail.com");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(mockPremiumUser));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setPremium(false);
-            return user;
-        });
+        User newUser = createMockUser(100L, "newuser@mail.com", "New User", false);
 
-        // Act - Simular proceso de reversión
-        Optional<User> userOptional = userRepository.findById(userId);
-        assertThat(userOptional).isPresent();
-        User userToRevert = userOptional.get();
+        com.playa.dto.UserResponseDto responseDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(100L)
+            .name("new_user")
+            .email("newuser@mail.com")
+            .premium(false)
+            .build();
 
-        // Validaciones previas
-        assertThat(userToRevert.getPremium()).isTrue(); // Era usuario premium
-        assertThat(paymentFailed).isTrue(); // Pago falló
+        when(userMapper.convertToEntity(any(com.playa.dto.UserRequestDto.class))).thenReturn(newUser);
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+        when(userMapper.convertToResponseDto(any(User.class))).thenReturn(responseDto);
 
-        // Simular job de renovación fallido
-        if (paymentFailed) {
-            userToRevert.setPremium(false);
-            User savedUser = userRepository.save(userToRevert);
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        com.playa.dto.UserResponseDto result = userService.createUser(userRequestDto);
 
-            // Assert
-            assertThat(savedUser.getPremium()).isFalse();
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo("newuser@mail.com");
+        assertThat(result.getPremium()).isFalse();
 
-            // Simular estado en perfil
-            String newStatus = "Gratuita";
-            assertThat(newStatus).isEqualTo("Gratuita");
-        }
-
-        verify(userRepository).findById(userId);
+        verify(userMapper).convertToEntity(userRequestDto);
         verify(userRepository).save(any(User.class));
+        verify(userMapper).convertToResponseDto(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Debe obtener todos los usuarios")
+    void getAllUsers_Success() {
+        // Arrange
+        java.util.List<User> users = java.util.Arrays.asList(mockFreeUser, mockPremiumUser);
+
+        com.playa.dto.UserResponseDto freeUserDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(300L)
+            .email("user_free@mail.com")
+            .premium(false)
+            .build();
+
+        com.playa.dto.UserResponseDto premiumUserDto = com.playa.dto.UserResponseDto.builder()
+            .idUser(301L)
+            .email("user_premium@mail.com")
+            .premium(true)
+            .build();
+
+        when(userRepository.findAll()).thenReturn(users);
+        when(userMapper.convertToResponseDto(mockFreeUser)).thenReturn(freeUserDto);
+        when(userMapper.convertToResponseDto(mockPremiumUser)).thenReturn(premiumUserDto);
+
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        java.util.List<com.playa.dto.UserResponseDto> result = userService.getAllUsers();
+
+        // Assert
+        assertThat(result).isNotEmpty();
+        assertThat(result).hasSize(2);
+
+        verify(userRepository).findAll();
+        verify(userMapper, times(2)).convertToResponseDto(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Debe eliminar usuario")
+    void deleteUser_Success() {
+        // Arrange
+        Long userId = 300L;
+        when(userRepository.existsById(userId)).thenReturn(true);
+        doNothing().when(userRepository).deleteById(userId);
+
+        // Act - LLAMAR AL MÉTODO REAL DEL USERSERVICE
+        userService.deleteUser(userId);
+
+        // Assert
+        verify(userRepository).existsById(userId);
+        verify(userRepository).deleteById(userId);
     }
 
     @Test

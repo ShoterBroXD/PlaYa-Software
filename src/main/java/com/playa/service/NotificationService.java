@@ -8,7 +8,6 @@ import com.playa.mapper.NotificationMapper;
 import com.playa.model.Notification;
 import com.playa.model.NotificationPreference;
 import com.playa.model.User;
-import com.playa.model.enums.Category;
 import com.playa.repository.NotificationPreferenceRepository;
 import com.playa.repository.NotificationRepository;
 import com.playa.repository.UserRepository;
@@ -44,7 +43,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long idUser,Long idNotification) {
+    public void markAsRead(Long idNotification,Long idUser) {
         Notification notification = notificationRepository.findById(idNotification)
                 .orElseThrow(() -> new ResourceNotFoundException("Notificación no encontrada "));
 
@@ -91,23 +90,54 @@ public class NotificationService {
         return notificationRepository.countByUserIdUserAndRead(idUser, false);
     }
 
+
     @Transactional
-    public void updatePreferences(Long userId, NotificationPreferenceRequestDto request) {
-        User user = userRepository.findById(userId)
+    public void setpreferences(Long idUser, NotificationPreferenceRequestDto request) {
+        User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
 
-        if(preference == null){
-            preference = new NotificationPreference();
-            preference.setUser(user);
+        if (preference == null) {
+            preference = NotificationPreference.builder()
+                    .user(user)
+                    .enableComments(request.getEnableComments())      // Sin 'd'
+                    .enableSystems(request.getEnableSystems())
+                    .enableNewReleases(request.getEnableNewReleases())
+                    .enableFollowers(request.getEnableFollowers())
+                    .build();
+        } else {
+            preference.setEnableComments(request.getEnableComments());
+            preference.setEnableSystems(request.getEnableSystems());
+            preference.setEnableNewReleases(request.getEnableNewReleases());
+            preference.setEnableFollowers(request.getEnableFollowers());
         }
 
-        preference.setEnableComments(request.getEnabledComments());
-        preference.setEnableFollowers(request.getEnableFollowers());
-        preference.setEnableSystems(request.getEnableSystems());
-        preference.setEnableNewReleases(request.getEnableNewReleases());
+        notificationPreferenceRepository.save(preference);
+    }
 
+
+    @Transactional
+    public void togglePreferences(Long idUser) {
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
+        if (preference == null) {
+            // Crear nuevas preferencias con valores desactivados (toggle de true → false)
+            preference = NotificationPreference.builder()
+                    .user(user)
+                    .enableComments(false)
+                    .enableSystems(false)
+                    .enableNewReleases(false)
+                    .enableFollowers(false)
+                    .build();
+        } else {
+            // Toggle de valores existentes
+            preference.setEnableComments(!preference.getEnableComments());
+            preference.setEnableSystems(!preference.getEnableSystems());
+            preference.setEnableNewReleases(!preference.getEnableNewReleases());
+            preference.setEnableFollowers(!preference.getEnableFollowers());
+        }
         notificationPreferenceRepository.save(preference);
     }
 }
