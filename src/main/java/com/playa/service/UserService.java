@@ -3,7 +3,6 @@ package com.playa.service;
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
 import com.playa.mapper.UserMapper;
-import com.playa.model.Genre;
 import com.playa.model.enums.Rol;
 import com.playa.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
@@ -13,7 +12,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.playa.repository.UserRepository;
 import com.playa.model.User;
@@ -136,10 +134,44 @@ public class UserService {
     public void resetUserPreferences(Long id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
-        user.setIdgenre(null); // Limpia géneros favoritos
-        // Aquí deberías limpiar historial y likes si tienes esos modelos relacionados
-        // Por ejemplo: historyRepository.deleteByUserId(id); likeRepository.deleteByUserId(id);
+        user.setIdgenre(null); // Limpia género principal
+        user.setFavoriteGenres(new java.util.ArrayList<>()); // Limpia lista de géneros favoritos
         userRepository.save(user);
     }
 
+    // Nuevo: actualizar idioma de interfaz
+    @Transactional
+    public void updateUserLanguage(Long id, String language) {
+        List<String> allowed = List.of("Español", "Inglés", "Português");
+        if (language == null || language.isBlank()) {
+            throw new IllegalArgumentException("El idioma no puede estar vacío");
+        }
+        if (!allowed.contains(language)) {
+            throw new IllegalArgumentException("Idioma no soportado. Valores permitidos: " + allowed);
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        user.setLanguage(language);
+        userRepository.save(user);
+    }
+
+    // Nuevo: actualizar visibilidad del historial
+    @Transactional
+    public void updateUserHistoryVisibility(Long id, Boolean visible) {
+        if (visible == null) {
+            throw new IllegalArgumentException("El valor de visibilidad es obligatorio");
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        user.setHistoryVisible(visible);
+        userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getNewArtists(){
+        LocalDateTime fourteenDaysAgo = LocalDateTime.now().minusDays(14);
+        return userRepository.findNewArtists(fourteenDaysAgo).stream()
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
 }

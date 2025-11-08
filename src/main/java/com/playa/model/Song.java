@@ -63,4 +63,16 @@ public class Song {
     @OneToMany(mappedBy = "song", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments= new ArrayList<>();
 
+    @Column(name = "average_rating")
+    @Builder.Default
+    private Double averageRating = 0.0;
+
+    @Column(name = "rating_count")
+    @Builder.Default
+    private Integer ratingCount = 0;
+
+    // Control optimista para evitar condiciones de carrera en actualizaciones de rating
+    @Version
+    @Column(name = "version")
+    private Long version;
 }
