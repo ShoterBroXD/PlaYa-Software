@@ -81,11 +81,21 @@ public class PlayerService {
 
         if (request.getIdsqueue() != null && !request.getIdsqueue().isEmpty()) {
             playQueueRepository.deleteAllByUser(user);
+            List<PlayQueue> newQueue = new ArrayList<>();
 
             int position = 1;
             for (Long songId : request.getIdsqueue()) {
-                addSongToQueueInternal(user, songId, position++);
+                Song queueSong = songRepository.findById(songId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada en la cola"));
+                PlayQueue queueItem = new PlayQueue();
+                queueItem.setUser(user);
+                queueItem.setSong(queueSong);
+                queueItem.setPosition(position);
+                queueItem.setOriginalPosition(position);
+                newQueue.add(queueItem);
+                position++;
             }
+            playQueueRepository.saveAll(newQueue);
         }
 
         PlayerState state = playerStateRepository.findByUser(user)
@@ -95,7 +105,6 @@ public class PlayerService {
             state.setUser(user);
         }
 
-        //Solo una canción puede reproducirse a la vez
         state.setCurrentSong(song);
         state.setIsPlaying(true);
         state.setIsPaused(false);
@@ -214,7 +223,6 @@ public class PlayerService {
             }
         }
 
-        // Siguiente canción
         int nextIndex = currentIndex + 1;
         if (currentIndex == -1){
             nextIndex = 0;
@@ -235,7 +243,6 @@ public class PlayerService {
         playerStateRepository.save(state);
         playerStateRepository.flush();
 
-        // Registrar en historial
         registerPlayHistory(user, nextSong);
 
         PlaybackControlResponseDto response = new PlaybackControlResponseDto();
@@ -446,7 +453,6 @@ public class PlayerService {
         queueItem.setPosition(nextPosition);
         queueItem.setOriginalPosition(nextPosition);
 
-        playQueueRepository.save(queueItem);
         return queueItem;
     }
 
@@ -458,6 +464,7 @@ public class PlayerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada"));
 
         PlayQueue queueItem = addSongToQueueInternal(user, request.getIdSong(),null);
+        playQueueRepository.save(queueItem);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Canción agregada a la cola");
@@ -471,6 +478,14 @@ public class PlayerService {
     public void removeFromQueue(Long userId, Integer position) {
         User user = getUserOrThrow(userId);
         playQueueRepository.deleteByUserAndPosition(user, position);
+
+        List<PlayQueue> remainingQueue = playQueueRepository.findByUserOrderByPositionAsc(user);
+
+        int newPosition = 1;
+        for (PlayQueue item : remainingQueue) {
+            item.setPosition(newPosition++);
+            playQueueRepository.save(item);
+        }
     }
 
     public List<HistoryResponseDto> getHistory(Long userId, Integer limit) {
