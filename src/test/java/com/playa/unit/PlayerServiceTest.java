@@ -52,8 +52,7 @@ class PlayerServiceTest {
     @DisplayName("Debe registrar reproducción correctamente")
     void registerPlay_validData_registersPlayHistory() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -91,8 +90,7 @@ class PlayerServiceTest {
     @DisplayName("Debe lanzar excepción si la canción no existe al registrar reproducción")
     void registerPlay_songNotFound_throwsException() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(songRepository.findById(99L)).thenReturn(Optional.empty());
@@ -108,8 +106,7 @@ class PlayerServiceTest {
     @DisplayName("Debe obtener la reproducción actual correctamente")
     void getCurrentPlayback_validState_returnsCurrentPlayback() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -141,8 +138,7 @@ class PlayerServiceTest {
     @DisplayName("Debe lanzar excepción si no hay reproducción activa")
     void getCurrentPlayback_noCurrentSong_throwsException() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -160,8 +156,7 @@ class PlayerServiceTest {
     @DisplayName("Debe reproducir una canción correctamente")
     void playSong_validRequest_startsPlayback() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -197,11 +192,9 @@ class PlayerServiceTest {
     @DisplayName("Debe lanzar excepción al reproducir canción privada de otro usuario")
     void playSong_privateSongFromOtherUser_throwsException() {
         // Arrange
-        User owner = new User();
-        owner.setIdUser(2L);
+        User owner = User.builder().idUser(2L).build();
 
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -225,8 +218,7 @@ class PlayerServiceTest {
     @DisplayName("Debe pausar la reproducción correctamente")
     void pause_activePlayback_pausesSuccessfully() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -252,8 +244,7 @@ class PlayerServiceTest {
     @DisplayName("Debe lanzar excepción al pausar sin reproducción activa")
     void pause_noActivePlayback_throwsException() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -273,8 +264,7 @@ class PlayerServiceTest {
     @DisplayName("Debe reanudar la reproducción correctamente")
     void resume_pausedPlayback_resumesSuccessfully() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -300,8 +290,7 @@ class PlayerServiceTest {
     @DisplayName("Debe detener la reproducción correctamente")
     void stop_activePlayback_stopsSuccessfully() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -331,8 +320,7 @@ class PlayerServiceTest {
     @DisplayName("Debe avanzar a la siguiente canción correctamente")
     void next_withQueue_playsNextSong() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song1 = new Song();
         song1.setIdSong(10L);
@@ -377,8 +365,7 @@ class PlayerServiceTest {
     @DisplayName("Debe lanzar excepción si no hay siguiente canción")
     void next_emptyQueue_throwsException() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -397,8 +384,7 @@ class PlayerServiceTest {
     @DisplayName("Debe agregar canción a la cola correctamente")
     void addToQueue_validSong_addsToQueue() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song = new Song();
         song.setIdSong(10L);
@@ -430,8 +416,7 @@ class PlayerServiceTest {
     @DisplayName("Debe activar modo aleatorio correctamente")
     void setShuffle_enableShuffle_shufflesQueue() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song1 = new Song();
         song1.setIdSong(10L);
@@ -475,8 +460,7 @@ class PlayerServiceTest {
     @DisplayName("Debe establecer modo de repetición correctamente")
     void setRepeatMode_validMode_setsRepeatMode() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -504,8 +488,7 @@ class PlayerServiceTest {
     @DisplayName("Debe ajustar el volumen correctamente")
     void setVolume_validVolume_setsVolume() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         PlayerState state = new PlayerState();
         state.setUser(user);
@@ -533,8 +516,7 @@ class PlayerServiceTest {
     @DisplayName("Debe obtener la cola de reproducción correctamente")
     void getQueue_withSongs_returnsQueue() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         Song song1 = new Song();
         song1.setIdSong(10L);
@@ -577,8 +559,7 @@ class PlayerServiceTest {
     @DisplayName("Debe eliminar canción de la cola correctamente")
     void removeFromQueue_validPosition_removesFromQueue() {
         // Arrange
-        User user = new User();
-        user.setIdUser(1L);
+        User user = User.builder().idUser(1L).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         doNothing().when(playQueueRepository).deleteByUserAndPosition(user, 2);

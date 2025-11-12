@@ -23,11 +23,11 @@ public class FollowService {
     @Transactional
     public String followArtist(Long follower_id, Long artist_id){
         User follower = userRepository.findById(follower_id)
-                .orElseThrow(()-> new RuntimeException("Seguidor no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Seguidor no encontrado"));
         User artist = userRepository.findById(artist_id)
-                .orElseThrow(()-> new RuntimeException("Artista no encontrado"));
+                .orElseThrow(() -> new com.playa.exception.ResourceNotFoundException("Artista no encontrado"));
 
-        if (followRepository.existsByFollowerAndFollowed(follower,artist)){
+        if (followRepository.existsByFollowerAndArtist(follower,artist)){
             return "Ya sigues a este artista";
         }
 
@@ -50,13 +50,13 @@ public class FollowService {
     @Transactional
     public String unfollowArtist(Long follower_id, Long artist_id){
         User follower = userRepository.findById(follower_id)
-                .orElseThrow(()-> new RuntimeException("Seguidor no encontrado"));
+                .orElseThrow(() -> new com.playa.exception.ResourceNotFoundException("Seguidor no encontrado"));
         User artist = userRepository.findById(artist_id)
-                .orElseThrow(()-> new RuntimeException("Artista no encontrado"));
-        if (!followRepository.existsByFollowerAndFollowed(follower,artist)){
+                .orElseThrow(() -> new com.playa.exception.ResourceNotFoundException("Artista no encontrado"));
+        if (!followRepository.existsByFollowerAndArtist(follower,artist)){
             return "No eres seguidor de este artista";
         }
-        followRepository.deleteByFollowerAndFollowed(follower,artist);
+        followRepository.deleteByFollowerAndArtist(follower,artist);
         return "Has dejado de seguir a "+artist.getName();
     }
 
@@ -70,15 +70,15 @@ public class FollowService {
     @Transactional(readOnly = true)
     public List<Follow> getFollowers(Long artist_id){
         User user = userRepository.findById(artist_id)
-                .orElseThrow(()->new RuntimeException("Artista no encontrado"));
-        return followRepository.findByFollowed(user);
+                .orElseThrow(() -> new ResourceNotFoundException("Artista no encontrado"));
+        return followRepository.findByArtist(user);
     }
 
     @Transactional(readOnly = true)
     public long countFollowers(Long artist_id){
         User user = userRepository.findById(artist_id)
-                .orElseThrow(()->new RuntimeException("Artista no encontrado"));
-        return followRepository.countByFollowed(user);
+                .orElseThrow(() -> new ResourceNotFoundException("Artista no encontrado"));
+        return followRepository.countByArtist(user);
     }
 
     @Transactional(readOnly = true)
