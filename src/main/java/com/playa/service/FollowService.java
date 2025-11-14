@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,6 +35,7 @@ public class FollowService {
         Follow follow = new Follow();
         follow.setFollower(follower);
         follow.setArtist(artist);
+        follow.setFollowDate(LocalDateTime.now());
         followRepository.save(follow);
 
         NotificationRequestDto notification = new NotificationRequestDto();

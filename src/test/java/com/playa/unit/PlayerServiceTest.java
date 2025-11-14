@@ -45,6 +45,12 @@ class PlayerServiceTest {
     @Mock
     private SongService songService;
 
+    @Mock
+    private com.playa.mapper.SongMapper songMapper;
+
+    @Mock
+    private com.playa.mapper.PlayerMapper playerMapper;
+
     @InjectMocks
     private PlayerService playerService;
 
@@ -120,8 +126,15 @@ class PlayerServiceTest {
         state.setIsPaused(false);
         state.setVolume(80);
 
+        CurrentPlaybackResponseDto expectedDto = new CurrentPlaybackResponseDto();
+        expectedDto.setIdSong(10L);
+        expectedDto.setTitle("Test Song");
+        expectedDto.setIsPlaying(true);
+        expectedDto.setIsPaused(false);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(playerStateRepository.findByUser(user)).thenReturn(Optional.of(state));
+        when(playerMapper.convertToCurrentPlaybackResponseDto(state)).thenReturn(expectedDto);
 
         // Act
         CurrentPlaybackResponseDto response = playerService.getCurrentPlayback(1L);
@@ -132,6 +145,7 @@ class PlayerServiceTest {
         assertEquals("Test Song", response.getTitle());
         assertTrue(response.getIsPlaying());
         assertFalse(response.getIsPaused());
+        verify(playerMapper, times(1)).convertToCurrentPlaybackResponseDto(state);
     }
 
     @Test
@@ -170,11 +184,16 @@ class PlayerServiceTest {
         PlayerState state = new PlayerState();
         state.setUser(user);
 
+        SongResponseDto songDto = new SongResponseDto();
+        songDto.setIdSong(10L);
+        songDto.setTitle("Test Song");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(songRepository.findById(10L)).thenReturn(Optional.of(song));
         when(playerStateRepository.findByUser(user)).thenReturn(Optional.of(state));
         when(playerStateRepository.save(any(PlayerState.class))).thenReturn(state);
         when(songHistoryRepository.save(any(SongHistory.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(songMapper.convertToResponseDto(song)).thenReturn(songDto);
 
         // Act
         PlaybackControlResponseDto response = playerService.playSong(1L, request);
@@ -186,6 +205,7 @@ class PlayerServiceTest {
         assertFalse(response.getIsPaused());
         assertEquals(10L, response.getSong().getIdSong());
         verify(playerStateRepository, times(1)).save(any(PlayerState.class));
+        verify(songMapper, times(1)).convertToResponseDto(song);
     }
 
     @Test
@@ -344,12 +364,17 @@ class PlayerServiceTest {
         queue2.setSong(song2);
         queue2.setPosition(2);
 
+        SongResponseDto songDto = new SongResponseDto();
+        songDto.setIdSong(20L);
+        songDto.setTitle("Next Song");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(playerStateRepository.findByUser(user)).thenReturn(Optional.of(state));
         when(playQueueRepository.findByUserOrderByPositionAsc(user))
                 .thenReturn(Arrays.asList(queue1, queue2));
         when(playerStateRepository.save(any(PlayerState.class))).thenReturn(state);
         when(songHistoryRepository.save(any(SongHistory.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(songMapper.convertToResponseDto(song2)).thenReturn(songDto);
 
         // Act
         PlaybackControlResponseDto response = playerService.next(1L);
@@ -359,6 +384,7 @@ class PlayerServiceTest {
         assertEquals("Siguiente canción", response.getMessage());
         assertEquals(20L, response.getSong().getIdSong());
         verify(playerStateRepository, times(1)).save(state);
+        verify(songMapper, times(1)).convertToResponseDto(song2);
     }
 
     @Test
@@ -394,6 +420,10 @@ class PlayerServiceTest {
         AddToQueueRequestDto request = new AddToQueueRequestDto();
         request.setIdSong(10L);
 
+        SongBasicResponseDto songBasicDto = new SongBasicResponseDto();
+        songBasicDto.setIdSong(10L);
+        songBasicDto.setTitle("Test Song");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(songRepository.findById(10L)).thenReturn(Optional.of(song));
         when(playQueueRepository.countByUser(user)).thenReturn(5L);
@@ -402,6 +432,7 @@ class PlayerServiceTest {
             pq.setIdQueue(1L);
             return pq;
         });
+        when(songMapper.convertToBasicResponseDto(song)).thenReturn(songBasicDto);
 
         // Act
         Map<String, Object> response = playerService.addToQueue(1L, request);
@@ -410,6 +441,7 @@ class PlayerServiceTest {
         assertNotNull(response);
         assertEquals("Canción agregada a la cola", response.get("message"));
         verify(playQueueRepository, times(1)).save(any(PlayQueue.class));
+        verify(songMapper, times(1)).convertToBasicResponseDto(song);
     }
 
     @Test
@@ -540,10 +572,22 @@ class PlayerServiceTest {
         state.setUser(user);
         state.setCurrentSong(song1);
 
+        QueueSongResponseDto queueDto1 = new QueueSongResponseDto();
+        queueDto1.setIdSong(10L);
+        queueDto1.setTitle("Song 1");
+        queueDto1.setPosition(1);
+
+        QueueSongResponseDto queueDto2 = new QueueSongResponseDto();
+        queueDto2.setIdSong(20L);
+        queueDto2.setTitle("Song 2");
+        queueDto2.setPosition(2);
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(playerStateRepository.findByUser(user)).thenReturn(Optional.of(state));
         when(playQueueRepository.findByUserOrderByPositionAsc(user))
                 .thenReturn(Arrays.asList(queue1, queue2));
+        when(playerMapper.convertToQueueSongResponseDto(queue1)).thenReturn(queueDto1);
+        when(playerMapper.convertToQueueSongResponseDto(queue2)).thenReturn(queueDto2);
 
         // Act
         QueueResponseDto response = playerService.getQueue(1L);
@@ -553,6 +597,7 @@ class PlayerServiceTest {
         assertEquals(0, response.getCurrentIndex());
         assertEquals(2, response.getTotalSongs());
         assertEquals(2, response.getSongs().size());
+        verify(playerMapper, times(2)).convertToQueueSongResponseDto(any(PlayQueue.class));
     }
 
     @Test

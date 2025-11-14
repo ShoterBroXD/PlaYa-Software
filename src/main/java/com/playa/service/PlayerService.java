@@ -1,19 +1,16 @@
 package com.playa.service;
 
 import com.playa.dto.*;
-import com.playa.dto.SongBasicResponseDto;
 import com.playa.exception.PlayerException;
 import com.playa.exception.QueueEmptyException;
 import com.playa.exception.ResourceNotFoundException;
+import com.playa.mapper.PlayerMapper;
+import com.playa.mapper.SongMapper;
 import com.playa.model.*;
 import com.playa.model.enums.Mode;
 import com.playa.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -31,6 +28,8 @@ public class PlayerService {
     private final SongRepository songRepository;
     private final UserRepository userRepository;
     private final SongService songService;
+    private final SongMapper songMapper;
+    private final PlayerMapper playerMapper;
 
 
     @Transactional
@@ -66,7 +65,7 @@ public class PlayerService {
             throw new ResourceNotFoundException("No hay ninguna canción en reproducción");
         }
 
-        return mapToCurrentPlaybackResponseDto(state);
+        return playerMapper.convertToCurrentPlaybackResponseDto(state);
     }
 
     @Transactional
@@ -117,7 +116,7 @@ public class PlayerService {
         response.setMessage("Reproducción iniciada");
         response.setIsPlaying(true);
         response.setIsPaused(false);
-        response.setSong(mapSongToResponseDto(song));
+        response.setSong(songMapper.convertToResponseDto(song));
 
         return response;
     }
@@ -197,7 +196,7 @@ public class PlayerService {
             response.setMessage("Repitiendo canción actual");
             response.setIsPlaying(true);
             response.setIsPaused(false);
-            response.setSong(mapSongToResponseDto(state.getCurrentSong()));
+            response.setSong(songMapper.convertToResponseDto(state.getCurrentSong()));
 
             return response;
         }
@@ -249,7 +248,7 @@ public class PlayerService {
         response.setMessage("Siguiente canción");
         response.setIsPlaying(true);
         response.setIsPaused(false);
-        response.setSong(mapSongToResponseDto(nextSong));
+        response.setSong(songMapper.convertToResponseDto(nextSong));
 
         return response;
     }
@@ -293,7 +292,7 @@ public class PlayerService {
         response.setMessage("Canción anterior");
         response.setIsPlaying(true);
         response.setIsPaused(false);
-        response.setSong(mapSongToResponseDto(previousSong));
+        response.setSong(songMapper.convertToResponseDto(previousSong));
 
         return response;
     }
@@ -430,7 +429,7 @@ public class PlayerService {
         }
 
         List<QueueSongResponseDto> songs = queue.stream()
-                .map(this::mapToQueueSongResponseDto)
+                .map(playerMapper::convertToQueueSongResponseDto)
                 .collect(Collectors.toList());
 
         QueueResponseDto response = new QueueResponseDto();
@@ -468,7 +467,7 @@ public class PlayerService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Canción agregada a la cola");
-        response.put("song", mapSongToBasicResponseDto(song));
+        response.put("song", songMapper.convertToBasicResponseDto(song));
         response.put("queuePosition", queueItem.getPosition());
 
         return response;
@@ -495,7 +494,7 @@ public class PlayerService {
 
         return history.stream()
                 .limit(limit != null ? limit : 50)
-                .map(h -> new HistoryResponseDto(mapSongToResponseDto(h.getSong()), h.getDatePlayed()))
+                .map(h -> new HistoryResponseDto(songMapper.convertToResponseDto(h.getSong()), h.getDatePlayed()))
                 .collect(Collectors.toList());
     }
 
@@ -541,7 +540,7 @@ public class PlayerService {
                         RecommendationResponseDto rec = new RecommendationResponseDto();
                         rec.setIdSong(song.getIdSong());
                         rec.setTitle(song.getTitle());
-                        rec.setArtist(mapUserToArtistResponseDto(song.getUser()));
+                        rec.setArtist(songMapper.convertUserToArtistResponseDto(song.getUser()));
                         rec.setCoverURL(song.getCoverURL());
                         Set<GenreResponseDto> genres = new HashSet<>();
                         Genre g = song.getGenre();
@@ -581,77 +580,6 @@ public class PlayerService {
         history.setDatePlayed(LocalDateTime.now());
 
         songHistoryRepository.save(history);
-    }
-
-    private CurrentPlaybackResponseDto mapToCurrentPlaybackResponseDto(PlayerState state) {
-        Song song = state.getCurrentSong();
-
-        CurrentPlaybackResponseDto response = new CurrentPlaybackResponseDto();
-        response.setIdSong(song.getIdSong());
-        response.setTitle(song.getTitle());
-        response.setArtist(mapUserToArtistResponseDto(song.getUser()));
-        response.setCoverURL(song.getCoverURL());
-        response.setFileURL(song.getFileURL());
-        response.setIsPlaying(state.getIsPlaying());
-        response.setIsPaused(state.getIsPaused());
-        response.setCurrentTime(state.getPlaybackTime());
-        response.setDuration(null);
-        response.setVolume(state.getVolume());
-        response.setShuffleEnabled(state.getShuffleEnabled());
-        response.setRepeatMode(state.getRepeatMode());
-
-        return response;
-    }
-
-    private SongResponseDto mapSongToResponseDto(Song song) {
-        SongResponseDto response = new SongResponseDto();
-        response.setIdSong(song.getIdSong());
-        response.setTitle(song.getTitle());
-        response.setDescription(song.getDescription());
-        response.setCoverURL(song.getCoverURL());
-        response.setFileURL(song.getFileURL());
-        response.setVisibility(song.getVisibility());
-        response.setUploadDate(song.getUploadDate());
-
-        // Mapear artista
-        response.setArtist(mapUserToArtistResponseDto(song.getUser()));
-
-        // Mapear géneros
-        response.setGenre(song.getGenre());
-
-        return response;
-    }
-
-    private SongBasicResponseDto mapSongToBasicResponseDto(Song song) {
-        SongBasicResponseDto response = new SongBasicResponseDto();
-        response.setIdSong(song.getIdSong());
-        response.setTitle(song.getTitle());
-        response.setArtistName(song.getUser().getName());
-        response.setCoverURL(song.getCoverURL());
-        response.setDuration(song.getDuration());
-        return response;
-    }
-
-    private ArtistResponseDto mapUserToArtistResponseDto(User user) {
-        ArtistResponseDto response = new ArtistResponseDto();
-        response.setIdUser(user.getIdUser());
-        response.setName(user.getName());
-        response.setBiography(user.getBiography());
-        return response;
-    }
-
-    private QueueSongResponseDto mapToQueueSongResponseDto(PlayQueue queue) {
-        Song song = queue.getSong();
-
-        QueueSongResponseDto response = new QueueSongResponseDto();
-        response.setPosition(queue.getPosition());
-        response.setIdSong(song.getIdSong());
-        response.setTitle(song.getTitle());
-        response.setArtist(mapUserToArtistResponseDto(song.getUser()));
-        response.setCoverURL(song.getCoverURL());
-        response.setDuration(null); // Agregar si tienes en BD
-
-        return response;
     }
 
 }

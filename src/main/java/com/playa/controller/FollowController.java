@@ -1,6 +1,7 @@
 package com.playa.controller;
 
-import com.playa.model.Follow;
+import com.playa.dto.response.FollowResponse;
+import com.playa.mapper.FollowMapper;
 import com.playa.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 public class FollowController {
 
     private final FollowService followService;
+    private final FollowMapper followMapper;
 
     @PostMapping("/{followerId}/follow/{artistId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('LISTENER') or hasRole('ARTIST')")
@@ -28,19 +30,19 @@ public class FollowController {
     }
 
     @GetMapping("/{userId}/following")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LISTENER')")
-    public ResponseEntity<List<Follow>> getFollowing(@PathVariable Long userId) {
-        return ResponseEntity.ok(followService.getFollowedArtists(userId));
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LISTENER') or hasRole('ARTIST')")
+    public ResponseEntity<List<FollowResponse>> getFollowing(@PathVariable Long userId) {
+        return ResponseEntity.ok(followMapper.convertToResponseList(followService.getFollowedArtists(userId)));
     }
 
     @GetMapping("/{artistId}/followers")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST')")
-    public ResponseEntity<List<Follow>> getFollowers(@PathVariable Long artistId) {
-        return ResponseEntity.ok(followService.getFollowers(artistId));
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<List<FollowResponse>> getFollowers(@PathVariable Long artistId) {
+        return ResponseEntity.ok(followMapper.convertToResponseList(followService.getFollowers(artistId)));
     }
 
     @GetMapping("/{artistId}/followers/count")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Long> countFollowers(@PathVariable Long artistId) {
         return ResponseEntity.ok(followService.countFollowers(artistId));
     }
