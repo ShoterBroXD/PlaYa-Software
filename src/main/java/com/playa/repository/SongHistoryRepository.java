@@ -21,4 +21,8 @@ public interface SongHistoryRepository extends JpaRepository<SongHistory, SongHi
             "FROM SongHistory sh WHERE sh.song.user.idUser = :artistId " +
             "GROUP BY sh.song.idSong, sh.song.title ORDER BY COUNT(sh) DESC")
     List<SongPlayReportResponse> findSongPlayStatsByArtist(Long artistId);
+
+    @Query("SELECT sh.song.title, COUNT(sh) " +
+            "FROM SongHistory sh GROUP BY sh.song.title ORDER BY COUNT(sh) DESC")
+    List<Object[]> getTopSongsGlobal();
 }

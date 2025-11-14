@@ -14,16 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AnalysisReportService {
+public class StatsReportService {
 
-    private final AnalysisReportRepository reportRepository;
+    private final PlayHistoryRepository reportRepository;
     private final SongRepository songRepository;
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
@@ -83,7 +82,7 @@ public class AnalysisReportService {
         }
 
         if (startDate != null && endDate != null) {
-            predicates.add(cb.between(root.get("playedAt"), startDate, endDate));
+            predicates.add(cb.between(root.get("dateplayed"), startDate, endDate));
         }
 
         cq.multiselect(

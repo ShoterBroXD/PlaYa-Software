@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        //
+                        .requestMatchers("/register").permitAll()
                         .requestMatchers("/notifications/**").permitAll()
                         .requestMatchers("/notifications/preferences").permitAll()
                         .requestMatchers("/notifications/preferences/edit").permitAll()
@@ -51,7 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/songs/public").permitAll()
                         .requestMatchers("/songs/*/comments").permitAll()
                         // Reports endpoints - require authentication
-                        .requestMatchers("/reports/**").authenticated()
+                        .requestMatchers("/stats/**").permitAll()
+                        .requestMatchers("/api/v1/follows/**").permitAll()
                         // Premium functionality endpoints - require authentication and premium validation
                         .requestMatchers("/users/*/preferences/**").authenticated()
                         .requestMatchers("/premium/**").authenticated()

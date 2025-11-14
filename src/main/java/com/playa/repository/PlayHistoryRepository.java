@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AnalysisReportRepository extends JpaRepository<SongHistory, Long> {
+public interface PlayHistoryRepository extends JpaRepository<SongHistory, Long> {
     @Query("SELECT sh.song.idSong, COUNT(sh) " +
             "FROM SongHistory sh " +
             "WHERE sh.song.user.idUser = :artistId " +
