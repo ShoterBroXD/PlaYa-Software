@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        //
+                        .requestMatchers("/register").permitAll()
                         .requestMatchers("/notifications/**").permitAll()
                         .requestMatchers("/notifications/preferences").permitAll()
                         .requestMatchers("/notifications/preferences/edit").permitAll()
@@ -50,9 +50,12 @@ public class SecurityConfig {
                         // Public song endpoints (GET requests for public songs)
                         .requestMatchers("/songs/public").permitAll()
                         .requestMatchers("/songs/*/comments").permitAll()
-                        // Reports endpoints - require authentication
-                        .requestMatchers("/reports/**").authenticated()
+                        // Reports endpoints
+                        .requestMatchers("/stats/**").permitAll()
+                        .requestMatchers("/api/v1/follows/**").permitAll()
+                        .requestMatchers("/follows/**").permitAll()
                         // Premium functionality endpoints - require authentication and premium validation
+                        .requestMatchers("/reports/**").authenticated()
                         .requestMatchers("/users/*/preferences/**").authenticated()
                         .requestMatchers("/premium/**").authenticated()
                         // Songs endpoints - require authentication and role validation
@@ -61,9 +64,6 @@ public class SecurityConfig {
                         .requestMatchers("/playlists/**").authenticated()
                         // Comments endpoints - require authentication
                         .requestMatchers("/comments/**").authenticated()
-                        // Notifications endpoints - require authentication
-                        .requestMatchers("/notifications/**").authenticated()
-                        // Users endpoints - require authentication
                         .requestMatchers("/users/**").authenticated()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

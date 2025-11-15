@@ -1,0 +1,1784 @@
+{
+	"info": {
+		"_postman_id": "7372dcc7-b2d5-487a-a93f-72b61903ca7d",
+		"name": "PlaYa",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48584500",
+		"_collection_link": "https://rpaldair-9041413.postman.co/workspace/RP_PieroAldair's-Workspace~5b272eff-c49e-4386-8304-5c6ce0a15852/collection/48584500-7372dcc7-b2d5-487a-a93f-72b61903ca7d?action=share&source=collection_link&creator=48584500"
+	},
+	"item": [
+		{
+			"name": "Reproductor",
+			"item": [
+				{
+					"name": "Ver Recomencaciones",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/recommendations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"recommendations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "test",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/test",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar repro",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idSong\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/play",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"play"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "obtener historial",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/history",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Borrar de cola",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/queue/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"queue",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "agregar a cola",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idSong\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/queue",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"queue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ver cola",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/queue",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"queue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cambiar volumen",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"volume\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/volume",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"volume"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancion previa",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/previous",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"previous"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cancion siguiente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/next",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"next"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "parar canción",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/stop",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"stop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "canción en reproduccion",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/current",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"current"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "modificar aleatoriedad",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"enabled\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/shuffle",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"shuffle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cambiar ciclo de reproducción",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"mode\": \"all\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/repeat",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"repeat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resume",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/resume",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"resume"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pausar canción",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/pause",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"pause"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "play cancion",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "iduser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idSong\": 4,\r\n  \"context\": \"playlist\",\r\n  \"idcontext\": 12,\r\n  \"idsqueue\": [4, 8, 12, 15, 16]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/play/song",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"play",
+								"song"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "historial extendido",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/player/history/extended?limit=20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"player",
+								"history",
+								"extended"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "iduser",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "songs",
+			"item": [
+				{
+					"name": "publicar canciones",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"iduser\": 1,\r\n  \"title\": \"La Noche de Anoche\",\r\n  \"duration\": 230,\r\n  \"description\": \"Regaeton cantado por 'La Rosalía' y 'Bad Bunny'\",\r\n  \"coverURL\": \"https://example.com/covers/noche.jpg\",\r\n  \"fileURL\": \"https://example.com/music/noche.mp3\",\r\n  \"visibility\": \"public\",\r\n  \"idgenre\":1\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/songs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"songs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener comentarios de una canción",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/songs/10/comments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"songs",
+								"10",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Quitar like",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "idUser",
+								"value": "{{id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/songs/10/like",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"songs",
+								"10",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dar like",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "idUser",
+								"value": "5",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/songs/10/like",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"songs",
+								"10",
+								"like"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "crear notificación",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "1",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idUser\": 4,\r\n  \"content\": \"Tu canción 'Luz de Luna' recibió un nuevo comentario\",\r\n  \"read\": false,\r\n  \"type\": \"comment\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener notificaciones para un user",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "3",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Marcar leido",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/notifications/5/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"5",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ON/OFF preferences",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwttoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "2",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/notifications/preferences",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"preferences"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update preferences",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwttoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "2",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"enableComments\": true,\r\n  \"enableNewReleases\": false,\r\n  \"enableFollowers\": true,\r\n  \"enableSystem\": true\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/notifications/preferences/edit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"preferences",
+								"edit"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password",
+			"item": [
+				{
+					"name": "Cambiar contraseña",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"currentPassword\": \"12345\",\r\n  \"newPassword\": \"nuevaSegura123\",\r\n  \"confirmNewPassword\": \"nuevaSegura123\"\r\n}\r\n"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/1/password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"1",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reestablecer contraseña",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPassword\": \"123456789\",\r\n    \"confirmNewPassword\": \"123456789\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/password/reset?token=f4249d5d-1661-494b-91fb-70e6fc826173",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"password",
+								"reset"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "f4249d5d-1661-494b-91fb-70e6fc826173"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "generar token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verificar status\r",
+									"pm.test('Status 200/201', function () {\r",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"let token = '';\r",
+									"const contentType = pm.response.headers.get('Content-Type') || '';\r",
+									"let bodyText = pm.response.text();\r",
+									"\r",
+									"// Intento JSON por compatibilidad futura\r",
+									"if (contentType.includes('application/json')) {\r",
+									"  try {\r",
+									"    const res = pm.response.json();\r",
+									"    token = res.token || res.resetToken || res.accessToken || res.jwt || res?.data?.token || '';\r",
+									"    if (!token && typeof res === 'string') bodyText = res; // JSON string directo\r",
+									"  } catch (e) { /* continuar con texto */ }\r",
+									"}\r",
+									"\r",
+									"// Extraer de texto: \"Token generado: <token>\"\r",
+									"if (!token && bodyText) {\r",
+									"  const m = bodyText.match(/token\\s*generado\\s*:\\s*[\"']?([^\\s\"']+)/i);\r",
+									"  token = m ? m[1].trim() : '';\r",
+									"}\r",
+									"\r",
+									"if (token) {\r",
+									"  pm.collectionVariables.set('reset_token', token);\r",
+									"  console.log('Reset token almacenado en {{reset_token}}');\r",
+									"  pm.test('Token capturado', () => pm.expect(token).to.be.a('string').and.not.empty);\r",
+									"} else {\r",
+									"  console.warn('No se encontró token en la respuesta');\r",
+									"  pm.test('No se pudo extraer el token', () => pm.expect.fail('Sin token reconocible'));\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/password/request?email={{email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"password",
+								"request"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{email}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "endpoints cambio y reestablecimiento de contraseña"
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Filtros",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/users/artists/filter",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"users",
+								"artists",
+								"filter"
+							],
+							"query": [
+								{
+									"key": "idgenre",
+									"value": "3",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "cam",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "LISTENER",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Follow",
+			"item": [
+				{
+					"name": "Seguir artista",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "iduser",
+								"value": "21",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id}}/follow/{{id_artist}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id}}",
+								"follow",
+								"{{id_artist}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Dejar de seguir",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id}}/unfollow/{{id_artist}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id}}",
+								"unfollow",
+								"{{id_artist}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar artistas seguidos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id}}/following",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id}}",
+								"following"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar seguidores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id_artist}}/followers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id_artist}}",
+								"followers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contar seguidores",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id_artist}}/followers/count",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id_artist}}",
+								"followers",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contar seguidos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/follows/{{id}}/following/count",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"follows",
+								"{{id}}",
+								"following",
+								"count"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Reporte por Artista",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stats/artist/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stats",
+								"artist",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ranking Global de Canciones Más Reproducidas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stats/global/top-songs",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stats",
+								"global",
+								"top-songs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ranking de Artistas Populares",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stats/artist-popularity?idgenre=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stats",
+								"artist-popularity"
+							],
+							"query": [
+								{
+									"key": "idgenre",
+									"value": "1"
+								},
+								{
+									"key": "startDate",
+									"value": "2025-01-01T00:00:00",
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": "2025-12-31T23:59:59",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth -> Register (opcional)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"biography\": \"Bio de prueba\",\n  \"type\": \"ARTIST\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auth -> Login (obtiene JWT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200/201', function () {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							"",
+							"let token = '';",
+							"try {",
+							"  const res = pm.response.json();",
+							"  token = res.token || res.accessToken || res.jwt || (res.data && res.data.token) || '';",
+							"} catch (e) { token = ''; }",
+							"if (token) {",
+							"  pm.collectionVariables.set('token', token);",
+							"  console.log('JWT almacenado en {{token}}');",
+							"} else {",
+							"  console.warn('No se encontró token en la respuesta');",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "jwttoken",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "resetToken",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "base_url",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "email",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "password",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "id_artist",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "reset_token",
+			"value": ""
+		}
+	]
+}

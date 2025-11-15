@@ -55,11 +55,11 @@ class ReportServiceTest {
     }
 
     private User createMockUser(Long id, String email, String name) {
-        User user = new User();
-        user.setIdUser(id);
-        user.setEmail(email);
-        user.setName(name);
-        return user;
+        return User.builder()
+                .idUser(id)
+                .email(email)
+                .name(name)
+                .build();
     }
 
     private Song createMockSong(Long id, String title, User owner) {

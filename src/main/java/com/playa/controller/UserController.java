@@ -1,30 +1,25 @@
 package com.playa.controller;
 
+import com.playa.dto.*;
 import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
-import com.playa.dto.UserRequestDto;
-import com.playa.dto.UserResponseDto;
-
-import com.playa.dto.UserPreferencesDto;
-import java.util.List;
-
 import com.playa.dto.UpdateLanguageRequest;
 import com.playa.dto.UpdatePrivacyRequest;
+import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
-    // GET /api/v1/users - Obtener todos los usuarios (Solo ADMIN)
+    // GET /api/v1/users - Obtener todos los usuarios
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
@@ -34,8 +29,8 @@ public class UserController {
         }
         return ResponseEntity.ok(users); // 200
     }
-    
-    // POST /api/v1/users - Registrar nuevo usuario (Solo ADMIN)
+
+    // POST /api/v1/users - Registrar nuevo usuario
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto user) {
@@ -43,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(createdUser);
     }
     
-    // GET /api/v1/users/{id} - Consultar perfil de usuario (Usuario propietario o ADMIN)
+    // GET /api/v1/users/{id} - Consultar perfil de usuario
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
@@ -52,7 +47,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    // PUT /api/v1/users/{id} - Actualizar perfil (Usuario propietario o ADMIN)
+    // PUT /api/v1/users/{id} - Actualizar perfil
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDetails) {
@@ -64,7 +59,7 @@ public class UserController {
         }
     }
     
-    // DELETE /api/v1/users/{id} - Eliminar usuario (Usuario propietario o ADMIN)
+    // DELETE /api/v1/users/{id} - Eliminar usuario
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
@@ -72,7 +67,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // GET /api/v1/users/artists/filter - Filtrar artistas (público)
     @GetMapping("/artists/filter")
     @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> filterArtists(
@@ -85,14 +79,12 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
-    // GET /api/v1/users/genre/{idgenre} - Obtener usuarios por género (público)
     @GetMapping("/genre/{idgenre}")
     public ResponseEntity<List<UserResponseDto>> getAllByIdGenre(@PathVariable Long idgenre) {
         List<UserResponseDto> users = userService.findAllByIdGenre(idgenre);
         return ResponseEntity.ok(users);
     }
-
-    // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (Funcionalidad premium)
+    // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (funcionanalidad premium)
     @PutMapping("/{id}/preferences")
     @PreAuthorize("(hasRole('LISTENER') or hasRole('ARTIST')) and #id == authentication.principal.userId")
     public ResponseEntity<?> updatePreferences(@PathVariable Long id, @RequestBody UserPreferencesDto preferencesDto) {
@@ -107,7 +99,7 @@ public class UserController {
         return ResponseEntity.ok("Preferencias actualizadas correctamente");
     }
 
-    // POST /api/v1/users/{id}/preferences/reset - Reiniciar preferencias musicales (Funcionalidad premium)
+    // POST /api/v1/users/{id}/preferences/reset - Reiniciar preferencias musicales
     @PostMapping("/{id}/preferences/reset")
     @PreAuthorize("(hasRole('LISTENER') or hasRole('ARTIST')) and #id == authentication.principal.userId")
     public ResponseEntity<?> resetPreferences(@PathVariable Long id) {
@@ -122,6 +114,8 @@ public class UserController {
             return ResponseEntity.noContent().build(); // 204
         }
         return ResponseEntity.ok(users);
+    }
+
     // NUEVO: PUT /api/v1/users/{id}/settings/language - Actualizar idioma de interfaz
     @PutMapping("/{id}/settings/language")
     public ResponseEntity<?> updateLanguage(@PathVariable Long id, @RequestBody UpdateLanguageRequest request) {
