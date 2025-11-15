@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/follows/**").permitAll()
                         .requestMatchers("/follows/**").permitAll()
                         // Premium functionality endpoints - require authentication and premium validation
+                        .requestMatchers("/reports/**").authenticated()
                         .requestMatchers("/users/*/preferences/**").authenticated()
                         .requestMatchers("/premium/**").authenticated()
                         // Songs endpoints - require authentication and role validation

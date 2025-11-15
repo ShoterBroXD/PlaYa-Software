@@ -281,7 +281,6 @@ public class UserServiceTest {
         verifyNoInteractions(userMapper);
     }
 
-    // ================== Pruebas fusionadas desde e.java: filtrado por género ==================
 
     @Test
     @DisplayName("US-009 - Escenario 01: Debe mostrar únicamente artistas del género seleccionado (Rock)")

@@ -834,20 +834,23 @@
 					"name": "Obtener comentarios de una canción",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/v1/songs/10/comments",
-							"protocol": "http",
+							"raw": "{{base_url}}/songs/10/comments",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "8080",
 							"path": [
-								"api",
-								"v1",
 								"songs",
 								"10",
 								"comments"
@@ -860,26 +863,29 @@
 					"name": "Quitar like",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
 						},
 						"method": "DELETE",
 						"header": [
 							{
 								"key": "idUser",
-								"value": "5",
+								"value": "{{id}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/api/v1/songs/10/like",
-							"protocol": "http",
+							"raw": "{{base_url}}/songs/10/like",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "8080",
 							"path": [
-								"api",
-								"v1",
 								"songs",
 								"10",
 								"like"
@@ -1209,6 +1215,51 @@
 				},
 				{
 					"name": "generar token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verificar status\r",
+									"pm.test('Status 200/201', function () {\r",
+									"  pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"let token = '';\r",
+									"const contentType = pm.response.headers.get('Content-Type') || '';\r",
+									"let bodyText = pm.response.text();\r",
+									"\r",
+									"// Intento JSON por compatibilidad futura\r",
+									"if (contentType.includes('application/json')) {\r",
+									"  try {\r",
+									"    const res = pm.response.json();\r",
+									"    token = res.token || res.resetToken || res.accessToken || res.jwt || res?.data?.token || '';\r",
+									"    if (!token && typeof res === 'string') bodyText = res; // JSON string directo\r",
+									"  } catch (e) { /* continuar con texto */ }\r",
+									"}\r",
+									"\r",
+									"// Extraer de texto: \"Token generado: <token>\"\r",
+									"if (!token && bodyText) {\r",
+									"  const m = bodyText.match(/token\\s*generado\\s*:\\s*[\"']?([^\\s\"']+)/i);\r",
+									"  token = m ? m[1].trim() : '';\r",
+									"}\r",
+									"\r",
+									"if (token) {\r",
+									"  pm.collectionVariables.set('reset_token', token);\r",
+									"  console.log('Reset token almacenado en {{reset_token}}');\r",
+									"  pm.test('Token capturado', () => pm.expect(token).to.be.a('string').and.not.empty);\r",
+									"} else {\r",
+									"  console.warn('No se encontró token en la respuesta');\r",
+									"  pm.test('No se pudo extraer el token', () => pm.expect.fail('Sin token reconocible'));\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -1216,15 +1267,11 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/v1/users/password/request?email=diego@playa.com",
-							"protocol": "http",
+							"raw": "{{base_url}}/users/password/request?email={{email}}",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "8080",
 							"path": [
-								"api",
-								"v1",
 								"users",
 								"password",
 								"request"
@@ -1232,7 +1279,7 @@
 							"query": [
 								{
 									"key": "email",
-									"value": "diego@playa.com"
+									"value": "{{email}}"
 								}
 							]
 						}
@@ -1728,6 +1775,10 @@
 			"key": "id_artist",
 			"value": "",
 			"type": "default"
+		},
+		{
+			"key": "reset_token",
+			"value": ""
 		}
 	]
 }

@@ -68,27 +68,13 @@ public class User {
     @Column(name = "history_visible")
     private Boolean historyVisible = true;
 
-    // Constructor de conveniencia usado por algunos tests (mapea los 10 parámetros que usan los tests existentes)
-    public User(Long idUser,
-                String name,
-                String email,
-                String password,
-                Rol type,
-                Role role,
-                Boolean premium,
-                String redSocial,
-                Long idgenre,
-                java.util.List<String> favoriteGenres) {
-        this.idUser = idUser;
+    public User(String name, String email, String password, Rol type) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.type = type;
-        this.role = role;
-        this.premium = premium;
-        this.redSocial = redSocial;
-        this.idgenre = idgenre;
-        this.favoriteGenres = favoriteGenres;
+        this.premium = false;
+        this.registerDate = LocalDateTime.now();
     }
 
 }
