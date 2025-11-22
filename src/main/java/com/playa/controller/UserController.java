@@ -18,9 +18,9 @@ public class UserController {
 
     private final UserService userService;
 
+
     // GET /api/v1/users - Obtener todos los usuarios
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
         if (users.isEmpty()) {
@@ -28,10 +28,9 @@ public class UserController {
         }
         return ResponseEntity.ok(users); // 200
     }
-
+    
     // POST /api/v1/users - Registrar nuevo usuario
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto user) {
         UserResponseDto createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
@@ -39,7 +38,6 @@ public class UserController {
     
     // GET /api/v1/users/{id} - Consultar perfil de usuario
     @GetMapping("/{id}")
-    //@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
@@ -48,7 +46,6 @@ public class UserController {
     
     // PUT /api/v1/users/{id} - Actualizar perfil
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @RequestBody UserRequestDto userDetails) {
         try {
             UserResponseDto updatedUser = userService.updateUser(id, userDetails);
@@ -60,7 +57,6 @@ public class UserController {
     
     // DELETE /api/v1/users/{id} - Eliminar usuario
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
