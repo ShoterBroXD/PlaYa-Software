@@ -97,7 +97,7 @@ class AuthServiceTest {
 
         User savedUser = createMockUser(1L, "test_listener@mail.com", "Test Listener", Rol.LISTENER);
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(jwtUtil.generateToken("test_listener@mail.com", "Test Listener", 1L)).thenReturn("fake-jwt-token");
+        when(jwtUtil.generateToken("test_listener@mail.com", "Test Listener", 1L, Rol.LISTENER)).thenReturn("fake-jwt-token");
 
         // Act
         AuthResponse response = authService.register(request);

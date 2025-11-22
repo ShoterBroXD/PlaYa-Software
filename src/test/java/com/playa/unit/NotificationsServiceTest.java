@@ -237,8 +237,8 @@ class NotificationsServiceTest {
     }
 
     @Test
-    @DisplayName("CP-025 Error al desactivar")
-    void togglePreferences_existingPreferences_togglesAll() {
+    @DisplayName("CP-025 Desactivar todas las notificaciones y guardar estado previo")
+    void togglePreferences_existingPreferences_disablesAllAndSavesPreviousState() {
         // Arrange
         User user = new User();
         user.setIdUser(1L);
@@ -250,6 +250,7 @@ class NotificationsServiceTest {
         preference.setEnableSystems(true);
         preference.setEnableNewReleases(false);
         preference.setEnableFollowers(true);
+        preference.setAllDisabled(false);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(notificationPreferenceRepository.findByUser(user)).thenReturn(preference);
@@ -259,17 +260,69 @@ class NotificationsServiceTest {
         // Act
         notificationService.togglePreferences(1L);
 
-        // Assert
-        assertFalse(preference.getEnableComments());
-        assertFalse(preference.getEnableSystems());
-        assertTrue(preference.getEnableNewReleases());
-        assertFalse(preference.getEnableFollowers());
+        assertFalse(preference.getEnableComments(), "Comments debe estar desactivado");
+        assertFalse(preference.getEnableSystems(), "Systems debe estar desactivado");
+        assertFalse(preference.getEnableNewReleases(), "NewReleases debe estar desactivado");
+        assertFalse(preference.getEnableFollowers(), "Followers debe estar desactivado");
+        assertTrue(preference.getAllDisabled(), "allDisabled debe ser true");
+
+        assertTrue(preference.getPrevEnableComments(), "Debe guardar estado previo de Comments");
+        assertTrue(preference.getPrevEnableSystems(), "Debe guardar estado previo de Systems");
+        assertFalse(preference.getPrevEnableNewReleases(), "Debe guardar estado previo de NewReleases");
+        assertTrue(preference.getPrevEnableFollowers(), "Debe guardar estado previo de Followers");
+
         verify(notificationPreferenceRepository, times(1)).save(preference);
     }
 
     @Test
-    @DisplayName("valores por defecto si no existen")
-    void togglePreferences_noExistingPreferences_createsWithDefaults() {
+    @DisplayName("Restaurar estado previo al volver a hacer toggle")
+    void togglePreferences_allDisabled_restoresPreviousState() {
+        // Arrange
+        User user = new User();
+        user.setIdUser(1L);
+
+        NotificationPreference preference = new NotificationPreference();
+        preference.setIdpreference(1L);
+        preference.setUser(user);
+        // Estado actual: todo desactivado
+        preference.setEnableComments(false);
+        preference.setEnableSystems(false);
+        preference.setEnableNewReleases(false);
+        preference.setEnableFollowers(false);
+        preference.setAllDisabled(true); // Marca que están todas desactivadas
+        // Estado previo guardado
+        preference.setPrevEnableComments(true);
+        preference.setPrevEnableSystems(false);
+        preference.setPrevEnableNewReleases(true);
+        preference.setPrevEnableFollowers(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(notificationPreferenceRepository.findByUser(user)).thenReturn(preference);
+        when(notificationPreferenceRepository.save(any(NotificationPreference.class)))
+                .thenReturn(preference);
+
+        // Act
+        notificationService.togglePreferences(1L);
+
+        // Assert - Segunda llamada: restaura el estado previo
+        assertTrue(preference.getEnableComments(), "Debe restaurar Comments a true");
+        assertFalse(preference.getEnableSystems(), "Debe restaurar Systems a false");
+        assertTrue(preference.getEnableNewReleases(), "Debe restaurar NewReleases a true");
+        assertFalse(preference.getEnableFollowers(), "Debe restaurar Followers a false");
+        assertFalse(preference.getAllDisabled(), "allDisabled debe ser false");
+
+        // Verifica que limpió el estado previo
+        assertNull(preference.getPrevEnableComments(), "Debe limpiar estado previo de Comments");
+        assertNull(preference.getPrevEnableSystems(), "Debe limpiar estado previo de Systems");
+        assertNull(preference.getPrevEnableNewReleases(), "Debe limpiar estado previo de NewReleases");
+        assertNull(preference.getPrevEnableFollowers(), "Debe limpiar estado previo de Followers");
+
+        verify(notificationPreferenceRepository, times(1)).save(preference);
+    }
+
+    @Test
+    @DisplayName("Crear preferencias con valores activos si no existen")
+    void togglePreferences_noExistingPreferences_createsWithActiveDefaults() {
         // Arrange
         User user = new User();
         user.setIdUser(1L);
@@ -282,13 +335,14 @@ class NotificationsServiceTest {
         // Act
         notificationService.togglePreferences(1L);
 
-        // Assert
+        // Assert - Primera vez sin preferencias: crea todo activo
         verify(notificationPreferenceRepository, times(1)).save(argThat(pref ->
                 pref.getUser().equals(user) &&
-                        !pref.getEnableComments() &&
-                        !pref.getEnableSystems() &&
-                        !pref.getEnableNewReleases() &&
-                        !pref.getEnableFollowers()
+                        pref.getEnableComments() &&      // Debe ser true
+                        pref.getEnableSystems() &&       // Debe ser true
+                        pref.getEnableNewReleases() &&   // Debe ser true
+                        pref.getEnableFollowers() &&     // Debe ser true
+                        !pref.getAllDisabled()           // Debe ser false
         ));
     }
 

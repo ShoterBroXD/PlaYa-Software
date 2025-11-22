@@ -10,11 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommentMapper {
 
-    private final SongRepository songRepository;
-
-    public CommentMapper(SongRepository songRepository) {
-        this.songRepository = songRepository;
-    }
+    private SongRepository songRepository;
 
     public Comment convertToEntity(Long idUser, CommentRequestDto requestDto) {
         Song song=songRepository.findById(requestDto.getIdSong()).orElseThrow(()-> new RuntimeException("Cancion no encontrada"));

@@ -141,7 +141,7 @@ class SongServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("La URL de la portada no puede estar vacía");
 
-        // ✅ Solo se verifica la llamada a userRepository
+        //  Solo se verifica la llamada a userRepository
         verify(userRepository).findById(1L);
         verifyNoInteractions(genreRepository);
         verify(songRepository, never()).save(any(Song.class));

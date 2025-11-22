@@ -46,4 +46,5 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     @Query("SELECT s FROM Song s WHERE s.title LIKE %:title% AND s.visibility = 'public'")
     List<Song> findByTitleContainingAndVisibilityPublic(@Param("title") String title);
 
+    Object countByUserIdUser(Long userIdUser);
 }
