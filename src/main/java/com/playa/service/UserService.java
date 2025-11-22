@@ -174,4 +174,13 @@ public class UserService {
                 .map(userMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void updatePremiumStatus(Long userId, boolean isPremium) {
+        User user = userRepository.findById(userId).orElseThrow(
+            () -> new RuntimeException("Usuario no encontrado con id: " + userId)
+        );
+        user.setPremium(isPremium);
+        userRepository.save(user);
+    }
 }

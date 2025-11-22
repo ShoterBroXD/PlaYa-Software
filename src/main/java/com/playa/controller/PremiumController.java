@@ -37,6 +37,8 @@ public class PremiumController {
         }
 
         // Simular procesamiento de suscripción
+        userService.updatePremiumStatus(idUser, true);
+
         Map<String, Object> response = new HashMap<>();
         response.put("userId", idUser);
         response.put("status", "ACTIVE");
@@ -58,14 +60,14 @@ public class PremiumController {
     @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getPremiumStatus(@PathVariable Long userId) {
         // Verificar que el usuario existe
-        userService.getUserById(userId)
+        UserResponseDto user = userService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
-        response.put("isPremium", true); // Simulado - en implementación real verificar en BD
+        response.put("isPremium", user.getPremium());
         response.put("planType", "MONTHLY");
-        response.put("status", "ACTIVE");
+        response.put("status", user.getPremium() ? "ACTIVE" : "INACTIVE");
         response.put("renewalDate", "2024-12-07");
 
         return ResponseEntity.ok(response);
@@ -78,6 +80,8 @@ public class PremiumController {
         // Verificar que el usuario existe
         userService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        userService.updatePremiumStatus(userId, false);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Suscripción premium cancelada exitosamente");
