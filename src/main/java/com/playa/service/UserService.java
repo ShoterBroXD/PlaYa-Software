@@ -174,4 +174,62 @@ public class UserService {
                 .map(userMapper::convertToResponseDto)
                 .collect(Collectors.toList());
     }
+
+    // Artistas emergentes: nuevos o con pocos seguidores (máximo 50 seguidores)
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getEmergingArtists(Integer limit) {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        List<User> artists = userRepository.findEmergingArtists(50L, thirtyDaysAgo);
+
+        return artists.stream()
+                .limit(limit != null ? limit : 20)
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    // Artistas activos: han subido canciones recientemente (últimos 30 días)
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getActiveArtists(Integer days, Integer limit) {
+        int daysToCheck = days != null ? days : 30;
+        LocalDateTime threshold = LocalDateTime.now().minusDays(daysToCheck);
+        List<User> artists = userRepository.findActiveArtists(threshold);
+
+        return artists.stream()
+                .limit(limit != null ? limit : 20)
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    // Artistas sin reproducciones: necesitan su primera oportunidad
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getArtistsWithoutPlays(Integer limit) {
+        List<User> artists = userRepository.findArtistsWithoutPlays();
+
+        return artists.stream()
+                .limit(limit != null ? limit : 10)
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    // Artistas por diversidad de género: fuera de la zona de confort del usuario
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> getArtistsByGenreDiversity(Long userId, Integer limit) {
+        List<Long> userGenres = new ArrayList<>();
+
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null && user.getIdgenre() != null) {
+                userGenres.add(user.getIdgenre());
+            }
+        }
+
+        List<User> artists = userRepository.findArtistsByGenreDiversity(
+            userGenres.isEmpty() ? null : userGenres
+        );
+
+        return artists.stream()
+                .limit(limit != null ? limit : 20)
+                .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
 }

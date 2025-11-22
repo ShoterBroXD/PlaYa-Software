@@ -18,7 +18,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     // GET /api/v1/users - Obtener todos los usuarios
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -40,7 +39,7 @@ public class UserController {
     
     // GET /api/v1/users/{id} - Consultar perfil de usuario
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
+    //@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.userId")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
@@ -68,7 +67,7 @@ public class UserController {
     }
 
     @GetMapping("/artists/filter")
-    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> filterArtists(
             @RequestParam(required = false) Rol role,
             @RequestParam(required = false) String name,
@@ -84,6 +83,7 @@ public class UserController {
         List<UserResponseDto> users = userService.findAllByIdGenre(idgenre);
         return ResponseEntity.ok(users);
     }
+
     // PUT /api/v1/users/{id}/preferences - Actualizar preferencias musicales (funcionanalidad premium)
     @PutMapping("/{id}/preferences")
     @PreAuthorize("(hasRole('LISTENER') or hasRole('ARTIST')) and #id == authentication.principal.userId")
@@ -116,14 +116,62 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    // NUEVO: PUT /api/v1/users/{id}/settings/language - Actualizar idioma de interfaz
+    // GET /api/v1/users/emerging - Artistas emergentes (nuevos o con pocos seguidores)
+    @GetMapping("/emerging")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDto>> getEmergingArtists(
+            @RequestParam(required = false, defaultValue = "20") Integer limit) {
+        List<UserResponseDto> artists = userService.getEmergingArtists(limit);
+        if (artists.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(artists);
+    }
+
+    // GET /api/v1/users/active-artists - Artistas que han subido música recientemente
+    @GetMapping("/active-artists")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDto>> getActiveArtists(
+            @RequestParam(required = false, defaultValue = "30") Integer days,
+            @RequestParam(required = false, defaultValue = "20") Integer limit) {
+        List<UserResponseDto> artists = userService.getActiveArtists(days, limit);
+        if (artists.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(artists);
+    }
+
+    // GET /api/v1/users/needs-support - Artistas sin reproducciones que necesitan apoyo
+    @GetMapping("/needs-support")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDto>> getArtistsWithoutPlays(
+            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        List<UserResponseDto> artists = userService.getArtistsWithoutPlays(limit);
+        if (artists.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(artists);
+    }
+
+    // GET /api/v1/users/discover-diverse - Descubre artistas de géneros diversos
+    @GetMapping("/discover-diverse")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponseDto>> getArtistsByGenreDiversity(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false, defaultValue = "20") Integer limit) {
+        List<UserResponseDto> artists = userService.getArtistsByGenreDiversity(userId, limit);
+        if (artists.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(artists);
+    }
+
     @PutMapping("/{id}/settings/language")
     public ResponseEntity<?> updateLanguage(@PathVariable Long id, @RequestBody UpdateLanguageRequest request) {
         userService.updateUserLanguage(id, request.getLanguage());
         return ResponseEntity.ok("Idioma actualizado correctamente");
     }
 
-    // NUEVO: PUT /api/v1/users/{id}/settings/privacy - Actualizar privacidad del historial
     @PutMapping("/{id}/settings/privacy")
     public ResponseEntity<?> updatePrivacy(@PathVariable Long id, @RequestBody UpdatePrivacyRequest request) {
         userService.updateUserHistoryVisibility(id, request.getHistoryVisible());

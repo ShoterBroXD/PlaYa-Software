@@ -43,14 +43,14 @@ public class SongMapper {
         SongBasicResponseDto response = new SongBasicResponseDto();
         response.setIdSong(song.getIdSong());
         response.setTitle(song.getTitle());
-
+        
         if (song.getUser() != null) {
             response.setArtistName(song.getUser().getName());
         }
-
+        
         response.setCoverURL(song.getCoverURL());
         response.setDuration(song.getDuration());
-
+        
         return response;
     }
 
@@ -63,7 +63,7 @@ public class SongMapper {
         response.setIdUser(user.getIdUser());
         response.setName(user.getName());
         response.setBiography(user.getBiography());
-
+        
         return response;
     }
 

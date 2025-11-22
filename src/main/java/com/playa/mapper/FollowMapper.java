@@ -14,7 +14,7 @@ public class FollowMapper {
         if (follow == null) {
             return null;
         }
-
+        
         return FollowResponse.builder()
                 .idFollow(follow.getIdFollow())
                 .followerId(follow.getFollower() != null ? follow.getFollower().getIdUser() : null)
@@ -29,7 +29,7 @@ public class FollowMapper {
         if (follows == null) {
             return null;
         }
-
+        
         return follows.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());

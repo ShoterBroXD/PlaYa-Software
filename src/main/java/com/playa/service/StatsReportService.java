@@ -107,5 +107,95 @@ public class StatsReportService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    // Estadísticas de artistas emergentes (cuántos hay, por género, etc.)
+    @Transactional(readOnly = true)
+    public Map<String, Object> getEmergingArtistsStats() {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        List<User> emerging = userRepository.findEmergingArtists(50L, thirtyDaysAgo);
+        
+        long totalEmerging = emerging.size();
+        long newArtists = emerging.stream()
+                .filter(u -> u.getRegisterDate().isAfter(thirtyDaysAgo))
+                .count();
+        long withFewFollowers = totalEmerging - newArtists;
+        
+        return Map.of(
+                "totalEmergingArtists", totalEmerging,
+                "newArtists", newArtists,
+                "artistsWithFewFollowers", withFewFollowers,
+                "threshold", "50 seguidores o menos de 30 días"
+        );
+    }
+
+    // Estadísticas de artistas activos vs inactivos
+    @Transactional(readOnly = true)
+    public Map<String, Object> getArtistActivityStats(Integer days) {
+        int daysToCheck = days != null ? days : 30;
+        LocalDateTime threshold = LocalDateTime.now().minusDays(daysToCheck);
+        
+        List<User> activeArtists = userRepository.findActiveArtists(threshold);
+        long totalArtists = userRepository.findAll().stream()
+                .filter(u -> u.getType().toString().equals("ARTIST"))
+                .count();
+        
+        long activeCount = activeArtists.size();
+        long inactiveCount = totalArtists - activeCount;
+        double activityRate = totalArtists > 0 ? (activeCount * 100.0 / totalArtists) : 0.0;
+        
+        return Map.of(
+                "totalArtists", totalArtists,
+                "activeArtists", activeCount,
+                "inactiveArtists", inactiveCount,
+                "activityRate", String.format("%.2f%%", activityRate),
+                "periodDays", daysToCheck
+        );
+    }
+
+    // Estadísticas de artistas sin reproducciones (necesitan apoyo)
+    @Transactional(readOnly = true)
+    public Map<String, Object> getArtistsNeedingSupportStats() {
+        List<User> withoutPlays = userRepository.findArtistsWithoutPlays();
+        long totalArtists = userRepository.findAll().stream()
+                .filter(u -> u.getType().toString().equals("ARTIST"))
+                .count();
+        
+        long withoutPlaysCount = withoutPlays.size();
+        long withPlaysCount = totalArtists - withoutPlaysCount;
+        double supportRate = totalArtists > 0 ? (withPlaysCount * 100.0 / totalArtists) : 0.0;
+        
+        return Map.of(
+                "totalArtists", totalArtists,
+                "artistsWithoutPlays", withoutPlaysCount,
+                "artistsWithPlays", withPlaysCount,
+                "supportCoverageRate", String.format("%.2f%%", supportRate),
+                "message", withoutPlaysCount + " artistas necesitan su primera reproducción"
+        );
+    }
+
+    // Top artistas emergentes con más crecimiento (nuevos seguidores)
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getEmergingArtistsGrowth(Integer limit) {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        List<User> emergingArtists = userRepository.findEmergingArtists(50L, thirtyDaysAgo);
+        
+        return emergingArtists.stream()
+                .limit(limit != null ? limit : 10)
+                .map(artist -> {
+                    long followersCount = followRepository.countByArtist(artist);
+                    long songsCount = songRepository.countByUserIdUser(artist.getIdUser()) instanceof Long ? 
+                            (Long) songRepository.countByUserIdUser(artist.getIdUser()) : 0L;
+                    
+                    Map<String, Object> result = new java.util.HashMap<>();
+                    result.put("artistId", artist.getIdUser());
+                    result.put("name", artist.getName());
+                    result.put("followers", followersCount);
+                    result.put("totalSongs", songsCount);
+                    result.put("registerDate", artist.getRegisterDate().toString());
+                    result.put("isNew", artist.getRegisterDate().isAfter(thirtyDaysAgo));
+                    return result;
+                })
+                .collect(Collectors.toList());
+    }
 }
 

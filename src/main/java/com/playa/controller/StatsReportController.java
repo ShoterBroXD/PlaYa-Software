@@ -33,13 +33,43 @@ public class StatsReportController {
     }
 
     @GetMapping("/artist-popularity")
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN') or hasRole('LISTENER') or hasRole('ARTIST')")
     public ResponseEntity<List<ArtistPopularityResponse>> getArtistPopularity(
             @RequestParam(required = false) Long idGenre,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
     ) {
         return ResponseEntity.ok(reportService.getArtistPopularityReport(idGenre, startDate, endDate));
+    }
+
+    // GET /stats/emerging-artists - Estadísticas de artistas emergentes
+    @GetMapping("/emerging-artists")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<Map<String, Object>> getEmergingArtistsStats() {
+        return ResponseEntity.ok(reportService.getEmergingArtistsStats());
+    }
+
+    // GET /stats/artist-activity - Estadísticas de actividad de artistas
+    @GetMapping("/artist-activity")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST')")
+    public ResponseEntity<Map<String, Object>> getArtistActivityStats(
+            @RequestParam(required = false, defaultValue = "30") Integer days) {
+        return ResponseEntity.ok(reportService.getArtistActivityStats(days));
+    }
+
+    // GET /stats/artists-needing-support - Artistas que necesitan apoyo
+    @GetMapping("/artists-needing-support")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ARTIST')")
+    public ResponseEntity<Map<String, Object>> getArtistsNeedingSupportStats() {
+        return ResponseEntity.ok(reportService.getArtistsNeedingSupportStats());
+    }
+
+    // GET /stats/emerging-growth - Top artistas emergentes con más crecimiento
+    @GetMapping("/emerging-growth")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LISTENER') or hasRole('ARTIST')")
+    public ResponseEntity<List<Map<String, Object>>> getEmergingArtistsGrowth(
+            @RequestParam(required = false, defaultValue = "10") Integer limit) {
+        return ResponseEntity.ok(reportService.getEmergingArtistsGrowth(limit));
     }
 }
 
