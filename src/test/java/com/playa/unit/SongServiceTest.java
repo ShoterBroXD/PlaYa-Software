@@ -18,10 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,8 +43,6 @@ class SongServiceTest {
     @InjectMocks
     private SongService songService;
 
-    private User basicArtist;
-    private SongRequestDto songRequest;
     private User artistUser;
     private User listenerUser;
     private Genre genre;
@@ -55,25 +51,52 @@ class SongServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        basicArtist = User.builder()
+        artistUser = User.builder()
                 .idUser(1L)
-                .email("artist@mail.com")
-                .name("Basic Artist")
+                .name("Test Artist")
+                .email("artist@test.com")
                 .type(Rol.ARTIST)
                 .premium(false)
-                .active(true)
                 .registerDate(LocalDateTime.now())
                 .build();
 
-        songRequest = new SongRequestDto();
-        songRequest.setTitle("New Song");
-        songRequest.setDescription("Test description");
-        songRequest.setCoverURL("https://cdn.playa.com/cover1.jpg");
-        songRequest.setFileURL("https://cdn.playa.com/audio1.mp3");
-        songRequest.setVisibility("public");
-        songRequest.setIdgenre(1L);
+        listenerUser = User.builder()
+                .idUser(2L)
+                .name("Test Listener")
+                .email("listener@test.com")
+                .type(Rol.LISTENER)
+                .premium(true)
+                .registerDate(LocalDateTime.now())
+                .build();
+
+        genre = Genre.builder()
+                .idGenre(1L)
+                .name("Rock")
+                .build();
+
+        songRequestDto = SongRequestDto.builder()
+                .title("Test Song")
+                .description("Test Description")
+                .coverURL("https://example.com/cover.jpg")
+                .fileURL("https://example.com/song.mp3")
+                .visibility("public")
+                .idgenre(1L)
+                .duration(180.0f)
+                .build();
+
+        song = Song.builder()
+                .idSong(1L)
+                .title("Test Song")
+                .description("Test Description")
+                .coverURL("https://example.com/cover.jpg")
+                .fileURL("https://example.com/song.mp3")
+                .visibility("public")
+                .duration(180.0f)
+                .user(artistUser)
+                .genre(genre)
+                .uploadDate(LocalDateTime.now())
+                .visible(true)
+                .build();
     }
 
     @Test
@@ -91,7 +114,7 @@ class SongServiceTest {
                 .title("Test Song")
                 .idgenre(1L)
                 .fileURL("test.mp3")
-                .coverURL("cover.jpg") // ✅ Añadido para pasar la validación
+                .coverURL("cover.jpg")
                 .build();
 
         Genre genre = Genre.builder()
@@ -142,7 +165,7 @@ class SongServiceTest {
                 .title("Song without cover")
                 .idgenre(1L)
                 .fileURL("song.mp3")
-                .coverURL(null) // ❌ Falta portada
+                .coverURL(null)
                 .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -165,9 +188,9 @@ class SongServiceTest {
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(ResourceNotFoundException.class, () -> {
-            songService.createSong(999L, songRequestDto);
-        });
+        assertThrows(ResourceNotFoundException.class, () ->
+            songService.createSong(999L, songRequestDto)
+        );
 
         verify(userRepository).findById(999L);
         verify(songRepository, never()).save(any(Song.class));
@@ -181,9 +204,9 @@ class SongServiceTest {
         when(songRepository.countByUserAndVisibilityNot(artistUser, "deleted")).thenReturn(10L);
 
         // When & Then
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            songService.createSong(1L, songRequestDto);
-        });
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+            songService.createSong(1L, songRequestDto)
+        );
 
         assertTrue(exception.getMessage().contains("no pueden subir más de"));
         verify(songRepository, never()).save(any(Song.class));
@@ -214,9 +237,9 @@ class SongServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(artistUser));
 
         // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            songService.createSong(1L, songRequestDto);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            songService.createSong(1L, songRequestDto)
+        );
 
         assertTrue(exception.getMessage().contains("Formato de archivo no permitido"));
         verify(songRepository, never()).save(any(Song.class));
@@ -245,9 +268,9 @@ class SongServiceTest {
         when(songRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(ResourceNotFoundException.class, () -> {
-            songService.getSongById(999L);
-        });
+        assertThrows(ResourceNotFoundException.class, () ->
+            songService.getSongById(999L)
+        );
 
         verify(songRepository).findById(999L);
     }
