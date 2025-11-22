@@ -1,5 +1,6 @@
 package com.playa.controller;
 
+import com.playa.model.enums.Rol;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.playa.service.UserService;
@@ -54,5 +55,14 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/nuevos")
+    public ResponseEntity<List<UserResponseDto>> getNewArtists(Rol role) {
+        List<UserResponseDto> users = userService.getNewArtists();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(users);
     }
 }
