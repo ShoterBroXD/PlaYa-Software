@@ -12,6 +12,8 @@ public class ThreadRequestDto {
     private Long idUser;
     private Long idCommunity;
     @NotBlank
-    @Length(max = 140)
+    @Length(max = 200)
     private String title;
+    @NotBlank
+    private String content;
 }

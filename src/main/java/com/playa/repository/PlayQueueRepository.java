@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface PlayQueueRepository extends JpaRepository<PlayQueue, Long> {
 
-    // Obtener toda la cola de un usuario ordenada por posición
+
     List<PlayQueue> findByUserOrderByPositionAsc(User user);
 
     // Eliminar toda la cola de un usuario

@@ -30,7 +30,10 @@ public class ThreadService {
     @Transactional
     public ThreadResponseDto createThread(ThreadRequestDto dto) {
         if (dto.getIdUser() == null || dto.getIdCommunity() == null || dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
-            throw new IllegalArgumentException("Los campos idUser y title son obligatorios");
+            throw new IllegalArgumentException("Los campos idUser, idCommunity y title son obligatorios");
+        }
+        if (dto.getContent() == null || dto.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("El campo content es obligatorio");
         }
         if (!userRepository.existsById(dto.getIdUser())) {
             throw new IllegalArgumentException("El usuario con ID " + dto.getIdUser() + " no existe");
@@ -43,6 +46,7 @@ public class ThreadService {
         thread.setIdUser(dto.getIdUser());
         thread.setIdCommunity(dto.getIdCommunity());
         thread.setTitle(dto.getTitle().trim());
+        thread.setContent(dto.getContent().trim());
         thread.setCreationDate(LocalDateTime.now());
         Thread saved = threadRepository.save(thread);
         return toResponseDto(saved);
@@ -61,6 +65,7 @@ public class ThreadService {
         dto.setIdUser(thread.getIdUser());
         dto.setIdCommunity(thread.getIdCommunity());
         dto.setTitle(thread.getTitle());
+        dto.setContent(thread.getContent());
         dto.setCreationDate(thread.getCreationDate());
         return dto;
     }

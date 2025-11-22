@@ -1,6 +1,7 @@
 package com.playa.controller;
 
 import com.playa.dto.NotificationPreferenceRequestDto;
+import com.playa.dto.NotificationPreferenceResponseDto;
 import com.playa.dto.NotificationRequestDto;
 import com.playa.dto.NotificationResponseDto;
 import com.playa.service.NotificationService;
@@ -57,7 +58,20 @@ public class NotificationController {
         return ResponseEntity.ok(count);
     }
 
-    // Configurar preferencias
+    @GetMapping("/preferences")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<NotificationPreferenceResponseDto> getPreferences(@RequestHeader("idUser") Long idUser) {
+        NotificationPreferenceResponseDto preferences = notificationService.getPreferences(idUser);
+        return ResponseEntity.ok(preferences);
+    }
+
+    @PutMapping("/read-all")
+    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
+    public ResponseEntity<Void> markAllAsRead(@RequestHeader("idUser") Long idUser) {
+        notificationService.markAllAsRead(idUser);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/preferences/edit")
     @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER')")
     public ResponseEntity<Void> updatePreferences(@RequestHeader("idUser") Long idUser,@RequestBody NotificationPreferenceRequestDto request) {

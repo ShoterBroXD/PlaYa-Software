@@ -31,4 +31,21 @@ public class NotificationPreference {
 
     @Column(name = "enableNewReleases", nullable = false)
     private Boolean enableNewReleases = true;
+
+    // Flag para saber si están todas desactivadas manualmente
+    @Column(name = "allDisabled", nullable = false)
+    private Boolean allDisabled = false;
+
+    // Campos para guardar estado anterior antes de desactivar todo
+    @Column(name = "prevEnableComments")
+    private Boolean prevEnableComments;
+
+    @Column(name = "prevEnableFollowers")
+    private Boolean prevEnableFollowers;
+
+    @Column(name = "prevEnableSystems")
+    private Boolean prevEnableSystems;
+
+    @Column(name = "prevEnableNewReleases")
+    private Boolean prevEnableNewReleases;
 }

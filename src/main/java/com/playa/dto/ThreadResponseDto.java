@@ -12,5 +12,6 @@ public class ThreadResponseDto {
     private Long idUser;
     private Long idCommunity;
     private String title;
+    private String content;
     private LocalDateTime creationDate;
 }

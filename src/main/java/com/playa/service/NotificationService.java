@@ -1,6 +1,7 @@
 package com.playa.service;
 
 import com.playa.dto.NotificationPreferenceRequestDto;
+import com.playa.dto.NotificationPreferenceResponseDto;
 import com.playa.dto.NotificationRequestDto;
 import com.playa.dto.NotificationResponseDto;
 import com.playa.exception.ResourceNotFoundException;
@@ -31,6 +32,26 @@ public class NotificationService {
     public NotificationResponseDto createNotification(NotificationRequestDto notificationRequestDto) {
         User user= userRepository.findById(notificationRequestDto.getIdUser())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        // Verificar las preferencias del usuario antes de crear la notificación
+        NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
+
+        if (preference != null) {
+            String type = notificationRequestDto.getType();
+
+            if ("COMMENT".equalsIgnoreCase(type) && !preference.getEnableComments()) {
+                return null; // No crear notificación si los comentarios están deshabilitados
+            }
+            if ("FOLLOWER".equalsIgnoreCase(type) && !preference.getEnableFollowers()) {
+                return null; // No crear notificación si los seguidores están deshabilitados
+            }
+            if ("SYSTEM".equalsIgnoreCase(type) && !preference.getEnableSystems()) {
+                return null; // No crear notificación si las del sistema están deshabilitadas
+            }
+            if ("NEW_RELEASE".equalsIgnoreCase(type) && !preference.getEnableNewReleases()) {
+                return null; // No crear notificación si los nuevos lanzamientos están deshabilitados
+            }
+        }
 
         Notification notification = notificationMapper.convertToEntity(notificationRequestDto);
         notification.setUser(user);
@@ -116,28 +137,85 @@ public class NotificationService {
         notificationPreferenceRepository.save(preference);
     }
 
+    @Transactional(readOnly = true)
+    public NotificationPreferenceResponseDto getPreferences(Long idUser) {
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
+
+        if (preference == null) {
+            return NotificationPreferenceResponseDto.builder()
+                    .enableComments(true)
+                    .enableSystems(true)
+                    .enableNewReleases(true)
+                    .enableFollowers(true)
+                    .build();
+        }
+
+        return NotificationPreferenceResponseDto.builder()
+                .enableComments(preference.getEnableComments())
+                .enableSystems(preference.getEnableSystems())
+                .enableNewReleases(preference.getEnableNewReleases())
+                .enableFollowers(preference.getEnableFollowers())
+                .build();
+    }
+
+    @Transactional
+    public void markAllAsRead(Long idUser) {
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        List<Notification> unreadNotifications = notificationRepository.findByUserAndReadFalseOrderByDateDesc(user);
+
+        unreadNotifications.forEach(notification -> notification.setRead(true));
+
+        notificationRepository.saveAll(unreadNotifications);
+    }
 
     @Transactional
     public void togglePreferences(Long idUser) {
         User user = userRepository.findById(idUser)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
         NotificationPreference preference = notificationPreferenceRepository.findByUser(user);
+
         if (preference == null) {
-            // Crear nuevas preferencias con valores desactivados (toggle de true → false)
             preference = NotificationPreference.builder()
                     .user(user)
-                    .enableComments(false)
-                    .enableSystems(false)
-                    .enableNewReleases(false)
-                    .enableFollowers(false)
+                    .enableComments(true)
+                    .enableSystems(true)
+                    .enableNewReleases(true)
+                    .enableFollowers(true)
+                    .allDisabled(false)
                     .build();
         } else {
-            // Toggle de valores existentes
-            preference.setEnableComments(!preference.getEnableComments());
-            preference.setEnableSystems(!preference.getEnableSystems());
-            preference.setEnableNewReleases(!preference.getEnableNewReleases());
-            preference.setEnableFollowers(!preference.getEnableFollowers());
+            if (preference.getAllDisabled()) {
+                preference.setEnableComments(preference.getPrevEnableComments() != null ? preference.getPrevEnableComments() : true);
+                preference.setEnableSystems(preference.getPrevEnableSystems() != null ? preference.getPrevEnableSystems() : true);
+                preference.setEnableNewReleases(preference.getPrevEnableNewReleases() != null ? preference.getPrevEnableNewReleases() : true);
+                preference.setEnableFollowers(preference.getPrevEnableFollowers() != null ? preference.getPrevEnableFollowers() : true);
+
+                preference.setPrevEnableComments(null);
+                preference.setPrevEnableSystems(null);
+                preference.setPrevEnableNewReleases(null);
+                preference.setPrevEnableFollowers(null);
+                preference.setAllDisabled(false);
+            } else {
+                preference.setPrevEnableComments(preference.getEnableComments());
+                preference.setPrevEnableSystems(preference.getEnableSystems());
+                preference.setPrevEnableNewReleases(preference.getEnableNewReleases());
+                preference.setPrevEnableFollowers(preference.getEnableFollowers());
+
+                // Desactivar todas las notificaciones
+                preference.setEnableComments(false);
+                preference.setEnableSystems(false);
+                preference.setEnableNewReleases(false);
+                preference.setEnableFollowers(false);
+                preference.setAllDisabled(true);
+            }
         }
+
         notificationPreferenceRepository.save(preference);
     }
 }
