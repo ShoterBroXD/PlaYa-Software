@@ -55,4 +55,29 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
+
+    // GET /api/v1/users/nuevos - Obtener artistas nuevos
+    @GetMapping("/nuevos")
+    public ResponseEntity<List<UserResponseDto>> getNewArtists(@RequestParam(required = false, defaultValue = "10") int limit) {
+        // Note: limit is currently ignored by service but added to match frontend signature
+        List<UserResponseDto> newArtists = userService.getNewArtists();
+        return ResponseEntity.ok(newArtists);
+    }
+
+    // GET /api/v1/users/artists/filter - Filtrar artistas
+    @GetMapping("/artists/filter")
+    public ResponseEntity<List<UserResponseDto>> filterArtists(
+            @RequestParam(required = false) com.playa.model.enums.Rol role,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long idgenre) {
+        List<UserResponseDto> artists = userService.filterArtists(role, name, idgenre);
+        return ResponseEntity.ok(artists);
+    }
+
+    // GET /api/v1/users/genre/{idGenre} - Obtener artistas por género
+    @GetMapping("/genre/{idGenre}")
+    public ResponseEntity<List<UserResponseDto>> getArtistsByGenre(@PathVariable Long idGenre) {
+        List<UserResponseDto> artists = userService.findAllByIdGenre(idGenre);
+        return ResponseEntity.ok(artists);
+    }
 }

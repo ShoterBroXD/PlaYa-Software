@@ -45,6 +45,16 @@ public class PlaylistController {
         return ResponseEntity.ok("Canción agregada a la playlist exitosamente");
     }
 
+    // POST /api/v1/playlists/{id}/songs/bulk - Agregar múltiples canciones a playlist
+    @PostMapping("/{id}/songs/bulk")
+    @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
+    public ResponseEntity<String> addSongsToPlaylist(
+            @PathVariable Long id,
+            @Valid @RequestBody com.playa.dto.AddSongsToPlaylistDto requestDto) {
+        playlistService.addSongsToPlaylist(id, requestDto);
+        return ResponseEntity.ok("Canciones agregadas a la playlist exitosamente");
+    }
+
     // DELETE /api/v1/playlists/{id}/songs/{songId} - Quitar canción de playlist (Solo propietario)
     @DeleteMapping("/{id}/songs/{songId}")
     @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")

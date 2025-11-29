@@ -81,6 +81,9 @@ class ReportServiceTest {
         return comment;
     }
 
+    @Mock
+    private com.playa.repository.ReportRepository reportRepository;
+
     @Test
     @DisplayName("CP-001: Debe reportar canción exitosamente con datos válidos")
     void reportSong_ValidData_Success() {
@@ -91,14 +94,19 @@ class ReportServiceTest {
 
         when(songRepository.findById(songId)).thenReturn(Optional.of(mockSong));
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(reportRepository.save(any(com.playa.model.Report.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        String result = reportService.reportSong(songId, userId, reason);
+        com.playa.model.Report result = reportService.reportSong(songId, userId, reason);
 
         // Assert
-        assertThat(result).isEqualTo("Reporte enviado correctamente. Gracias por tu colaboración.");
+        assertThat(result).isNotNull();
+        assertThat(result.getReason()).isEqualTo(reason);
+        assertThat(result.getSong()).isEqualTo(mockSong);
+        assertThat(result.getReporter()).isEqualTo(mockUser);
         verify(songRepository).findById(songId);
         verify(userRepository).findById(userId);
+        verify(reportRepository).save(any(com.playa.model.Report.class));
     }
 
     @Test

@@ -1,0 +1,74 @@
+﻿[INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.playa:PlaYa:jar:0.0.1-SNAPSHOT
+[WARNING] 'dependencies.dependency.version' for org.jetbrains:annotations:jar is either LATEST or RELEASE (both of them are being deprecated) @ line 92, column 22
+[WARNING] 'build.plugins.plugin.(groupId:artifactId)' must be unique but found duplicate declaration of plugin org.jacoco:jacoco-maven-plugin @ line 209, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO] 
+[INFO] --------------------------< com.playa:PlaYa >---------------------------
+[INFO] Building PlaYa 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ PlaYa ---
+[INFO] Deleting C:\Users\jg153.JORGE-PC\OneDrive\Documentos\dev-works\PictoAmigos\PlaYa-Software-Front\PlaYa-Software\target
+[INFO] 
+[INFO] --- jacoco:0.8.10:prepare-agent (default) @ PlaYa ---
+[INFO] argLine set to -javaagent:C:\\Users\\jg153.JORGE-PC\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=C:\\Users\\jg153.JORGE-PC\\OneDrive\\Documentos\\dev-works\\PictoAmigos\\PlaYa-Software-Front\\PlaYa-Software\\target\\jacoco.exec,excludes=**/model/**:**/dto/**:**/config/**:**/exception/**:**/PlaYaApplication.class
+[INFO] 
+[INFO] --- jacoco:0.8.10:prepare-agent (prepare-agent) @ PlaYa ---
+[INFO] argLine set to -javaagent:C:\\Users\\jg153.JORGE-PC\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.10\\org.jacoco.agent-0.8.10-runtime.jar=destfile=C:\\Users\\jg153.JORGE-PC\\OneDrive\\Documentos\\dev-works\\PictoAmigos\\PlaYa-Software-Front\\PlaYa-Software\\target\\jacoco.exec,excludes=**/model/**:**/dto/**:**/config/**:**/exception/**:**/PlaYaApplication.class
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ PlaYa ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ PlaYa ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 164 source files with javac [debug parameters release 21] to target\classes
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/NotificationPreference.java:[24,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/NotificationPreference.java:[27,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/NotificationPreference.java:[30,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/NotificationPreference.java:[33,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/Song.java:[64,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/dto/SongRequestDto.java:[37,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/Comment.java:[38,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/User.java:[55,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/User.java:[67,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/User.java:[71,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/model/Notification.java:[33,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[INFO] 11 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/controller/ReportController.java:[163,45] cannot find symbol
+  symbol:   variable DISMISSED
+  location: class com.playa.model.Report.ReportStatus
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.609 s
+[INFO] Finished at: 2025-11-28T23:18:36-05:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project PlaYa: Compilation failure
+[ERROR] /C:/Users/jg153.JORGE-PC/OneDrive/Documentos/dev-works/PictoAmigos/PlaYa-Software-Front/PlaYa-Software/src/main/java/com/playa/controller/ReportController.java:[163,45] cannot find symbol
+[ERROR]   symbol:   variable DISMISSED
+[ERROR]   location: class com.playa.model.Report.ReportStatus
+[ERROR] 
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

@@ -18,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PremiumController {
 
+    private final com.playa.security.JwtUtil jwtUtil;
     private final UserService userService;
 
     // POST /premium/subscribe - Suscribirse a premium (US-020)
@@ -38,12 +39,20 @@ public class PremiumController {
 
         // Simular procesamiento de suscripción
         userService.updatePremiumStatus(idUser, true);
+        
+        // Obtener usuario actualizado para generar nuevo token
+        UserResponseDto user = userService.getUserById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Generar nuevo token
+        String newToken = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser());
 
         Map<String, Object> response = new HashMap<>();
         response.put("userId", idUser);
         response.put("status", "ACTIVE");
         response.put("planType", subscriptionData.getOrDefault("planType", "MONTHLY"));
         response.put("message", "Suscripción premium activada exitosamente");
+        response.put("token", newToken); // Devolver nuevo token
         response.put("benefits", new String[]{
                 "Escucha sin anuncios",
                 "Descarga canciones para offline",
