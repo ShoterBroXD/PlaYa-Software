@@ -30,10 +30,13 @@ public class SongController {
     // POST /api/v1/songs - Subir canción (Solo artistas)
     @PostMapping
     @PreAuthorize("hasRole('ARTIST') or hasRole('ADMIN')")
-    public ResponseEntity<SongResponseDto> createSong(@RequestHeader("iduser") Long idUser,@Valid @RequestBody SongRequestDto requestDto) {
-        SongResponseDto responseDto = songService.createSong(idUser,requestDto);
-        return new ResponseEntity<>(responseDto,HttpStatus.CREATED);
-
+    public ResponseEntity<SongResponseDto> createSong(@Valid @RequestBody SongRequestDto requestDto, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        
+        SongResponseDto responseDto = songService.createSong(user.getIdUser(), requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     // GET /api/v1/songs/{id} - Consultar detalles canción

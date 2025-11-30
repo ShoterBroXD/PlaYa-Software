@@ -86,6 +86,37 @@ public class PlaylistService {
     }
 
     @Transactional
+    public void addSongsToPlaylist(Long playlistId, com.playa.dto.AddSongsToPlaylistDto requestDto) {
+        if (!playlistRepository.existsById(playlistId)) {
+            throw new ResourceNotFoundException("Playlist no encontrada con ID: " + playlistId);
+        }
+
+        List<Long> songIds = requestDto.getSongIds();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Long songId : songIds) {
+            if (!songRepository.existsById(songId)) {
+                // Opcional: Lanzar error o ignorar. Aquí ignoramos si no existe para seguir con los demás
+                continue; 
+            }
+            // Verificar si ya existe en la playlist para evitar duplicados
+            if (playlistSongRepository.existsByIdIdPlaylistAndIdIdSong(playlistId, songId)) {
+                continue;
+            }
+
+            PlaylistSongId playlistSongId = PlaylistSongId.builder()
+                    .idPlaylist(playlistId)
+                    .idSong(songId)
+                    .build();
+            PlaylistSong playlistSong = PlaylistSong.builder()
+                    .id(playlistSongId)
+                    .date(now)
+                    .build();
+            playlistSongRepository.save(playlistSong);
+        }
+    }
+
+    @Transactional
     public void removeSongFromPlaylist(Long playlistId, Long songId) {
         if (!playlistRepository.existsById(playlistId)) {
             throw new ResourceNotFoundException("Playlist no encontrada con ID: " + playlistId);
