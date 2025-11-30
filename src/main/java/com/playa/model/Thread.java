@@ -26,6 +26,9 @@ public class Thread {
     @Column(length = 200)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
     @Column(name = "creationdate")
     private LocalDateTime creationDate;
 
