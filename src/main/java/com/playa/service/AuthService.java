@@ -56,7 +56,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getName(), savedUser.getIdUser());
 
-        return new AuthResponse(token, savedUser.getEmail(), savedUser.getName());
+        return new AuthResponse(token, savedUser.getEmail(), savedUser.getName(), savedUser.getType());
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +73,6 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser());
 
-        return new AuthResponse(token, user.getEmail(), user.getName());
+        return new AuthResponse(token, user.getEmail(), user.getName(), user.getType());
     }
 }
