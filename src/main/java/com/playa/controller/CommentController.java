@@ -12,13 +12,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import com.playa.repository.UserRepository;
+import com.playa.model.User;
+import org.springframework.security.core.Authentication;
+
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserRepository userRepository) {
         this.commentService = commentService;
+        this.userRepository = userRepository;
     }
 
     // GET /api/v1/comments - Obtener todos los comentarios (Solo admin)
@@ -35,8 +41,12 @@ public class CommentController {
     // POST /api/v1/comments - Crear comentario (Requiere autenticación)
     @PostMapping
     @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST')")
-    public ResponseEntity<CommentResponseDto> createComment(@RequestHeader("iduser") Long idUser, @RequestBody CommentRequestDto dto) {
-        CommentResponseDto response = commentService.createComment(idUser, dto);
+    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto dto, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        
+        CommentResponseDto response = commentService.createComment(user.getIdUser(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

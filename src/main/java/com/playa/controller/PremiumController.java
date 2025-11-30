@@ -18,6 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PremiumController {
 
+    private final com.playa.security.JwtUtil jwtUtil;
     private final UserService userService;
 
     // POST /premium/subscribe - Suscribirse a premium (US-020)
@@ -37,11 +38,21 @@ public class PremiumController {
         }
 
         // Simular procesamiento de suscripción
+        userService.updatePremiumStatus(idUser, true);
+        
+        // Obtener usuario actualizado para generar nuevo token
+        UserResponseDto user = userService.getUserById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Generar nuevo token
+        String newToken = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser());
+
         Map<String, Object> response = new HashMap<>();
         response.put("userId", idUser);
         response.put("status", "ACTIVE");
         response.put("planType", subscriptionData.getOrDefault("planType", "MONTHLY"));
         response.put("message", "Suscripción premium activada exitosamente");
+        response.put("token", newToken); // Devolver nuevo token
         response.put("benefits", new String[]{
                 "Escucha sin anuncios",
                 "Descarga canciones para offline",
@@ -58,14 +69,14 @@ public class PremiumController {
     @PreAuthorize("hasRole('LISTENER') or hasRole('ARTIST') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getPremiumStatus(@PathVariable Long userId) {
         // Verificar que el usuario existe
-        userService.getUserById(userId)
+        UserResponseDto user = userService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
-        response.put("isPremium", true); // Simulado - en implementación real verificar en BD
+        response.put("isPremium", user.getPremium());
         response.put("planType", "MONTHLY");
-        response.put("status", "ACTIVE");
+        response.put("status", user.getPremium() ? "ACTIVE" : "INACTIVE");
         response.put("renewalDate", "2024-12-07");
 
         return ResponseEntity.ok(response);
@@ -78,6 +89,8 @@ public class PremiumController {
         // Verificar que el usuario existe
         userService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        userService.updatePremiumStatus(userId, false);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Suscripción premium cancelada exitosamente");

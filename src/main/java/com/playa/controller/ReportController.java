@@ -1,7 +1,9 @@
 package com.playa.controller;
 
+import com.playa.model.Report;
 import com.playa.service.CommentService;
 import com.playa.service.PlaylistService;
+import com.playa.service.ReportService;
 import com.playa.service.SongService;
 import com.playa.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reports")
@@ -24,6 +27,7 @@ public class ReportController {
     private final SongService songService;
     private final PlaylistService playlistService;
     private final UserService userService;
+    private final ReportService reportService;
 
     // POST /reports/content - Reportar contenido inadecuado (US-014)
     @PostMapping("/content")
@@ -34,6 +38,7 @@ public class ReportController {
 
         String contentType = (String) reportData.get("contentType");
         String reason = (String) reportData.get("reason");
+        String description = (String) reportData.get("description");
 
         // Validar que se proporcione el motivo del reporte
         if (reason == null || reason.trim().isEmpty()) {
@@ -51,70 +56,94 @@ public class ReportController {
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        // Verificar que el usuario existe
-        userService.getUserById(idUser)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        try {
+            Report report;
+            Long contentId = Long.valueOf(reportData.get("contentId").toString());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("reportId", System.currentTimeMillis()); // Simulado
-        response.put("reporterId", idUser);
-        response.put("contentType", contentType);
-        response.put("contentId", reportData.get("contentId"));
-        response.put("reason", reason);
-        response.put("description", reportData.get("description"));
-        response.put("status", "PENDING");
-        response.put("reportDate", java.time.LocalDateTime.now().toString());
-        response.put("message", "Reporte enviado exitosamente. Será revisado por moderación.");
+            if ("SONG".equalsIgnoreCase(contentType)) {
+                report = reportService.reportSong(contentId, idUser, reason, description);
+            } else if ("COMMENT".equalsIgnoreCase(contentType)) {
+                report = reportService.reportComment(contentId, idUser, reason, description);
+            } else {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Tipo de contenido no soportado");
+                errorResponse.put("message", "Solo se pueden reportar canciones y comentarios");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+            Map<String, Object> response = new HashMap<>();
+            response.put("reportId", report.getIdReport());
+            response.put("reporterId", idUser);
+            response.put("contentType", contentType);
+            response.put("contentId", contentId);
+            response.put("reason", reason);
+            response.put("description", description);
+            response.put("status", report.getStatus().toString());
+            response.put("reportDate", report.getReportDate().toString());
+            response.put("message", "Reporte enviado exitosamente. Será revisado por moderación.");
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error interno del servidor");
+            errorResponse.put("message", "No se pudo procesar el reporte");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     // GET /reports - Obtener todos los reportes (Solo ADMIN)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getAllReports() {
-        List<Map<String, Object>> reports = new ArrayList<>();
+        List<Report> reports = reportService.getAllReports();
+        List<Map<String, Object>> response = reports.stream().map(report -> {
+            Map<String, Object> reportMap = new HashMap<>();
+            reportMap.put("reportId", report.getIdReport());
+            reportMap.put("reporterId", report.getReporter().getIdUser());
+            reportMap.put("reporterName", report.getReporter().getName());
+            reportMap.put("contentType", report.getSong() != null ? "SONG" : "COMMENT");
+            reportMap.put("contentId", report.getSong() != null ? report.getSong().getIdSong() : report.getComment().getIdComment());
+            reportMap.put("reason", report.getReason());
+            reportMap.put("description", report.getDescription());
+            reportMap.put("status", report.getStatus().toString());
+            reportMap.put("reportDate", report.getReportDate().toString());
+            if (report.getReviewedDate() != null) {
+                reportMap.put("reviewedDate", report.getReviewedDate().toString());
+                reportMap.put("reviewedBy", report.getReviewedBy().getName());
+                reportMap.put("reviewNotes", report.getReviewNotes());
+            }
+            return reportMap;
+        }).collect(Collectors.toList());
 
-        // Simulando reportes existentes
-        Map<String, Object> report1 = new HashMap<>();
-        report1.put("reportId", 1L);
-        report1.put("contentType", "SONG");
-        report1.put("contentId", 1L);
-        report1.put("reason", "Contenido ofensivo");
-        report1.put("status", "PENDING");
-        report1.put("reportDate", "2024-11-07T10:30:00");
-        reports.add(report1);
-
-        Map<String, Object> report2 = new HashMap<>();
-        report2.put("reportId", 2L);
-        report2.put("contentType", "COMMENT");
-        report2.put("contentId", 5L);
-        report2.put("reason", "Spam");
-        report2.put("status", "RESOLVED");
-        report2.put("reportDate", "2024-11-06T15:20:00");
-        reports.add(report2);
-
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok(response);
     }
 
     // GET /reports/pending - Obtener reportes pendientes (Solo ADMIN)
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getPendingReports() {
-        List<Map<String, Object>> pendingReports = new ArrayList<>();
+        List<Report> pendingReports = reportService.getPendingReports();
+        List<Map<String, Object>> response = pendingReports.stream().map(report -> {
+            Map<String, Object> reportMap = new HashMap<>();
+            reportMap.put("reportId", report.getIdReport());
+            reportMap.put("reporterId", report.getReporter().getIdUser());
+            reportMap.put("reporterName", report.getReporter().getName());
+            reportMap.put("contentType", report.getSong() != null ? "SONG" : "COMMENT");
+            reportMap.put("contentId", report.getSong() != null ? report.getSong().getIdSong() : report.getComment().getIdComment());
+            reportMap.put("reason", report.getReason());
+            reportMap.put("description", report.getDescription());
+            reportMap.put("status", report.getStatus().toString());
+            reportMap.put("reportDate", report.getReportDate().toString());
+            reportMap.put("priority", "HIGH"); // Podría calcularse basado en cantidad de reportes
+            return reportMap;
+        }).collect(Collectors.toList());
 
-        // Simulando reportes pendientes
-        Map<String, Object> report = new HashMap<>();
-        report.put("reportId", 1L);
-        report.put("contentType", "SONG");
-        report.put("contentId", 1L);
-        report.put("reason", "Contenido ofensivo");
-        report.put("status", "PENDING");
-        report.put("reportDate", "2024-11-07T10:30:00");
-        report.put("priority", "HIGH");
-        pendingReports.add(report);
-
-        return ResponseEntity.ok(pendingReports);
+        return ResponseEntity.ok(response);
     }
 
     // PUT /reports/{id}/resolve - Resolver reporte (Solo ADMIN)
@@ -122,29 +151,39 @@ public class ReportController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> resolveReport(
             @PathVariable Long id,
-            @RequestParam String action) {
+            @RequestHeader("idUser") Long adminId,
+            @RequestParam String action,
+            @RequestParam(required = false) String reviewNotes) {
 
-        Map<String, String> response = new HashMap<>();
+        try {
+            Report.ReportStatus status;
+            if ("APPROVE".equals(action)) {
+                status = Report.ReportStatus.RESOLVED;
+            } else if ("REJECT".equals(action)) {
+                status = Report.ReportStatus.DISMISSED;
+            } else {
+                return ResponseEntity.badRequest().body(
+                        Map.of("error", "Acción no válida. Use 'APPROVE' o 'REJECT'")
+                );
+            }
 
-        if ("APPROVE".equals(action)) {
-            // Simular acción de aprobar (ocultar contenido)
-            response.put("message", "Reporte #" + id + " resuelto. Contenido ocultado exitosamente");
-            response.put("action", "CONTENT_HIDDEN");
-        } else if ("REJECT".equals(action)) {
-            // Simular acción de rechazar reporte
-            response.put("message", "Reporte #" + id + " rechazado. No se requiere acción");
-            response.put("action", "NO_ACTION");
-        } else {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "Acción no válida. Use 'APPROVE' o 'REJECT'")
-            );
+            Report resolvedReport = reportService.reviewReport(id, adminId, status, reviewNotes);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Reporte #" + id + " " + (status == Report.ReportStatus.RESOLVED ? "resuelto" : "rechazado") + " exitosamente");
+            response.put("action", status == Report.ReportStatus.RESOLVED ? "CONTENT_HIDDEN" : "NO_ACTION");
+            response.put("reportId", id.toString());
+            response.put("status", status.toString());
+            response.put("resolvedDate", resolvedReport.getReviewedDate().toString());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al resolver el reporte");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
-
-        response.put("reportId", id.toString());
-        response.put("status", "RESOLVED");
-        response.put("resolvedDate", java.time.LocalDateTime.now().toString());
-
-        return ResponseEntity.ok(response);
     }
 
     // GET /reports/user/{userId} - Obtener reportes de un usuario (Solo el usuario o ADMIN)
