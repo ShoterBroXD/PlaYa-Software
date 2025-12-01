@@ -16,6 +16,7 @@ import com.playa.model.Song;
 import com.playa.dto.SongRequestDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.exception.ResourceNotFoundException;
+import com.playa.exception.SongLimitExceededException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -60,7 +61,11 @@ public class SongService {
         if(!user.getPremium()){
             Long activeSongs=songRepository.countByUserAndVisibilityNot(user,"deleted");
             if(activeSongs>=MAX_FREE_SONGS){
-                throw new IllegalStateException("Los usuarios gratuitos no pueden subir más de " + MAX_FREE_SONGS + " canciones. Actualiza a premium para subir más canciones.");
+                throw new com.playa.exception.SongLimitExceededException(
+                        "Los usuarios gratuitos no pueden subir más de " + MAX_FREE_SONGS + " canciones. Actualiza a premium para subir más canciones.",
+                        activeSongs,
+                        MAX_FREE_SONGS
+                );
             }
         }
 
