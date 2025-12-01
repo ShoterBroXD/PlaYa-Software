@@ -85,8 +85,6 @@ class ReportServiceTest {
         return comment;
     }
 
-    @Mock
-    private com.playa.repository.ReportRepository reportRepository;
 
     @Test
     @DisplayName("CP-001: Debe reportar canción exitosamente con datos válidos")
