@@ -3,12 +3,16 @@ package com.playa.controller;
 import com.playa.dto.AddSongToPlaylistDto;
 import com.playa.dto.PlaylistRequestDto;
 import com.playa.dto.PlaylistResponseDto;
+import com.playa.repository.UserRepository;
+import com.playa.model.User;
 import com.playa.service.PlaylistService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +23,7 @@ import java.util.List;
 public class PlaylistController {
 
     private final PlaylistService playlistService;
+    private final UserRepository userRepository;
 
     // POST /api/v1/playlists - Crear playlist (US-013)
     @PostMapping
@@ -77,8 +82,20 @@ public class PlaylistController {
 
     // GET /api/v1/playlists/user/{userId} - Obtener playlists de un usuario (Solo propietario o admin)
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
-    public ResponseEntity<List<PlaylistResponseDto>> getPlaylistsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<PlaylistResponseDto>> getPlaylistsByUser(@PathVariable Long userId, Authentication authentication) {
+        // Allow admins or the user themself
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+
+        if (!isAdmin) {
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email).orElse(null);
+            Long principalId = user != null ? user.getIdUser() : null;
+            if (principalId == null || !principalId.equals(userId)) {
+                throw new AccessDeniedException("No autorizado para ver estas playlists");
+            }
+        }
+
         List<PlaylistResponseDto> playlists = playlistService.getPlaylistsByUser(userId);
         if (playlists.isEmpty()) {
             return ResponseEntity.noContent().build(); // 204

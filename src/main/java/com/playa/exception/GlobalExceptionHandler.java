@@ -63,6 +63,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(SongLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleSongLimit(SongLimitExceededException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", e.getMessage());
+        // include a machine-readable code so frontend can react specifically
+        response.put("code", e.getCode());
+        if (e.getCurrentCount() != null) {
+            response.put("currentCount", e.getCurrentCount());
+        }
+        if (e.getLimit() != null) {
+            response.put("limit", e.getLimit());
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
     @ExceptionHandler({OptimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class})
     public ResponseEntity<Map<String, String>> handleOptimisticLock(Exception e) {
         Map<String, String> response = new HashMap<>();
