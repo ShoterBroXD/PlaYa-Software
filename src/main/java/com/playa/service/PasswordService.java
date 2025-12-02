@@ -2,6 +2,7 @@ package com.playa.service;
 
 import com.playa.dto.PasswordChangeRequestDto;
 import com.playa.dto.PasswordResetRequestDto;
+import com.playa.dto.NotificationRequestDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.PasswordResetToken;
 import com.playa.model.User;
@@ -23,6 +24,7 @@ public class PasswordService {
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
+    private final NotificationService notificationService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional
@@ -42,6 +44,16 @@ public class PasswordService {
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        // Crear notificación de confirmación de cambio de contraseña
+        NotificationRequestDto notification = NotificationRequestDto.builder()
+                .idUser(user.getIdUser())
+                .content("Tu contraseña ha sido cambiada correctamente.")
+                .read(false)
+                .type("SYSTEM")
+                .date(LocalDateTime.now())
+                .build();
+        notificationService.createNotification(notification);
     }
 
     @Transactional
@@ -81,6 +93,16 @@ public class PasswordService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        // Crear notificación de confirmación de reseteo de contraseña
+        NotificationRequestDto resetNotification = NotificationRequestDto.builder()
+                .idUser(user.getIdUser())
+                .content("Tu contraseña ha sido restablecida correctamente.")
+                .read(false)
+                .type("SYSTEM")
+                .date(LocalDateTime.now())
+                .build();
+        notificationService.createNotification(resetNotification);
 
         tokenRepository.delete(resetToken);
     }

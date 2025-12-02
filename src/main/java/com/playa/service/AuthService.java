@@ -54,7 +54,7 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getName(), savedUser.getIdUser());
+        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getName(), savedUser.getIdUser(), savedUser.getType());
 
         return new AuthResponse(token, savedUser.getEmail(), savedUser.getName(), savedUser.getType());
     }
@@ -71,7 +71,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser() , user.getType());
 
         return new AuthResponse(token, user.getEmail(), user.getName(), user.getType());
     }

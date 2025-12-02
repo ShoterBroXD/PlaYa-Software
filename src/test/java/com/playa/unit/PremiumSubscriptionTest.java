@@ -49,14 +49,14 @@ class PremiumSubscriptionTest {
     }
 
     private User createMockUser(Long id, String email, String name, Boolean premium) {
-        User user = new User();
-        user.setIdUser(id);
-        user.setEmail(email);
-        user.setName(name);
-        user.setPremium(premium);
-        user.setType(Rol.LISTENER);
-        user.setRegisterDate(LocalDateTime.now());
-        return user;
+        return User.builder()
+                .idUser(id)
+                .email(email)
+                .name(name)
+                .premium(premium)
+                .type(Rol.LISTENER)
+                .registerDate(LocalDateTime.now())
+                .build();
     }
 
     @Test

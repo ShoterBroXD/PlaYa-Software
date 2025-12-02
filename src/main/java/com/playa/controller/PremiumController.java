@@ -45,7 +45,7 @@ public class PremiumController {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Generar nuevo token
-        String newToken = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser());
+        String newToken = jwtUtil.generateToken(user.getEmail(), user.getName(), user.getIdUser(), user.getType());
 
         Map<String, Object> response = new HashMap<>();
         response.put("userId", idUser);

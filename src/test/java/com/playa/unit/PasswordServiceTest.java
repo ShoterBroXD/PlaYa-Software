@@ -45,6 +45,9 @@ class PasswordServiceTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    private com.playa.service.NotificationService notificationService;
+
     @InjectMocks
     private PasswordService passwordService;
 
@@ -136,6 +139,7 @@ class PasswordServiceTest {
         when(tokenRepository.findByToken(token)).thenReturn(validToken);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         doNothing().when(tokenRepository).delete(validToken);
+        when(notificationService.createNotification(any())).thenReturn(null);
 
         passwordService.resetPassword(token, request);
 
@@ -260,6 +264,7 @@ class PasswordServiceTest {
         setupAuthentication(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(testUser));
         when(userRepository.save(any(User.class))).thenReturn(testUser);
+        when(notificationService.createNotification(any())).thenReturn(null);
 
         passwordService.changePassword(request);
 

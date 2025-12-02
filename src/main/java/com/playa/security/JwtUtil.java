@@ -1,5 +1,6 @@
 package com.playa.security;
 
+import com.playa.model.enums.Rol;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,7 +21,7 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
 
-    public String generateToken(String email, String name, Long userId) {
+    public String generateToken(String email, String name, Long userId, Rol type) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
@@ -28,10 +29,17 @@ public class JwtUtil {
                 .setSubject(email)
                 .claim("name", name)
                 .claim("userId", userId)
+                .claim("type",type)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public Rol getTypeFromToken(String token) { 
+        Claims claims = getAllClaimsFromToken(token);
+        String type = claims.get("type", String.class);
+        return Rol.valueOf(type);
     }
 
     public String getEmailFromToken(String token) {

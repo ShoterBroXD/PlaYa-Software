@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reports")
+@Table(name = "report")
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,6 +18,7 @@ public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idreport")
     private Long idReport;
 
     @ManyToOne
@@ -25,11 +26,11 @@ public class Report {
     private User reporter;
 
     @ManyToOne
-    @JoinColumn(name = "song_id")
+    @JoinColumn(name = "idsong")
     private Song song;
 
     @ManyToOne
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "idcomment")
     private Comment comment;
 
     @Column(nullable = false)
@@ -46,7 +47,7 @@ public class Report {
     private LocalDateTime reportDate;
 
     @ManyToOne
-    @JoinColumn(name = "reviewed_by_id")
+    @JoinColumn(name = "reviewed_by")
     private User reviewedBy;
 
     @Column(name = "reviewed_date")
@@ -57,8 +58,6 @@ public class Report {
 
     public enum ReportStatus {
         PENDING,
-        APPROVED,
-        REJECTED,
         RESOLVED,
         DISMISSED
     }

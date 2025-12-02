@@ -18,7 +18,7 @@ public class PasswordController {
     private final PasswordService passwordService;
 
     @PutMapping("/password/change")
-    @PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ARTIST') or hasRole('LISTENER') or hasRole('ADMIN')")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeRequestDto request){
         passwordService.changePassword(request);
         return ResponseEntity.ok("Contraseña cambiada exitosamente");

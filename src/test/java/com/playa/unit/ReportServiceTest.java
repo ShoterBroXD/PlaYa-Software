@@ -2,9 +2,11 @@ package com.playa.unit;
 
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.Comment;
+import com.playa.model.Report;
 import com.playa.model.Song;
 import com.playa.model.User;
 import com.playa.repository.CommentRepository;
+import com.playa.repository.ReportRepository;
 import com.playa.repository.SongRepository;
 import com.playa.repository.UserRepository;
 import com.playa.service.ReportService;
@@ -17,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +39,9 @@ class ReportServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    @Mock
+    private ReportRepository reportRepository;
+
     @InjectMocks
     private ReportService reportService;
 
@@ -55,11 +59,11 @@ class ReportServiceTest {
     }
 
     private User createMockUser(Long id, String email, String name) {
-        User user = new User();
-        user.setIdUser(id);
-        user.setEmail(email);
-        user.setName(name);
-        return user;
+        return User.builder()
+                .idUser(id)
+                .email(email)
+                .name(name)
+                .build();
     }
 
     private Song createMockSong(Long id, String title, User owner) {
@@ -81,8 +85,6 @@ class ReportServiceTest {
         return comment;
     }
 
-    @Mock
-    private com.playa.repository.ReportRepository reportRepository;
 
     @Test
     @DisplayName("CP-001: Debe reportar canción exitosamente con datos válidos")
@@ -92,21 +94,32 @@ class ReportServiceTest {
         Long userId = 123L;
         String reason = "Discurso de odio";
 
+        Report mockReport = Report.builder()
+                .idReport(1L)
+                .reporter(mockUser)
+                .song(mockSong)
+                .reason(reason)
+                .status(Report.ReportStatus.PENDING)
+                .reportDate(LocalDateTime.now())
+                .build();
+
         when(songRepository.findById(songId)).thenReturn(Optional.of(mockSong));
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(reportRepository.save(any(com.playa.model.Report.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(reportRepository.save(any(Report.class))).thenReturn(mockReport);
 
         // Act
-        com.playa.model.Report result = reportService.reportSong(songId, userId, reason);
+        Report result = reportService.reportSong(songId, userId, reason);
 
         // Assert
         assertThat(result).isNotNull();
+        assertThat(result.getIdReport()).isEqualTo(1L);
         assertThat(result.getReason()).isEqualTo(reason);
-        assertThat(result.getSong()).isEqualTo(mockSong);
+        assertThat(result.getStatus()).isEqualTo(Report.ReportStatus.PENDING);
         assertThat(result.getReporter()).isEqualTo(mockUser);
+        assertThat(result.getSong()).isEqualTo(mockSong);
         verify(songRepository).findById(songId);
         verify(userRepository).findById(userId);
-        verify(reportRepository).save(any(com.playa.model.Report.class));
+        verify(reportRepository).save(any(Report.class));
     }
 
     @Test
@@ -290,7 +303,7 @@ class ReportServiceTest {
     void getSongComments_ValidSong_ReturnsComments() {
         // Arrange
         Long songId = 500L;
-        List<Comment> expectedComments = Arrays.asList(mockComment);
+        List<Comment> expectedComments = List.of(mockComment);
 
         when(songRepository.findById(songId)).thenReturn(Optional.of(mockSong));
         when(commentRepository.findBySong_IdSongOrderByDateDesc(songId)).thenReturn(expectedComments);
@@ -301,7 +314,7 @@ class ReportServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getContent()).isEqualTo("Test comment");
+        assertThat(result.getFirst().getContent()).isEqualTo("Test comment");
         verify(songRepository).findById(songId);
         verify(commentRepository).findBySong_IdSongOrderByDateDesc(songId);
     }
