@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.playa.repository.SongRatingRepository;
@@ -244,5 +245,17 @@ public class SongService {
         song.setAverageRating(count == 0 ? 0.0 : total / count);
         Song saved = songRepository.save(song);
         return convertToResponseDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public Integer getUserRating(Long songId, Long userId) {
+        Song song = songRepository.findById(songId)
+                .orElseThrow(() -> new ResourceNotFoundException("Canción no encontrada con id: " + songId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+
+        Optional<SongRating> rating = songRatingRepository.findBySongAndUser(song, user);
+        return rating.map(SongRating::getRating).orElse(null);
     }
 }
