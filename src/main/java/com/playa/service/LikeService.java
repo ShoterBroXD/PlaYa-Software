@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import com.playa.dto.SongResponseDto;
 import com.playa.model.Like;
 import com.playa.model.LikeId;
 import com.playa.model.Song;
@@ -12,6 +13,8 @@ import com.playa.repository.LikeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +54,33 @@ public class LikeService {
             throw new RuntimeException("Like no encontrado");
         }
         likeRepository.deleteById(likeId);
+    }
+
+    @Transactional
+    public List<SongResponseDto> getLikedSongsByUser(Long idUser) {
+        User user = userRepository.findById(idUser)
+                .orElseThrow(()->new RuntimeException("Usuario no encontrado"));
+
+        List<Like> likes = likeRepository.findByUserId(idUser);
+
+        return likes.stream()
+                .map(like -> {
+                    Song song = like.getId().getSong();
+                    return SongResponseDto.builder()
+                            .idSong(song.getIdSong())
+                            .idUser(song.getUser().getIdUser())
+                            .title(song.getTitle())
+                            .description(song.getDescription())
+                            .coverURL(song.getCoverURL())
+                            .fileURL(song.getFileURL())
+                            .visibility(song.getVisibility())
+                            .duration(song.getDuration())
+                            .uploadDate(song.getUploadDate())
+                            .genre(song.getGenre())
+                            .averageRating(song.getAverageRating())
+                            .ratingCount(song.getRatingCount())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

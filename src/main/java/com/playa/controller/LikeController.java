@@ -32,4 +32,17 @@ public class LikeController {
         return ResponseEntity.ok("Like removido");
     }
 
+    // GET /songs/liked/user/{userId} - Obtener canciones que le gustan al usuario
+    @GetMapping("/liked/user/{userId}")
+    public ResponseEntity<?> getLikedSongs(@PathVariable("userId") Long userId) {
+        try {
+            var likedSongs = likeService.getLikedSongsByUser(userId);
+            return ResponseEntity.ok(likedSongs);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al obtener canciones favoritas");
+        }
+    }
+
+
 }
