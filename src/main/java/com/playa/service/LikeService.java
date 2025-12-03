@@ -1,5 +1,6 @@
 package com.playa.service;
 
+import com.playa.dto.ArtistResponseDto;
 import com.playa.dto.SongResponseDto;
 import com.playa.model.Like;
 import com.playa.model.LikeId;
@@ -66,6 +67,15 @@ public class LikeService {
         return likes.stream()
                 .map(like -> {
                     Song song = like.getId().getSong();
+                    User artist = song.getUser();
+
+                    ArtistResponseDto artistDto = new ArtistResponseDto(
+                            artist.getIdUser(),
+                            artist.getName(),
+                            artist.getBiography(),
+                            null  // No incluimos el género del artista
+                    );
+
                     return SongResponseDto.builder()
                             .idSong(song.getIdSong())
                             .idUser(song.getUser().getIdUser())
@@ -76,6 +86,7 @@ public class LikeService {
                             .visibility(song.getVisibility())
                             .duration(song.getDuration())
                             .uploadDate(song.getUploadDate())
+                            .artist(artistDto)
                             .genre(song.getGenre())
                             .averageRating(song.getAverageRating())
                             .ratingCount(song.getRatingCount())
