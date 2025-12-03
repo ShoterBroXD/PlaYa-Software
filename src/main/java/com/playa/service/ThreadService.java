@@ -11,6 +11,7 @@ import com.playa.model.Thread;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ThreadService {
@@ -57,6 +58,17 @@ public class ThreadService {
         return threadRepository.findById(id)
             .map(this::toResponseDto)
             .orElseThrow(()-> new ResourceNotFoundException("El hilo no existe"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ThreadResponseDto> getThreadsByCommunity(Long communityId) {
+        if (!communityRepository.existsById(communityId)) {
+            throw new ResourceNotFoundException("La comunidad con ID " + communityId + " no existe");
+        }
+        return threadRepository.findByIdCommunityOrderByCreationDateDesc(communityId)
+                .stream()
+                .map(this::toResponseDto)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     private ThreadResponseDto toResponseDto(Thread thread) {
