@@ -119,4 +119,19 @@ public class SongController {
         SongResponseDto responseDto = songService.rateSong(id, user.getIdUser(), request.getRating());
         return ResponseEntity.ok(responseDto);
     }
+
+    // GET /api/v1/songs/{id}/user-rating - Obtener calificación del usuario autenticado
+    @GetMapping("/{id}/user-rating")
+    public ResponseEntity<Integer> getUserRating(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
+        Integer rating = songService.getUserRating(id, user.getIdUser());
+        if (rating == null) {
+            return ResponseEntity.noContent().build(); // 204 si no ha calificado
+        }
+        return ResponseEntity.ok(rating); // 200 con el rating
+    }
 }
