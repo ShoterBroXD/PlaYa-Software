@@ -4,7 +4,9 @@ import com.playa.dto.CommunityRequestDto;
 import com.playa.dto.CommunityResponseDto;
 import com.playa.dto.JoinCommunityDto;
 import com.playa.dto.UserResponseDto;
+import com.playa.dto.ThreadResponseDto;
 import com.playa.service.CommunityService;
+import com.playa.service.ThreadService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final ThreadService threadService;
 
     // POST /communities - Crear comunidad
     @PostMapping
@@ -59,6 +62,13 @@ public class CommunityController {
     public ResponseEntity<List<CommunityResponseDto>> getAllCommunities() {
         List<CommunityResponseDto> communities = communityService.getAllCommunities();
         return ResponseEntity.ok(communities);
+    }
+
+    // GET /communities/{id}/threads - Obtener threads de una comunidad
+    @GetMapping("/{id}/threads")
+    public ResponseEntity<List<ThreadResponseDto>> getCommunityThreads(@PathVariable Long id) {
+        List<ThreadResponseDto> threads = threadService.getThreadsByCommunity(id);
+        return ResponseEntity.ok(threads);
     }
 
     // DELETE /communities/{id} - Eliminar comunidad
