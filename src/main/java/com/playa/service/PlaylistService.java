@@ -173,6 +173,14 @@ public class PlaylistService {
         playlistRepository.save(playlist);
     }
 
+    @Transactional(readOnly = true)
+    public Long getSongCountByPlaylistId(Long playlistId) {
+        if (!playlistRepository.existsById(playlistId)) {
+            throw new ResourceNotFoundException("Playlist no encontrada con ID: " + playlistId);
+        }
+        return playlistRepository.countSongsByPlaylistId(playlistId);
+    }
+
     private SongResponseDto convertSongToResponseDto(Song song) {
         return SongResponseDto.builder()
                 .idSong(song.getIdSong())
