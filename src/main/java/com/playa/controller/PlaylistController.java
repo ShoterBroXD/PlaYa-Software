@@ -126,4 +126,11 @@ public class PlaylistController {
         playlistService.deletePlaylist(id);
         return ResponseEntity.ok("Playlist eliminada exitosamente");
     }
+
+    // GET /api/v1/playlists/{id}/count - Obtener cantidad de canciones en una playlist
+    @GetMapping("/{id}/count")
+    public ResponseEntity<Long> getSongCountByPlaylistId(@PathVariable Long id) {
+        Long count = playlistService.getSongCountByPlaylistId(id);
+        return ResponseEntity.ok(count);
+    }
 }
