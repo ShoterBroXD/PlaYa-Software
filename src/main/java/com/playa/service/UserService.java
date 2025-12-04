@@ -2,8 +2,10 @@ package com.playa.service;
 
 import com.playa.dto.UserRequestDto;
 import com.playa.dto.UserResponseDto;
+import com.playa.dto.search.ArtistSearchDto;
 import com.playa.mapper.UserMapper;
 import com.playa.model.enums.Rol;
+import com.playa.repository.FollowRepository;
 import com.playa.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -29,6 +31,7 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final GenreRepository genreRepository;
+    private final FollowRepository followRepository;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
@@ -239,6 +242,44 @@ public class UserService {
         return artists.stream()
                 .limit(limit != null ? limit : 20)
                 .map(userMapper::convertToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArtistSearchDto> searchArtists(String query, int limit) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> user = cq.from(User.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(user.get("type"), Rol.ARTIST));
+
+        if (query != null && !query.isEmpty()) {
+            predicates.add(cb.like(cb.lower(user.get("name")), "%" + query.toLowerCase() + "%"));
+        }
+
+        cq.select(user).where(predicates.toArray(new Predicate[0]));
+
+        List<User> artists = entityManager.createQuery(cq)
+                .setMaxResults(limit)
+                .getResultList();
+
+        return artists.stream()
+                .map(artist -> {
+                    Long followerCount = followRepository.countByArtist(artist);
+                    String genreName = artist.getIdgenre() != null ?
+                            genreRepository.findById(artist.getIdgenre())
+                                    .map(g -> g.getName())
+                                    .orElse(null)
+                            : null;
+
+                    return ArtistSearchDto.builder()
+                            .id(artist.getIdUser())
+                            .name(artist.getName())
+                            .genreName(genreName)
+                            .followerCount(followerCount)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 }

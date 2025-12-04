@@ -4,6 +4,7 @@ import com.playa.dto.CommunityRequestDto;
 import com.playa.dto.CommunityResponseDto;
 import com.playa.dto.JoinCommunityDto;
 import com.playa.dto.UserResponseDto;
+import com.playa.dto.search.CommunitySearchDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.mapper.CommunityMapper;
 import com.playa.model.Community;
@@ -142,5 +143,21 @@ public class CommunityService {
                 .biography(user.getBiography())
                 .redSocial(user.getRedSocial())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommunitySearchDto> searchCommunities(String query, int limit) {
+        return communityRepository.findByNameContainingIgnoreCase(query).stream()
+                .limit(limit)
+                .map(community -> {
+                    int memberCount = communityUserRepository.findByIdIdCommunity(community.getIdCommunity()).size();
+
+                    return CommunitySearchDto.builder()
+                            .id(community.getIdCommunity())
+                            .name(community.getName())
+                            .memberCount(memberCount)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

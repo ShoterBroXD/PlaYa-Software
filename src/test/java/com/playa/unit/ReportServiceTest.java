@@ -85,7 +85,6 @@ class ReportServiceTest {
         return comment;
     }
 
-
     @Test
     @DisplayName("CP-001: Debe reportar canción exitosamente con datos válidos")
     void reportSong_ValidData_Success() {

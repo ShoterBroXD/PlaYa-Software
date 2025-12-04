@@ -4,12 +4,14 @@ import com.playa.dto.AddSongToPlaylistDto;
 import com.playa.dto.PlaylistRequestDto;
 import com.playa.dto.PlaylistResponseDto;
 import com.playa.dto.SongResponseDto;
+import com.playa.dto.search.PlaylistSearchDto;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.mapper.PlaylistMapper;
 import com.playa.model.Playlist;
 import com.playa.model.PlaylistSong;
 import com.playa.model.PlaylistSongId;
 import com.playa.model.Song;
+import com.playa.model.User;
 import com.playa.repository.PlaylistRepository;
 import com.playa.repository.PlaylistSongRepository;
 import com.playa.repository.SongRepository;
@@ -182,5 +184,26 @@ public class PlaylistService {
                 .visibility(song.getVisibility())
                 .uploadDate(song.getUploadDate())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaylistSearchDto> searchPlaylists(String query, int limit) {
+        return playlistRepository.findAll().stream()
+                .filter(p -> p.getVisible() && p.getName().toLowerCase().contains(query.toLowerCase()))
+                .limit(limit)
+                .map(playlist -> {
+                    int trackCount = playlistSongRepository.findByIdIdPlaylist(playlist.getIdPlaylist()).size();
+                    String ownerName = userRepository.findById(playlist.getIdUser())
+                            .map(User::getName)
+                            .orElse("Desconocido");
+
+                    return PlaylistSearchDto.builder()
+                            .id(playlist.getIdPlaylist())
+                            .name(playlist.getName())
+                            .ownerName(ownerName)
+                            .trackCount(trackCount)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

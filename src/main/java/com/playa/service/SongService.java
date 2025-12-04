@@ -2,6 +2,7 @@ package com.playa.service;
 
 import com.playa.dto.ArtistResponseDto;
 import com.playa.dto.CommentResponseDto;
+import com.playa.dto.search.SongSearchDto;
 import com.playa.mapper.CommentMapper;
 import com.playa.model.Comment;
 import com.playa.model.Genre;
@@ -257,5 +258,19 @@ public class SongService {
 
         Optional<SongRating> rating = songRatingRepository.findBySongAndUser(song, user);
         return rating.map(SongRating::getRating).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SongSearchDto> searchSongs(String query, int limit) {
+        return songRepository.findByTitleContainingAndVisibilityPublic(query).stream()
+                .limit(limit)
+                .map(song -> SongSearchDto.builder()
+                        .id(song.getIdSong())
+                        .title(song.getTitle())
+                        .artistName(song.getUser() != null ? song.getUser().getName() : "Desconocido")
+                        .duration(song.getDuration())
+                        .coverURL(song.getCoverURL())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

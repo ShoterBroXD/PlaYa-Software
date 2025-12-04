@@ -3,6 +3,7 @@ package com.playa.service;
 import com.playa.dto.GenreRequestDto;
 import com.playa.dto.GenreResponseDto;
 import com.playa.dto.SongResponseDto;
+import com.playa.dto.search.GenreSearchDto;
 import com.playa.exception.BusinessRuleException;
 import com.playa.exception.ResourceNotFoundException;
 import com.playa.model.Genre;
@@ -53,5 +54,16 @@ public class GenreService {
 
     private GenreResponseDto toDto(Genre genre) {
         return new GenreResponseDto(genre.getIdGenre(), genre.getName());
+    }
+
+    @Transactional(readOnly = true)
+    public List<GenreSearchDto> searchGenres(String query, int limit) {
+        return genreRepository.findByNameContainingIgnoreCase(query).stream()
+                .limit(limit)
+                .map(g -> GenreSearchDto.builder()
+                        .id(g.getIdGenre())
+                        .name(g.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
