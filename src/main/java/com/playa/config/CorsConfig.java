@@ -24,7 +24,7 @@ public class CorsConfig {
                 "http://localhost:4200",     // Angular dev server
                 "https://playa-software-front-seven.vercel.app",
                 "https://playa-software-front-git-main-shoterbroxds-projects.vercel.app",
-                "https://playa-software-front-oz9jbwxix-shoterbroxds-projects.vercel.app"
+                "https://playa-software-front-qfvvmh5da-shoterbroxds-projects.vercel.app"
         ));
 
         // Métodos HTTP permitidos
